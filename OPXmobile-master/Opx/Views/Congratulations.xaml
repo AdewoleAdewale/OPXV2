@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+              BackgroundColor="White"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Opx.Views.Congratulations">
+    <ContentPage.Content>
+        <ScrollView>
+
+            <StackLayout Spacing="20" Margin="10,80,10,10" Padding="10">
+
+
+                <!-- Logo -->
+                <Image Source="logo.png" 
+               HeightRequest="100"
+                   IsAnimationPlaying="True"
+                   IsEnabled="True"
+                   
+               HorizontalOptions="Center"/>
+
+                <!-- Header Text -->
+                <Label Text="Congratulations"
+               FontSize="24"
+               FontAttributes="Bold"
+                   TextColor="Black"
+               HorizontalTextAlignment="Center"/>
+
+                <!-- Subheader Text -->
+                <Label Text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis"
+               FontSize="14"
+               TextColor="Gray"
+               HorizontalTextAlignment="Start"/>
+
+
+                <!-- Okay Button (disabled style) -->
+                <Frame BackgroundColor="#A25AC4"
+               Padding="10"
+               CornerRadius="10"
+               HasShadow="False"
+               Margin="10,20,10,0">
+                    <Label Text="Okay"
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center"
+                   TextColor="White"
+                   FontAttributes="Bold"/>
+                </Frame>
+
+
+            </StackLayout>
+        </ScrollView>
+
+    </ContentPage.Content>
+</ContentPage>
+         

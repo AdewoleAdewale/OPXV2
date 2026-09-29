@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+               x:Class="Opx.Views.BvnToken"
+               Color="Transparent"
+               CanBeDismissedByTappingOutsideOfPopup="False"
+               Size="350, 700">
+
+    <toolkit:Popup.Resources>
+        <ResourceDictionary>
+            <!-- Color Resources -->
+            <Color x:Key="PrimaryColor">#6A4C93</Color>
+            <Color x:Key="SecondaryColor">#A8E6CF</Color>
+            <Color x:Key="AccentColor">#FFE066</Color>
+            <Color x:Key="BackgroundColor">#FFFFFF</Color>
+            <Color x:Key="SurfaceColor">#F8F9FA</Color>
+            <Color x:Key="ErrorColor">#E74C3C</Color>
+            <Color x:Key="SuccessColor">#2ECC71</Color>
+            <Color x:Key="TextPrimaryColor">#2C3E50</Color>
+            <Color x:Key="TextSecondaryColor">#7F8C8D</Color>
+            <Color x:Key="BorderColor">#E9ECEF</Color>
+
+            <!-- Gradient Resources -->
+            <LinearGradientBrush x:Key="HeaderGradient" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="Purple" Offset="0.0" />
+                <GradientStop Color="Black" Offset="1.0" />
+            </LinearGradientBrush>
+
+            <LinearGradientBrush x:Key="ButtonGradient" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="Purple" Offset="0.0" />
+                <GradientStop Color="Black" Offset="1.0" />
+            </LinearGradientBrush>
+
+            <!-- Styles -->
+            <Style x:Key="CardStyle" TargetType="Frame">
+                <Setter Property="BackgroundColor" Value="{StaticResource BackgroundColor}" />
+                <Setter Property="BorderColor" Value="Transparent" />
+                <Setter Property="CornerRadius" Value="10" />
+                <Setter Property="HasShadow" Value="True" />
+                <Setter Property="Padding" Value="0" />
+            </Style>
+
+            <Style x:Key="InputFrameStyle" TargetType="Frame">
+                <Setter Property="BackgroundColor" Value="{StaticResource SurfaceColor}" />
+                <Setter Property="BorderColor" Value="{StaticResource BorderColor}" />
+                <Setter Property="CornerRadius" Value="12" />
+                <Setter Property="HasShadow" Value="False" />
+                <Setter Property="Padding" Value="15,0" />
+                <Setter Property="HeightRequest" Value="55" />
+            </Style>
+
+            <Style x:Key="InputStyle" TargetType="Entry">
+                <Setter Property="BackgroundColor" Value="Transparent" />
+                <Setter Property="TextColor" Value="{StaticResource TextPrimaryColor}" />
+                <Setter Property="PlaceholderColor" Value="{StaticResource TextSecondaryColor}" />
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="FontFamily" Value="OpenSansRegular" />
+            </Style>
+
+            <Style x:Key="LabelStyle" TargetType="Label">
+                <Setter Property="TextColor" Value="{StaticResource TextPrimaryColor}" />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="FontFamily" Value="OpenSansSemibold" />
+                <Setter Property="Margin" Value="0,0,0,8" />
+            </Style>
+
+            <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource ButtonGradient}" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="CornerRadius" Value="12" />
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="HeightRequest" Value="50" />
+                <Setter Property="FontFamily" Value="OpenSansSemibold" />
+            </Style>
+
+            <Style x:Key="SecondaryButtonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="Transparent" />
+                <Setter Property="TextColor" Value="{StaticResource PrimaryColor}" />
+                <Setter Property="BorderColor" Value="{StaticResource PrimaryColor}" />
+                <Setter Property="BorderWidth" Value="2" />
+                <Setter Property="CornerRadius" Value="12" />
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="HeightRequest" Value="50" />
+                <Setter Property="FontFamily" Value="OpenSansSemibold" />
+            </Style>
+
+            <Style x:Key="TitleStyle" TargetType="Label">
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="FontSize" Value="24" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="FontFamily" Value="OpenSansBold" />
+                <Setter Property="HorizontalOptions" Value="Center" />
+                <Setter Property="VerticalOptions" Value="Center" />
+            </Style>
+
+            <Style x:Key="DescriptionStyle" TargetType="Label">
+                <Setter Property="TextColor" Value="{StaticResource TextSecondaryColor}" />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="FontFamily" Value="OpenSansRegular" />
+                <Setter Property="HorizontalTextAlignment" Value="Center" />
+                <Setter Property="LineHeight" Value="1.4" />
+            </Style>
+
+            <Style x:Key="ErrorLabelStyle" TargetType="Label">
+                <Setter Property="TextColor" Value="{StaticResource ErrorColor}" />
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="FontFamily" Value="OpenSansRegular" />
+                <Setter Property="Margin" Value="0,5,0,0" />
+            </Style>
+        </ResourceDictionary>
+    </toolkit:Popup.Resources>
+
+    <!-- Main Container with Drop Shadow Effect -->
+    <Frame Style="{StaticResource CardStyle}" 
+           Margin="20">
+        <Grid>
+            <!-- Background Gradient Overlay -->
+            <BoxView Background="{StaticResource HeaderGradient}"
+                     CornerRadius="20,20,0,0"
+                     HeightRequest="120"
+                     VerticalOptions="Start" />
+
+            <!-- Main Content -->
+            <ScrollView>
+                <VerticalStackLayout Spacing="25" Padding="30,20">
+
+                    <!-- Header Section -->
+                    <VerticalStackLayout Spacing="15" Margin="0,10,0,20">
+                        <!-- Title -->
+                        <Label Text="BVN VALIDATION" 
+                               Style="{StaticResource TitleStyle}" />
+
+                        <!-- Logo/Icon -->
+                        <Frame BackgroundColor="White"
+                               CornerRadius="35"
+                               WidthRequest="70"
+                               HeightRequest="70"
+                               HorizontalOptions="Center"
+                               HasShadow="True"
+                               Padding="0">
+                            <Image Source="logo.png"
+                                   WidthRequest="100"
+                                   HeightRequest="100"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+                        </Frame>
+
+                        <!-- Description -->
+                        <Label Text="Please enter the validation token and reference number sent to your registered email address to complete your BVN verification process."
+                               Style="{StaticResource DescriptionStyle}"
+                               Margin="0,10,0,0" />
+                    </VerticalStackLayout>
+
+                    <!-- Form Section -->
+                    <VerticalStackLayout Spacing="20">
+
+                        <!-- Token Input -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Validation Token" 
+                                   Style="{StaticResource LabelStyle}" />
+                            <Frame Style="{StaticResource InputFrameStyle}">
+                                <Entry x:Name="bvntoken"
+                                       Placeholder="Enter your validation token"
+                                       Style="{StaticResource InputStyle}"
+                                       Keyboard="Text"
+                                       MaxLength="100" />
+                            </Frame>
+                        </VerticalStackLayout>
+
+                        <!-- Reference Input -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Account Reference" 
+                                   Style="{StaticResource LabelStyle}" />
+                            <Frame Style="{StaticResource InputFrameStyle}">
+                                <Entry x:Name="refbvn"
+                                       Placeholder="Enter your account reference"
+                                       Style="{StaticResource InputStyle}"
+                                       Keyboard="Text"
+                                       MaxLength="50" />
+                            </Frame>
+                        </VerticalStackLayout>
+
+                        <!-- Error Message -->
+                        <Label x:Name="ErrorLabel"
+                               Style="{StaticResource ErrorLabelStyle}"
+                               IsVisible="False" />
+
+                        <!-- Loading Indicator -->
+                        <ActivityIndicator x:Name="LoadingIndicator"
+                                         Color="{StaticResource PrimaryColor}"
+                                         WidthRequest="30"
+                                         HeightRequest="30"
+                                         HorizontalOptions="Center"
+                                         IsVisible="False" />
+
+                    </VerticalStackLayout>
+
+                    <!-- Action Buttons -->
+                    <VerticalStackLayout Spacing="15" Margin="0,20,0,0">
+
+                        <!-- Primary Action Button -->
+                        <Button x:Name="ResetButton"
+                                Text="VALIDATE BVN"
+                                TextColor="White"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Clicked="ResetPassword_Clicked">
+                            <Button.Shadow>
+                                <Shadow Brush="{StaticResource PrimaryColor}"
+                                        Offset="0,4"
+                                        Opacity="0.3"
+                                        Radius="8" />
+                            </Button.Shadow>
+                        </Button>
+
+                        <!-- Secondary Action Button -->
+                        <Button Text="Cancel"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Clicked="Cancel_Clicked" />
+
+                    </VerticalStackLayout>
+
+                    <!-- Footer Section -->
+                    <VerticalStackLayout Spacing="10" Margin="0,20,0,0">
+                        <!-- Help Text -->
+                        <Label Text="Need help? Contact our support team"
+                               TextColor="{StaticResource TextSecondaryColor}"
+                               FontSize="12"
+                               HorizontalOptions="Center" />
+
+                        <!-- Security Badge -->
+                        <Frame BackgroundColor="{StaticResource SurfaceColor}"
+                               BorderColor="{StaticResource BorderColor}"
+                               CornerRadius="15"
+                               Padding="10,5"
+                               HorizontalOptions="Center"
+                               HasShadow="False">
+                            <StackLayout Orientation="Horizontal" Spacing="5">
+                                <Label Text="🔒" FontSize="12" />
+                                <Label Text="Secure Connection"
+                                       TextColor="{StaticResource TextSecondaryColor}"
+                                       FontSize="11" />
+                            </StackLayout>
+                        </Frame>
+                    </VerticalStackLayout>
+
+                </VerticalStackLayout>
+            </ScrollView>
+        </Grid>
+    </Frame>
+</toolkit:Popup>

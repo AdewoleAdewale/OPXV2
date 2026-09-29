@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Opx.Views.LoginPage"
+             xmlns:pancake="http://schemas.microsoft.com/dotnet/2021/maui/toolkit"
+             xmlns:renderers="clr-namespace:Opx.Renderers"
+             xmlns:local="clr-namespace:Opx"
+             BackgroundColor="Transparent">
+
+    <ContentPage.Content>
+        <Grid>
+            <!-- Background Gradient -->
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#A25AC4" Offset="0.0" />
+                    <GradientStop Color="Black" Offset="1.0" />
+                </LinearGradientBrush>
+            </Grid.Background>
+
+            <!-- Floating Background Elements -->
+            <Grid x:Name="FloatingElements" Opacity="0.1">
+                <Ellipse Fill="White" 
+                        WidthRequest="200" 
+                        HeightRequest="200" 
+                        HorizontalOptions="Start" 
+                        VerticalOptions="Start" 
+                        Margin="-100,-100,0,0"/>
+                <Ellipse Fill="White" 
+                        WidthRequest="150" 
+                        HeightRequest="150" 
+                        HorizontalOptions="End" 
+                        VerticalOptions="Center" 
+                        Margin="0,0,-75,0"/>
+                <Ellipse Fill="White" 
+                        WidthRequest="100" 
+                        HeightRequest="100" 
+                        HorizontalOptions="Start" 
+                        VerticalOptions="End" 
+                        Margin="-50,0,0,-50"/>
+            </Grid>
+
+            <ScrollView x:Name="MainScrollView">
+                <Grid Margin="30,20" RowSpacing="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Logo Section -->
+                    <StackLayout Grid.Row="0" 
+                               x:Name="LogoSection" 
+                               Spacing="20" 
+                               Margin="0,40,0,30"
+                               Opacity="0">
+
+                        <!-- Logo Container with Shadow -->
+                        <Frame BackgroundColor="White" 
+                               CornerRadius="35" 
+                               HasShadow="True" 
+                               Padding="20" 
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               WidthRequest="70"
+                               HeightRequest="70">
+                            <Frame.Shadow>
+                                <Shadow Brush="Black" 
+                                       Offset="0,10" 
+                                       Radius="20" 
+                                       Opacity="0.3"/>
+                            </Frame.Shadow>
+                            <Image Source="logo.png" 
+                                   WidthRequest="50"
+                                   HeightRequest="50"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Frame>
+
+                        <!-- Welcome Text -->
+                        <Label Text="Welcome Back!"
+                               FontSize="32"
+                               FontAttributes="Bold"
+                               TextColor="White"
+                               HorizontalTextAlignment="Center"
+                               Margin="0,10,0,0"/>
+
+                        <Label Text="Sign in to continue your journey"
+                               FontSize="16"
+                               TextColor="White"
+                               Opacity="0.8"
+                               HorizontalTextAlignment="Center"/>
+                    </StackLayout>
+
+                    <!-- Login Form -->
+                    <StackLayout Grid.Row="1" 
+                               x:Name="LoginForm" 
+                               Spacing="25" 
+                               Margin="0,20,0,0"
+                               Opacity="0">
+
+                        <!-- Email Field -->
+                        <Frame x:Name="EmailFrame"
+                               BackgroundColor="White"
+                               CornerRadius="15"
+                               HasShadow="True"
+                               Padding="0"
+                               HeightRequest="55">
+                            <Frame.Shadow>
+                                <Shadow Brush="Black" 
+                                       Offset="0,5" 
+                                       Radius="15" 
+                                       Opacity="0.1"/>
+                            </Frame.Shadow>
+
+                            <Grid ColumnSpacing="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="50"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Email Icon -->
+                                <Label Grid.Column="0"
+                                       Text="📧"
+                                       FontSize="20"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"/>
+
+                                <!-- Email Entry -->
+                                <renderers:BorderlessEntry Grid.Column="1"
+                                                          x:Name="Email"
+                                                          Placeholder="Enter your email"
+                                                          PlaceholderColor="Gray"
+                                                          TextColor="Black"
+                                                          FontSize="16"
+                                                          Keyboard="Email"
+                                                          ClearButtonVisibility="WhileEditing"
+                                                          VerticalOptions="Center"
+                                                          Margin="0,0,15,0"/>
+                            </Grid>
+                        </Frame>
+
+                        <!-- Password Field -->
+                        <Frame x:Name="PasswordFrame"
+                               BackgroundColor="White"
+                               CornerRadius="15"
+                               HasShadow="True"
+                               Padding="0"
+                               HeightRequest="55">
+                            <Frame.Shadow>
+                                <Shadow Brush="Black" 
+                                       Offset="0,5" 
+                                       Radius="15" 
+                                       Opacity="0.1"/>
+                            </Frame.Shadow>
+
+                            <Grid ColumnSpacing="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="50"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="50"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Password Icon -->
+                                <Label Grid.Column="0"
+                                       Text="🔒"
+                                       FontSize="20"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"/>
+
+                                <!-- Password Entry -->
+                                <renderers:BorderlessEntry Grid.Column="1"
+                                                          x:Name="password"
+                                                          Placeholder="Enter your password"
+                                                          PlaceholderColor="Gray"
+                                                          TextColor="Black"
+                                                          FontSize="16"
+                                                          IsPassword="True"
+                                                          VerticalOptions="Center"/>
+
+                                <!-- Show/Hide Password Button -->
+                                <Button Grid.Column="2"
+                                        x:Name="ShowPasswordButton"
+                                        Text="👁️"
+                                        FontSize="16"
+                                        BackgroundColor="Transparent"
+                                        BorderColor="Transparent"
+                                        TextColor="Gray"
+                                        Clicked="ShowPasswordButton_Clicked"
+                                        Padding="0"/>
+                            </Grid>
+                        </Frame>
+
+                        <!-- Remember Me and Forgot Password -->
+                        <Grid Margin="5,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Remember Me -->
+                            <StackLayout Grid.Column="0" 
+                                        Orientation="Horizontal" 
+                                        HorizontalOptions="Start"
+                                        VerticalOptions="Center">
+                                <Switch x:Name="RememberMeSwitch" 
+                                       OnColor="#A25AC4" 
+                                       ThumbColor="White"
+                                       VerticalOptions="Center"
+                                       Scale="0.8"/>
+                                <Label Text="Remember me" 
+                                      TextColor="White" 
+                                      FontSize="14" 
+                                      VerticalOptions="Center"
+                                      Margin="5,0,0,0"/>
+                            </StackLayout>
+
+                            <!-- Forgot Password -->
+                            <Label Grid.Column="1"
+                                  Text="Forgot Password?"
+                                  TextColor="White"
+                                  FontAttributes="Bold"
+                                  FontSize="14"
+                                  HorizontalOptions="End"
+                                  VerticalOptions="Center"
+                                  TextDecorations="Underline">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </Grid>
+
+                        <!-- Login Button -->
+                        <Button x:Name="LoginButton"
+                                Text="LOGIN NOW"
+                                FontSize="18"
+                                FontAttributes="Bold"
+                                TextColor="White"
+                                CornerRadius="15"
+                                HeightRequest="50"
+                                Margin="0,10,0,0"
+                                Clicked="LoginButton_Clicked">
+                            <Button.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="#FF6B6B" Offset="0.0"/>
+                                    <GradientStop Color="#FF8E8E" Offset="1.0"/>
+                                </LinearGradientBrush>
+                            </Button.Background>
+                            <Button.Shadow>
+                                <Shadow Brush="Black" 
+                                       Offset="0,5" 
+                                       Radius="10" 
+                                       Opacity="0.3"/>
+                            </Button.Shadow>
+                        </Button>
+
+                        <!-- Biometric Login Buttons Container -->
+                        <StackLayout x:Name="BiometricButtonsContainer" 
+                                   Spacing="15" 
+                                   Margin="0,10,0,0"
+                                   IsVisible="False">
+
+                            <!-- Divider with Text -->
+                            <Grid Margin="0,5,0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <BoxView Grid.Column="0" 
+                                        BackgroundColor="White" 
+                                        HeightRequest="1" 
+                                        Opacity="0.3"
+                                        VerticalOptions="Center"/>
+
+                                <Label Grid.Column="1" 
+                                      Text="Quick Login" 
+                                      TextColor="White" 
+                                      FontSize="12" 
+                                      Margin="15,0"
+                                      Opacity="0.7"/>
+
+                                <BoxView Grid.Column="2" 
+                                        BackgroundColor="White" 
+                                        HeightRequest="1" 
+                                        Opacity="0.3"
+                                        VerticalOptions="Center"/>
+                            </Grid>
+
+                            <!-- Biometric Buttons Side by Side -->
+                            <Grid ColumnSpacing="15">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Face ID Button -->
+                                <Frame Grid.Column="0"
+                                       BackgroundColor="Transparent"
+                                       CornerRadius="15"
+                                       HasShadow="True"
+                                       BorderColor="Transparent"
+                                       Padding="0"
+                                       HeightRequest="100">
+                                    <Frame.Shadow>
+                                        <Shadow Brush="Transparent" 
+                                               Offset="0,5" 
+                                               Radius="15" 
+                                               Opacity="0.2"/>
+                                    </Frame.Shadow>
+                                    <Image Source="facescan.png" HeightRequest="50" Aspect="AspectFit" >
+                                        <Image.GestureRecognizers>
+                                            <TapGestureRecognizer Tapped="BiometricLoginButton_Clicked"></TapGestureRecognizer>
+                                        </Image.GestureRecognizers>
+                                    </Image>
+                                  
+                                </Frame>
+
+                                <!-- Fingerprint Button -->
+                                <Frame Grid.Column="1"
+                                       BackgroundColor="Transparent"
+                                       CornerRadius="15"
+                                       BorderColor="Transparent"
+                                       HasShadow="True"
+                                       Padding="0">
+                                    <Frame.Shadow>
+                                        <Shadow Brush="Black" 
+                                               Offset="0,5" 
+                                               Radius="15" 
+                                               Opacity="0.2"/>
+                                    </Frame.Shadow>
+                                    <Image Source="fingerprint.png" HeightRequest="50" Aspect="AspectFit" >
+                                        <Image.GestureRecognizers>
+                                            <TapGestureRecognizer Tapped="BiometricLoginButton_Clicked"></TapGestureRecognizer>
+                                        </Image.GestureRecognizers>
+                                    </Image>
+                                </Frame>
+                            </Grid>
+
+                            <!-- Labels for biometric options -->
+                            <Grid ColumnSpacing="15">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Label Grid.Column="0"
+                                       Text="Face ID"
+                                       TextColor="White"
+                                       FontSize="13"
+                                       HorizontalTextAlignment="Center"
+                                       Opacity="0.8"/>
+
+                                <Label Grid.Column="1"
+                                       Text="Fingerprint"
+                                       TextColor="White"
+                                       FontSize="13"
+                                       HorizontalTextAlignment="Center"
+                                       Opacity="0.8"/>
+                            </Grid>
+                        </StackLayout>
+
+                        <!-- Social Login Divider -->
+                        <Grid Margin="0,10,0,20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <BoxView Grid.Column="0" 
+                                    BackgroundColor="White" 
+                                    HeightRequest="1" 
+                                    Opacity="0.3"
+                                    VerticalOptions="Center"/>
+
+                            <Label Grid.Column="1" 
+                                  Text="OR" 
+                                  TextColor="White" 
+                                  FontSize="12" 
+                                  Margin="20,0"
+                                  Opacity="0.7"/>
+
+                            <BoxView Grid.Column="2" 
+                                    BackgroundColor="White" 
+                                    HeightRequest="1" 
+                                    Opacity="0.3"
+                                    VerticalOptions="Center"/>
+                        </Grid>
+
+                        <!-- Social Login Buttons -->
+
+                    </StackLayout>
+
+                    <!-- Register Section -->
+                    <StackLayout Grid.Row="2" 
+                               x:Name="RegisterSection" 
+                               Spacing="15" 
+                               Margin="0,40,0,30"
+                               Opacity="0">
+
+                        <!-- Register Button -->
+
+                        <!-- Sign Up Link -->
+                        <StackLayout Orientation="Horizontal" 
+                                   HorizontalOptions="Center">
+                            <Label Text="Don't have an account? "
+                                   FontSize="14"
+                                   TextColor="White"
+                                   Opacity="0.8"/>
+                            <Label Text="Sign Up"
+                                   FontSize="14"
+                                   TextColor="White"
+                                   FontAttributes="Bold"
+                                   TextDecorations="Underline">
+
+                            </Label>
+                            <StackLayout.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped_1"></TapGestureRecognizer>
+                            </StackLayout.GestureRecognizers>
+                        </StackLayout>
+                    </StackLayout>
+                </Grid>
+            </ScrollView>
+
+            <!-- Loading Overlay -->
+            <Grid x:Name="LoadingOverlay" 
+                  IsVisible="False" 
+                  BackgroundColor="Transparent" 
+                  Opacity="0.7">
+                <ActivityIndicator x:Name="LoadingIndicator" 
+                                 IsRunning="False" 
+                                 Color="White" 
+                                 Scale="1.5"
+                                 HorizontalOptions="Center"
+                                 VerticalOptions="Center"/>
+            </Grid>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>

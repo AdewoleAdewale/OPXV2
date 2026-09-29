@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Opx.Views.RPage"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             BackgroundColor="WhiteSmoke"
+             NavigationPage.HasNavigationBar="False">
+    <ContentPage.Content>
+        <StackLayout Padding="20" VerticalOptions="Fill" Margin="0,0,0,0">
+            <Grid BackgroundColor="WhiteSmoke" Padding="10" HeightRequest="50">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Image Source="back.png" HeightRequest="24" WidthRequest="24" VerticalOptions="Center" />
+                <Label Text="BACK" Grid.Column="1" VerticalOptions="Center" HorizontalOptions="Start"
+                       FontSize="24" FontAttributes="Bold" TextColor="black" Margin="10,0,0,0"/>
+
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped_1"></TapGestureRecognizer>
+                </Grid.GestureRecognizers>
+            </Grid>
+
+            <Image Source="logo.png"
+                   HeightRequest="100" 
+                   HorizontalOptions="Center"/>
+
+            <Label Text="Verify The Otp Sent To Your Email For Password Reset." TextColor="Black"
+                   HorizontalTextAlignment="Center"
+                   FontSize="14"/>
+            <Label Text="We sent a 6 digit OTP Code to your email address enter code below"
+                   FontSize="16"
+                   HorizontalOptions="Center"
+                   TextColor="Black"
+                   HorizontalTextAlignment="Center"
+                   Margin="0,0,0,30"/>
+
+            <!-- OTP Entry Boxes - Updated to 6 entries to match C# code -->
+            <StackLayout Orientation="Horizontal" BackgroundColor="WhiteSmoke"
+                         HorizontalOptions="Center"
+                         Margin="0,0,0,10"
+                         Spacing="10">
+                <Frame BackgroundColor="White" WidthRequest="50" HeightRequest="50" CornerRadius="10">
+                    <Entry x:Name="otp1" WidthRequest="40" HeightRequest="40"
+                           HorizontalOptions="Center" 
+                           HorizontalTextAlignment="Center"
+                           Keyboard="Numeric"
+                           FontSize="15"
+                           MaxLength="1"
+                           TextChanged="OnOtpTextChanged"/>
+                </Frame>
+                <Frame BackgroundColor="White" WidthRequest="50" HeightRequest="50" CornerRadius="10">
+                    <Entry x:Name="otp2" WidthRequest="40" HeightRequest="40"
+                           HorizontalOptions="Center" 
+                           FontSize="15"
+                           HorizontalTextAlignment="Center"
+                           Keyboard="Numeric"
+                           MaxLength="1"
+                           TextChanged="OnOtpTextChanged"/>
+                </Frame>
+                <Frame BackgroundColor="White" WidthRequest="50" HeightRequest="50" CornerRadius="10">
+                    <Entry x:Name="otp3" WidthRequest="40" HeightRequest="40"
+                           HorizontalOptions="Center" 
+                           FontSize="15"
+                           HorizontalTextAlignment="Center"
+                           Keyboard="Numeric"
+                           MaxLength="1"
+                           TextChanged="OnOtpTextChanged"/>
+                </Frame>
+                <Frame BackgroundColor="White" WidthRequest="50" HeightRequest="50" CornerRadius="10">
+                    <Entry x:Name="otp4" WidthRequest="40" HeightRequest="40"
+                           HorizontalOptions="Center" 
+                           FontSize="15"
+                           HorizontalTextAlignment="Center"
+                           Keyboard="Numeric"
+                           MaxLength="1"
+                           TextChanged="OnOtpTextChanged"/>
+                </Frame>
+                <Frame BackgroundColor="White" WidthRequest="50" HeightRequest="50" CornerRadius="10">
+                    <Entry x:Name="otp5" WidthRequest="40" HeightRequest="40"
+                           HorizontalOptions="Center" 
+                           FontSize="15"
+                           HorizontalTextAlignment="Center"
+                           Keyboard="Numeric"
+                           MaxLength="1"
+                           TextChanged="OnOtpTextChanged"/>
+                </Frame>
+             
+            </StackLayout>
+
+            <Label x:Name="timerLabel"
+                   Text="02:00"
+                   FontSize="Medium"
+                   HorizontalOptions="Center"
+                   Margin="0,0,0,30"/>
+
+            <Label Text="Resend OTP Verification Now"
+                   FontSize="12"
+                   HorizontalTextAlignment="Center"
+                   TextColor="Black">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"></TapGestureRecognizer>
+                </Label.GestureRecognizers>
+            </Label>
+
+            <Button Text="Verify Otp"
+                    x:Name="ResetButton"
+                    Clicked="ResetButton_Clicked"
+                    BackgroundColor="Purple"
+                    TextColor="White"
+                    CornerRadius="5"
+                    Margin="0,10,0,0" />
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

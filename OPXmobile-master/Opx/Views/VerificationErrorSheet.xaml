@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<mopup:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mopup="clr-namespace:CommunityToolkit.Maui.Views;assembly=CommunityToolkit.Maui"
+             x:Class="Opx.Views.VerificationErrorSheet"
+             Color="Transparent"
+             CanBeDismissedByTappingOutsideOfPopup="True"
+             NavigationPage.HasNavigationBar="False">
+
+   
+
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Color="#80000000" Offset="0.0" />
+                <GradientStop Color="#A0000000" Offset="1.0" />
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <ScrollView>
+            <Frame x:Name="SheetFrame"
+          VerticalOptions="Center" 
+          HorizontalOptions="FillAndExpand"
+          BackgroundColor="White"
+          CornerRadius="15"
+          HasShadow="True"
+          Padding="0"
+          Margin="20"
+          MaximumWidthRequest="450"
+          TranslationY="350">
+
+                <Frame.Shadow>
+                    <Shadow Brush="Black" Opacity="0.3" Offset="0,4" Radius="24" />
+                </Frame.Shadow>
+
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Error Header -->
+                    <Grid Grid.Row="0" 
+      BackgroundColor="#E74C3C" 
+      Padding="25,30,25,30">
+
+
+                        <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                            <Label x:Name="ErrorIcon"
+               Text="❌" 
+               FontSize="60"
+               HorizontalOptions="Center"
+               Opacity="0"/>
+
+                            <Label x:Name="TitleLabel"
+               Text="TOKEN VERIFICATION FAILED" 
+               FontSize="22" 
+               FontAttributes="Bold" 
+                              HorizontalTextAlignment="Center"
+               HorizontalOptions="Center"
+               TextColor="White" />
+
+                            <Label x:Name="SubtitleLabel"
+               Text="An error occurred during verification"
+               FontSize="14" 
+               HorizontalOptions="Center"
+               TextColor="#FFE7E7"
+               Opacity="0.9" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <!-- Error Details -->
+                    <ScrollView Grid.Row="1" 
+          Padding="25,20,25,25" 
+          VerticalScrollBarVisibility="Never">
+                        <VerticalStackLayout Spacing="20">
+
+                            <!-- Error Message Card -->
+                            <Frame BackgroundColor="#FFE7E7"
+               BorderColor="#E74C3C"
+               CornerRadius="12"
+               HasShadow="False"
+               Padding="20">
+                                <VerticalStackLayout Spacing="12">
+                                    <Label Text="Error Details" 
+                       FontSize="16" 
+                       FontAttributes="Bold"
+                       TextColor="#2D3436" />
+
+                                    <Label x:Name="MessageLabel"
+                       Text="An error occurred during verification"
+                       FontSize="14"
+                       TextColor="#2D3436"
+                       LineBreakMode="WordWrap" />
+                                </VerticalStackLayout>
+                            </Frame>
+
+                            <!-- Error Code Card -->
+
+
+                            <!-- Common Solutions -->
+                            <Frame BackgroundColor="#E3F2FD"
+               BorderColor="#74B9FF"
+               CornerRadius="12"
+               HasShadow="False"
+               Padding="20">
+                                <VerticalStackLayout Spacing="12">
+                                    <StackLayout Orientation="Horizontal" Spacing="8">
+                                        <Label Text="💡" 
+                           FontSize="20"
+                           VerticalOptions="Start" />
+                                        <Label Text="What you can try" 
+                           FontSize="16" 
+                           FontAttributes="Bold"
+                           TextColor="#2D3436"
+                           VerticalOptions="Center" />
+                                    </StackLayout>
+
+                                    <StackLayout x:Name="SolutionsContainer" Spacing="10">
+                                        <!-- Solutions will be added dynamically based on error type -->
+                                    </StackLayout>
+                                </VerticalStackLayout>
+                            </Frame>
+
+                            <!-- Timestamp -->
+                            <Label x:Name="TimestampLabel"
+               Text="Error occurred at: --"
+               FontSize="12"
+               TextColor="#636E72"
+               HorizontalOptions="Center"
+               Margin="0,10,0,0" />
+
+                            <!-- Action Buttons -->
+                            <StackLayout Spacing="12" Margin="0,10,0,0">
+                                <Button x:Name="TryAgainButton"
+                    Text="Try Again"
+                    BackgroundColor="#E74C3C"
+                    TextColor="White"
+                    CornerRadius="12"
+                    HeightRequest="50"
+                    FontSize="16"
+                    FontAttributes="Bold"
+                    Clicked="OnTryAgainClicked" />
+
+                                <Button x:Name="ContactSupportButton"
+                    Text="Contact Support"
+                    Clicked="OnContactSupportClicked"
+                    BackgroundColor="Transparent"
+                    TextColor="#74B9FF"
+                    BorderWidth="2"
+                    BorderColor="#74B9FF"
+                    CornerRadius="12"
+                    HeightRequest="50"
+                    FontSize="16"
+                    FontAttributes="Bold" />
+
+                                <Button x:Name="CloseButton"
+                    Text="Close"
+                    Clicked="OnCloseClicked"
+                    BackgroundColor="Transparent"
+                    FontAttributes="Bold"
+                    FontSize="16"
+                    HeightRequest="50"
+                    CornerRadius="12"
+                    BorderColor="#E74C3C"
+                    BorderWidth="2"
+                    TextColor="#E74C3C"/>
+                            </StackLayout>
+
+                        </VerticalStackLayout>
+                    </ScrollView>
+                </Grid>
+
+
+            </Frame>
+        </ScrollView>
+     
+    </Grid>
+</mopup:Popup>
+
+
+

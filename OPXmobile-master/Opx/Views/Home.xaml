@@ -1,0 +1,569 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Opx.Views.Home"
+             xmlns:Renderers="clr-namespace:Opx.Renderers"
+             BackgroundColor="#F5F5F5"
+             NavigationPage.HasNavigationBar="False"
+             Padding="0">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Renderers:StatusToGradientStartConverter x:Key="StatusToGradientStartConverter"/>
+            <Renderers:StatusToColorConverter x:Key="StatusToColorConverter"/>
+
+            <Style x:Key="CardStyle" TargetType="Frame">
+                <Setter Property="BackgroundColor" Value="White"/>
+                <Setter Property="CornerRadius" Value="16"/>
+                <Setter Property="HasShadow" Value="True"/>
+                <Setter Property="Padding" Value="20"/>
+                <Setter Property="Margin" Value="0,0,0,12"/>
+            </Style>
+
+            <Style x:Key="SectionTitleStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="22"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="TextColor" Value="#1A1A1A"/>
+                <Setter Property="Margin" Value="0,20,0,12"/>
+            </Style>
+
+            <Style x:Key="SubtitleStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="TextColor" Value="#666666"/>
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid BackgroundColor="#F5F5F5">
+        <ScrollView>
+            <StackLayout Padding="0" Spacing="0">
+
+                <!-- Header Section -->
+                <Grid Padding="10,10,10,10" BackgroundColor="White" x:Name="HeaderGrid">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Column="0"
+                           VerticalOptions="Center"
+                           FontSize="20"
+                           FontAttributes="Bold"
+                           TextColor="#1A1A1A"
+                           x:Name="dashbaordusername"/>
+
+                    <Frame Grid.Column="1"
+                           CornerRadius="20"
+                           BackgroundColor="#F5F5F5"
+                           HeightRequest="40"
+                           WidthRequest="40"
+                           Padding="8"
+                           Margin="0,0,10,0"
+                           HasShadow="False">
+                        <Label Text="?"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               TextColor="#1A1A1A"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"/>
+                    </Frame>
+
+                    <Frame Grid.Column="2"
+                           CornerRadius="20"
+                           BackgroundColor="#F5F5F5"
+                           HeightRequest="40"
+                           WidthRequest="40"
+                           Padding="0"
+                           HasShadow="False"
+                           x:Name="LogoutButton">
+                        <Image Source="image8.png"
+                               HeightRequest="24"
+                               WidthRequest="24"
+                               Aspect="AspectFit">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnLogoutClicked"/>
+                            </Image.GestureRecognizers>
+                        </Image>
+                    </Frame>
+                </Grid>
+
+                <!-- Tab Navigation -->
+                <ScrollView Orientation="Horizontal" 
+                           HorizontalScrollBarVisibility="Never"
+                           Padding="10,0,10,10"
+                           BackgroundColor="White">
+                </ScrollView>
+
+                <StackLayout Padding="10,-10,10,10" Spacing="0" x:Name="MainContent">
+
+                    <!-- Your Accounts Section -->
+                    <Grid Margin="0,10,10,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Label Grid.Column="0" Padding="5,0,0,10" Margin="0,20,0,-5"
+                               Text="Account Information " FontAttributes="Bold"
+                               Style="{StaticResource SectionTitleStyle}"/>
+
+                   
+                    </Grid>
+
+                    <!-- Classic Account Card -->
+                    <Frame Style="{StaticResource CardStyle}" BorderColor="LightGray"
+                           x:Name="EscrowCard">
+                        <Grid RowSpacing="16">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Account Header -->
+                            <Grid Grid.Row="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Frame Grid.Column="0"
+                                       CornerRadius="25"
+                                       BackgroundColor="#F0F0F0"
+                                       HeightRequest="50"
+                                       WidthRequest="50"
+                                       Padding="0"
+                                       HasShadow="False"
+                                       x:Name="ProfileFrame">
+                                    <Image Source="logo.png"
+                                           Aspect="AspectFit"/>
+                                </Frame>
+
+                                <StackLayout Grid.Column="1"
+                                           VerticalOptions="Center"
+                                           Margin="12,0,0,0">
+                                    <Label Text="VIRTUAL CARD"
+                                           FontSize="18"
+                                           FontAttributes="Bold"
+                                           TextColor="#1A1A1A"/>
+                                    <Label x:Name="cardaccountNumber"
+                                           FontSize="14"
+                                           TextColor="#666666">
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped_5"/>
+                                        </Label.GestureRecognizers>
+                                    </Label>
+                                </StackLayout>
+
+                                <Label Grid.Column="2"
+                                       x:Name="BalanceLabel"
+                                       FontSize="24"
+                                       FontAttributes="Bold"
+                                       TextColor="#1A1A1A"
+                                       VerticalOptions="Center"/>
+                            </Grid>
+
+                            <!-- Benefits Calculator Button -->
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Label Grid.Column="0"
+                                       Text="ACCOUNT DETAILS"
+                                       FontSize="14"
+                                       TextColor="#1A1A1A"
+                                       VerticalOptions="Center"/>
+
+                                <Label Grid.Column="1"
+                                       Text="→"
+                                       FontSize="20"
+                                       TextColor="#1A1A1A"
+                                       VerticalOptions="Center"/>
+                            </Grid>
+
+                            <!-- Account Details -->
+                            <Grid Grid.Row="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackLayout Grid.Column="0">
+                                    <Label x:Name="cardAccountname"
+                                           FontSize="12"
+                                           TextColor="#666666"
+                                           Text="ACCOUNT NAME"/>
+                                    <Label x:Name="cardExiprydate"
+                                           FontSize="12"
+                                           TextColor="#999999"
+                                           Margin="0,4,0,0"/>
+                                </StackLayout>
+
+                                <Label Grid.Column="1"
+                                       x:Name="AmountLabel"
+                                       FontSize="16"
+                                       FontAttributes="Bold"
+                                       TextColor="#1A1A1A"
+                                       VerticalOptions="End"/>
+                            </Grid>
+                        </Grid>
+                    </Frame>
+
+                    <!-- Workplace Pension Card -->
+                    <Frame Style="{StaticResource CardStyle}" BorderColor="LightGray">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Frame Grid.Column="0"
+                                   CornerRadius="25"
+                                   BackgroundColor="White"
+                                   HeightRequest="50"
+                                   WidthRequest="50"
+                                   Padding="12"
+                                   HasShadow="False">
+                                <Image Source="logo.png"></Image>
+                            </Frame>
+
+                            <StackLayout Grid.Column="1"
+                                       VerticalOptions="Center"
+                                       Margin="12,0,0,0">
+                                <Label Text="Total Contracts"
+                                       FontSize="18"
+                                       FontAttributes="Bold"
+                                       TextColor="#1A1A1A"/>
+                                <Label Text="1 Week Date Range"
+                                       FontSize="14"
+                                       TextColor="#666666"/>
+                            </StackLayout>
+
+                            <Label Grid.Column="2"
+                                   x:Name="TransferButton"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="#1A1A1A"
+                                   VerticalOptions="Center"/>
+                        </Grid>
+                    </Frame>
+
+                    <!-- Weekly Credit Score Card -->
+                    <Frame CornerRadius="16"
+                         BackgroundColor="White"
+                           Padding="24"
+                           BorderColor="LightGray"
+                           HasShadow="True"
+                           Margin="0,0,0,12"
+                           x:Name="QuickMenuStack">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                          
+
+                            <StackLayout Grid.Column="0" Spacing="12">
+                                <Label Text="Your weekly referral score"
+                                       FontSize="22"
+                                       FontAttributes="Bold"
+                                       TextColor="#A25AC4"/>
+                                <Label Text="Take a look at your profile, improve it by inviting more people today so you Id can be used to sign up,And you can have access to bonus ."
+                                       FontSize="14"
+                                       TextColor="#A25AC4"
+                                       Opacity="0.9"/>
+
+                                <Grid Margin="0,12,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Label Grid.Column="0"
+                                           Text="Check your score"
+                                           FontSize="16"
+                                           FontAttributes="Bold"
+                                           TextColor="#A25AC4"
+                                           VerticalOptions="Center"/>
+                                    <Frame Grid.Column="1"
+                                           CornerRadius="15"
+                                           BackgroundColor="#A25AC4"
+                                           HeightRequest="30"
+                                           WidthRequest="30"
+                                           Padding="0"
+                                           Margin="8,0,0,0"
+                                           HasShadow="False">
+                                        <Label Text="→"
+                                               FontSize="16"
+                                               TextColor="White"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center"/>
+                                    </Frame>
+                                </Grid>
+                            </StackLayout>
+
+                            <Image Grid.Column="1"
+                                   Source="logo.png"
+                                   HeightRequest="100"
+                                   WidthRequest="100"
+                                   Aspect="AspectFit"
+                                   VerticalOptions="Center"/>
+                        </Grid>
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped_12"/>
+                        </Frame.GestureRecognizers>
+                    </Frame>
+
+                    <!-- More for You Section -->
+                    <Label Text="More for you" Margin="10,-5,0,10"
+                           Style="{StaticResource SectionTitleStyle}"/>
+
+                    <Grid ColumnSpacing="5" RowSpacing="1" x:Name="TransactionLogStack">
+
+                        <ScrollView Orientation="Both" HorizontalOptions="Fill" VerticalOptions="Fill">
+                            <StackLayout HorizontalOptions="Fill" VerticalOptions="Fill"  Orientation="Horizontal" Spacing="10">
+                                <!-- Plan my future -->
+                                <Frame BackgroundColor="White" BorderColor="LightGrey" HasShadow="True"  HeightRequest="110" WidthRequest="110"
+                 Style="{StaticResource CardStyle}"
+                 Padding="25">
+                                    <StackLayout>
+                                        <Frame CornerRadius="5" BackgroundColor="White"
+                         HeightRequest="40"
+                         BorderColor="Transparent"
+                         WidthRequest="40"
+                         Padding="10"
+                         HasShadow="False">
+
+                                            <Image Source="add.png" Aspect="AspectFit">
+                                                <Image.GestureRecognizers>
+                                                    <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped_9"/>
+                                                </Image.GestureRecognizers>
+                                            </Image>
+
+                                        </Frame>
+                                        <Label Text="CONTRACT"
+                         FontSize="10" HorizontalTextAlignment="Center"
+                         TextColor="#666666"
+                         LineBreakMode="WordWrap"/>
+                                       
+                                    </StackLayout>
+                                    <Frame.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnNewContractTapped"/>
+                                    </Frame.GestureRecognizers>
+                                </Frame>
+
+                                <!-- Everyday Offers -->
+                                <Frame  BackgroundColor="White" BorderColor="LightGrey" HasShadow="True"  HeightRequest="110" WidthRequest="110"
+                 Style="{StaticResource CardStyle}"
+                Padding="25">
+                                    <StackLayout>
+                                        <Frame CornerRadius="5" BackgroundColor="White"
+          HeightRequest="40"
+          BorderColor="Transparent"
+          WidthRequest="40"
+          Padding="10"
+          HasShadow="False">
+
+                                            <Image Source="bluebag.png" Aspect="AspectFit">
+                                                <Image.GestureRecognizers>
+                                                    <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped_10"/>
+                                                </Image.GestureRecognizers>
+                                            </Image>
+
+
+                                        </Frame>
+                                        <Label Text="WITHDRAWAL"
+                         FontSize="10" HorizontalTextAlignment="Center"
+                         TextColor="#666666"/>
+
+                                    </StackLayout>
+                                    <Frame.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnWithdrawalTapped"/>
+                                    </Frame.GestureRecognizers>
+                                </Frame>
+
+                                <!-- Additional cards -->
+                                <Frame BackgroundColor="White" BorderColor="LightGrey" HasShadow="True"  HeightRequest="110" WidthRequest="110"
+                 Style="{StaticResource CardStyle}"
+            Padding="25">
+                                    <StackLayout>
+                                        <Frame CornerRadius="5" BackgroundColor="White"
+          HeightRequest="40"
+          BorderColor="Transparent"
+          WidthRequest="40"
+          Padding="10"
+          HasShadow="False">
+
+
+
+
+                                            <Image Source="image2.png" Aspect="AspectFit">
+                                                <Image.GestureRecognizers>
+                                                    <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped_11"/>
+                                                </Image.GestureRecognizers>
+                                            </Image>
+
+                                        </Frame>
+                                        <Label Text="HISTORY" HorizontalTextAlignment="Center"
+                         FontSize="10"
+                         TextColor="#666666"
+                         LineBreakMode="WordWrap"/>
+
+                                    </StackLayout>
+                                    <Frame.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnRecentEscrowTapped"/>
+                                    </Frame.GestureRecognizers>
+                                </Frame>
+                                
+
+                                <Frame BackgroundColor="White" BorderColor="LightGrey" HasShadow="True"  HeightRequest="110" WidthRequest="110"
+   Style="{StaticResource CardStyle}"
+   Padding="25">
+                                    <StackLayout>
+                                        <Frame CornerRadius="5" BackgroundColor="White"
+          HeightRequest="40"
+          BorderColor="Transparent"
+          WidthRequest="40"
+          Padding="10"
+          HasShadow="False">
+
+
+
+                                            <Image Source="image8.png" Aspect="AspectFit">
+                                                <Image.GestureRecognizers>
+                                                    <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
+                                                </Image.GestureRecognizers>
+                                            </Image>
+
+                                        </Frame>
+                                        <Label Text="REFERRAL" HorizontalTextAlignment="Center"
+                         FontSize="10"
+                         TextColor="#666666"/>
+                                    
+                                    </StackLayout>
+                                    <Frame.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
+                                    </Frame.GestureRecognizers>
+                                </Frame>
+                                
+                                
+                            </StackLayout>
+                        </ScrollView>
+                        
+                        
+              
+              
+                    </Grid>
+
+                    <!-- Recent Transactions Section -->
+                    <Grid Margin="0,-10,0,1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Label Grid.Column="0"
+                               Text="Recent transactions"
+                               Style="{StaticResource SectionTitleStyle}"/>
+
+                        <Label Grid.Column="1"
+                               Text="See All"
+                               FontSize="14"
+                               TextColor="#6B4CE6"
+                               FontAttributes="Bold"
+                               VerticalOptions="Center"/>
+                    </Grid>
+
+                    <ScrollView x:Name="TransactionScrollView" HeightRequest="400">
+                        <ListView x:Name="listView"
+                                  BackgroundColor="Transparent"
+                                  ItemsSource="{Binding HD}"
+                                  HasUnevenRows="True"
+                                  SeparatorVisibility="None">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <ViewCell>
+                                        <Frame Style="{StaticResource CardStyle}"
+                                               Margin="0,0,0,8"
+                                               Padding="16">
+                                            <Grid ColumnSpacing="12">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <Frame Grid.Column="0"
+                                                       CornerRadius="12"
+                                                       BackgroundColor="#F5F5F5"
+                                                       HeightRequest="48"
+                                                       WidthRequest="48"
+                                                       Padding="0"
+                                                       HasShadow="False">
+                                                    <StackLayout VerticalOptions="Center"
+                                                               HorizontalOptions="Center">
+                                                        <Label Text="{Binding CreatedAt, StringFormat='{0:dd}'}"
+                                                               FontAttributes="Bold"
+                                                               FontSize="18"
+                                                               TextColor="#1A1A1A"
+                                                               HorizontalOptions="Center"/>
+                                                        <Label Text="{Binding CreatedAt, StringFormat='{0:MMM}'}"
+                                                               TextColor="#666666"
+                                                               FontSize="10"
+                                                               HorizontalOptions="Center"/>
+                                                    </StackLayout>
+                                                </Frame>
+
+                                                <StackLayout Grid.Column="1"
+                                                           VerticalOptions="Center"
+                                                           Spacing="4">
+                                                    <Label Text="{Binding Description}"
+                                                           FontAttributes="Bold"
+                                                           TextColor="#1A1A1A"
+                                                           FontSize="14"/>
+                                                    <Label Text="{Binding Role}"
+                                                           FontSize="12"
+                                                           TextColor="#666666"/>
+                                                    <Label Text="{Binding CreatedAt, StringFormat='{0:HH:mm}'}"
+                                                           FontSize="10"
+                                                           TextColor="#999999"/>
+                                                </StackLayout>
+
+                                                <StackLayout Grid.Column="2"
+                                                           VerticalOptions="Center"
+                                                           HorizontalOptions="End"
+                                                           Spacing="4">
+                                                    <Label Text="{Binding Amount, StringFormat='₦{0:N2}'}"
+                                                           TextColor="#1A1A1A"
+                                                           FontAttributes="Bold"
+                                                           FontSize="16"
+                                                           HorizontalOptions="End"/>
+                                                    <Label Text="{Binding Status}"
+                                                           FontSize="11"
+                                                           TextColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}"
+                                                           FontAttributes="Bold"
+                                                           HorizontalOptions="End"/>
+                                                </StackLayout>
+                                            </Grid>
+                                        </Frame>
+                                    </ViewCell>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </ScrollView>
+
+                    <Label x:Name="QuickFundsButton" IsVisible="False"/>
+                    <Label x:Name="cardNumberDisplay" IsVisible="False"/>
+                    <Frame x:Name="PlusFrame" IsVisible="False"/>
+                    <Frame x:Name="EscrowBorder" IsVisible="False"/>
+                    <Grid x:Name="EscrowContent" IsVisible="False"/>
+                </StackLayout>
+            </StackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

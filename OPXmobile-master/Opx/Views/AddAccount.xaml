@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Opx.Views.AddAccount"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             Color="Transparent"
+             CanBeDismissedByTappingOutsideOfPopup="False"
+             Size="370, 500">
+    <ScrollView HorizontalOptions="Fill" VerticalOptions="FillAndExpand">
+        <Frame BackgroundColor="White" 
+        BorderColor="Transparent"
+        CornerRadius="10"
+        Padding="20"
+        HasShadow="True">
+            <VerticalStackLayout Spacing="20">
+                <!-- Header -->
+                <Label Text="ADD ACCOUNT FOR WITHDRAWAL" 
+                FontSize="18" 
+                FontAttributes="Bold" 
+                HorizontalOptions="Center"
+                TextColor="Black" />
+
+                <!-- Logo -->
+                <Image Source="logo.png"
+                HeightRequest="80" 
+                HorizontalOptions="Center"
+                Margin="0,0,0,10"/>
+
+                <!-- Description -->
+                <Label Text="Please provide your bank account details for withdrawal transactions. This information will be securely stored and used for processing your withdrawal requests."
+                FontSize="14"
+                TextColor="Gray"
+                HorizontalTextAlignment="Center"
+                LineHeight="1.2"/>
+
+                <!-- Bank Name Field -->
+                <StackLayout Spacing="5">
+                    <Label Text="Bank Name" 
+                    TextColor="Black" 
+                    FontAttributes="Bold"
+                    FontSize="14"/>
+                    <Frame HeightRequest="50" 
+                    HasShadow="False"
+                    BorderColor="LightGray"
+                    CornerRadius="5"
+                    Padding="5">
+                        <Picker Title="Select Bank"
+                         FontSize="14"    
+                         x:Name="Addbankname"
+                         BackgroundColor="White"
+                         HeightRequest="40"
+                         TitleColor="Red"
+                         TextColor="Purple"
+                         HorizontalOptions="FillAndExpand">
+                            <!-- Add your bank list items here -->
+                        </Picker>
+                    </Frame>
+                </StackLayout>
+
+                <!-- Account Number Field -->
+                <StackLayout Spacing="5">
+                    <Label Text="Account Number" 
+                    TextColor="Black" 
+                    FontAttributes="Bold"
+                    FontSize="14"/>
+                    <Frame HeightRequest="50" 
+                    HasShadow="False"
+                    BorderColor="LightGray"
+                    CornerRadius="5"
+                    Padding="5">
+                        <Entry Placeholder="Enter account number" 
+                        HorizontalOptions="FillAndExpand"
+                        HeightRequest="40"
+                        BackgroundColor="Transparent"
+                        FontSize="14"
+                        Keyboard="Numeric"
+                        MaxLength="20"
+                        x:Name="accountnumber"/>
+                    </Frame>
+                </StackLayout>
+
+                <!-- Account Holder Name Field (Optional but recommended) -->
+                <StackLayout Spacing="5">
+                    <Label Text="Account Holder Name" 
+                    TextColor="Black" 
+                    FontAttributes="Bold"
+                    FontSize="14"/>
+                    <Frame HeightRequest="50" 
+                    HasShadow="False"
+                    BorderColor="LightGray"
+                    CornerRadius="5"
+                    Padding="5">
+                        <Entry Placeholder="Enter account holder name" 
+                        HorizontalOptions="FillAndExpand"
+                        HeightRequest="40"
+                        BackgroundColor="Transparent"
+                        FontSize="14"
+                        x:Name="accountHolderName"/>
+                    </Frame>
+                </StackLayout>
+
+                <!-- Error Label -->
+                <Label x:Name="ErrorLabel"
+                TextColor="Red"
+                IsVisible="False"
+                FontSize="12"
+                HorizontalTextAlignment="Center" />
+
+                <!-- Buttons -->
+                <StackLayout Spacing="10" Margin="0,20,0,0">
+                    <Button Text="Set Recipient Account"
+                     x:Name="setrecipient"
+                     Clicked="setrecipient_Clicked"
+                     BackgroundColor="Purple"
+                     TextColor="White"
+                     CornerRadius="5"
+                     HeightRequest="45"
+                     FontSize="16"
+                     FontAttributes="Bold" />
+
+                    <Button Text="Cancel"
+                     Clicked="Cancel_Clicked"
+                     BackgroundColor="Transparent"
+                     TextColor="Purple"
+                     BorderWidth="2"
+                     BorderColor="Purple"
+                     CornerRadius="5"
+                     HeightRequest="45"
+                     FontSize="16" />
+                </StackLayout>
+            </VerticalStackLayout>
+        </Frame>
+    </ScrollView>
+   
+</toolkit:Popup>

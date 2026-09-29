@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<TabbedPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Opx.Views.DashBoard"
+                xmlns:renderers="clr-namespace:Opx.Renderers"
+                xmlns:views="clr-namespace:Opx.Views"
+             NavigationPage.HasNavigationBar="False"
+            
+            SelectedTabColor="White"
+            UnselectedTabColor="LightGray">
+    <TabbedPage.BarBackground>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="#A25AC4" Offset="0.0" />
+            <GradientStop Color="Purple" Offset="0.5" />
+            <GradientStop Color="Black" Offset="1.0" />
+        </LinearGradientBrush>
+    </TabbedPage.BarBackground>
+    <TabbedPage.Effects>
+        <renderers:NoShiftEffect />
+    </TabbedPage.Effects>
+
+
+    <views:Home Title="HOME"  IconImageSource="home.png"  />
+
+    <views:ContractList Title="ESCROW" IconImageSource="historyicon.png" />
+
+    
+    <views:ProfilePage Title="PROFILE" IconImageSource="facescan.png" />
+
+
+</TabbedPage>

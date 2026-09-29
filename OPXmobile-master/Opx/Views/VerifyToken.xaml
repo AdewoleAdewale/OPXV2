@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Opx.Views.VerifyToken"
+             Title="Verify Token"
+             BackgroundColor="Transparent"
+             NavigationPage.HasNavigationBar="False">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!-- Custom Styles -->
+            <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="#6C5CE7" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="CornerRadius" Value="12" />
+                <Setter Property="HeightRequest" Value="50" />
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="Shadow">
+                    <Setter.Value>
+                        <Shadow Brush="Black" Opacity="0.1" Offset="0,2" Radius="8" />
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="SecondaryButtonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="Transparent" />
+                <Setter Property="TextColor" Value="#6C5CE7" />
+                <Setter Property="BorderWidth" Value="2" />
+                <Setter Property="BorderColor" Value="#6C5CE7" />
+                <Setter Property="CornerRadius" Value="12" />
+                <Setter Property="HeightRequest" Value="50" />
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="FontAttributes" Value="Bold" />
+            </Style>
+
+            <Style x:Key="InputFrameStyle" TargetType="Frame">
+                <Setter Property="HasShadow" Value="False" />
+                <Setter Property="BorderColor" Value="#E0E0E0" />
+                <Setter Property="CornerRadius" Value="12" />
+                <Setter Property="Padding" Value="12" />
+                <Setter Property="BackgroundColor" Value="#F8F9FA" />
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <!-- Main Background with Gradient Overlay -->
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Color="#80000000" Offset="0.0" />
+                <GradientStop Color="#A0000000" Offset="1.0" />
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <!-- Gesture Recognizer for dismissing sheet when tapping outside -->
+        <Grid.GestureRecognizers>
+            <TapGestureRecognizer Tapped="OnBackgroundTapped" />
+        </Grid.GestureRecognizers>
+
+        <!-- Loading Indicator -->
+        <ActivityIndicator x:Name="LoadingIndicator"
+                          IsVisible="False"
+                          IsRunning="False"
+                          Color="#6C5CE7"
+                          VerticalOptions="Center"
+                          HorizontalOptions="Center"
+                          Scale="1.5" />
+
+        <!-- Sheet Container -->
+        <Frame x:Name="SheetFrame"
+               VerticalOptions="End" 
+               HorizontalOptions="FillAndExpand"
+               BackgroundColor="White"
+               CornerRadius="20"
+               HasShadow="True"
+               Padding="0"
+               Margin="10,0,10,0"
+               TranslationY="400">
+
+            <Frame.Shadow>
+                <Shadow Brush="Black" Opacity="0.3" Offset="0,-4" Radius="20" />
+            </Frame.Shadow>
+
+            <!-- Prevent tap events from propagating to background -->
+            <Frame.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnSheetTapped" />
+            </Frame.GestureRecognizers>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <!-- Drag Handle Container - This is the primary drag area -->
+                <StackLayout x:Name="DragHandleArea"
+                           Grid.Row="0" 
+                           Padding="0,15,0,10" 
+                           BackgroundColor="Transparent"
+                           HeightRequest="40">
+
+                    <!-- Make the entire drag handle area draggable -->
+                    <StackLayout.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnSheetTapped" />
+                    </StackLayout.GestureRecognizers>
+
+                    <!-- Drag Handle -->
+                    <BoxView
+                       x:Name="DragHandle"
+                       HeightRequest="5"
+                       WidthRequest="50"
+                       BackgroundColor="#E0E0E0"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Start"
+                       CornerRadius="2.5" />
+
+                </StackLayout>
+
+                <!-- Sheet Content -->
+                <ScrollView Grid.Row="1" 
+                          Padding="25,10,25,30" 
+                          VerticalScrollBarVisibility="Never">
+                    <VerticalStackLayout Spacing="25">
+
+                        <!-- Header Section - Also draggable -->
+                        <StackLayout Spacing="8">
+                            <StackLayout.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnSheetTapped" />
+                            </StackLayout.GestureRecognizers>
+
+                            <Label Text="🔐" 
+                                   FontSize="20"
+                                   HorizontalOptions="Center"
+                                   Margin="0,0,0,5"/>
+
+                            <Label Text="VERIFY TOKEN" 
+                                   FontSize="25" 
+                                   FontAttributes="Bold" 
+                                   HorizontalOptions="Center"
+                                   TextColor="#2D3436" />
+
+                            <Label Text="FOR CONFIRMATION" 
+                                   FontSize="15" 
+                                   FontAttributes="Bold" 
+                                   HorizontalOptions="Center"
+                                   TextColor="#6C5CE7"
+                                   Margin="0,-5,0,0" />
+                        </StackLayout>
+
+                        <!-- Logo with circular background - Also draggable -->
+                       
+
+                      
+
+                        <!-- Token Input Field with validation -->
+                        <StackLayout Spacing="8">
+                            <Label Text="Verification Token" 
+                                   TextColor="#2D3436" 
+                                   FontAttributes="Bold"
+                                   FontSize="16"/>
+
+                            <Frame x:Name="TokenInputFrame"
+                                   Style="{StaticResource InputFrameStyle}"
+                                   HeightRequest="55">
+                                <Entry x:Name="inputtoken"
+                                       Placeholder="Enter your verification token" 
+                                       HorizontalOptions="FillAndExpand"
+                                       HeightRequest="45"
+                                       BackgroundColor="Transparent"
+                                       FontSize="16"
+                                       TextChanged="OnTokenTextChanged"
+                                       Completed="OnTokenCompleted"
+                                       MaxLength="20"
+                                       ClearButtonVisibility="WhileEditing" />
+                            </Frame>
+
+                            <!-- Token format hint -->
+                            <Label x:Name="TokenHintLabel"
+                                   Text="Token format: XXXX-XXXX-XXXX"
+                                   FontSize="12"
+                                   TextColor="#74B9FF"
+                                   IsVisible="True"
+                                   Margin="5,0,0,0" />
+                        </StackLayout>
+
+                        <!-- Error/Success Messages -->
+                        <StackLayout x:Name="MessageContainer" IsVisible="False">
+                            <Frame x:Name="MessageFrame"
+                                   CornerRadius="8"
+                                   HasShadow="False"
+                                   Padding="12">
+                                <StackLayout Orientation="Horizontal" Spacing="8">
+                                    <Label x:Name="MessageIcon"
+                                           FontSize="16"
+                                           VerticalOptions="Center" />
+                                    <Label x:Name="MessageLabel"
+                                           FontSize="14"
+                                           VerticalOptions="Center"
+                                           HorizontalOptions="FillAndExpand" />
+                                </StackLayout>
+                            </Frame>
+                        </StackLayout>
+
+                        <!-- Action Buttons -->
+                        <StackLayout Spacing="12" Margin="0,10,0,0">
+                            <Button x:Name="VerifyButton"
+                                    Text="Verify Token"
+                                    Clicked="OnVerifyTokenClicked"
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    IsEnabled="False" />
+
+                            <Button x:Name="CancelButton"
+                                    Text="Cancel"
+                                    Clicked="OnCancelClicked"
+                                    Style="{StaticResource SecondaryButtonStyle}" />
+                        </StackLayout>
+
+                        <!-- Additional Options -->
+                        <StackLayout Orientation="Horizontal" 
+                                   HorizontalOptions="Center"
+                                   Spacing="5"
+                                   Margin="0,10,0,0">
+                            <Label Text="Didn't receive a token?"
+                                   FontSize="14"
+                                   TextColor="#636E72" />
+                            <Label Text="Resend"
+                                   FontSize="14"
+                                   TextColor="#6C5CE7"
+                                   FontAttributes="Bold">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnResendTokenTapped" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </StackLayout>
+                    </VerticalStackLayout>
+                </ScrollView>
+            </Grid>
+        </Frame>
+    </Grid>
+</ContentPage>

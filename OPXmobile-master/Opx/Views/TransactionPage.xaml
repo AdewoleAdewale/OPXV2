@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Opx.Views.TransactionPage"
+              NavigationPage.HasNavigationBar="False"
+            BackgroundColor="White"
+             Padding="20">
+    <ContentPage.Content>
+        <ScrollView>
+            <StackLayout Spacing="20">
+
+                <!-- Back Arrow and Title -->
+                <StackLayout Orientation="Horizontal" VerticalOptions="Start">
+                    <Grid BackgroundColor="White" Padding="10" HeightRequest="50">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Image Source="back.png" HeightRequest="24" WidthRequest="24" VerticalOptions="Center">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped5"></TapGestureRecognizer>
+                            </Image.GestureRecognizers>
+                        </Image>
+                        <Label Text="TRANSACTIONS" Grid.Column="1" VerticalOptions="Center" HorizontalOptions="Start"
+                          FontSize="24" FontAttributes="Bold" TextColor="black" Margin="10,0,0,0"/>
+                       
+                    </Grid>
+
+                </StackLayout>
+
+                <ScrollView x:Name="TransactionScrollView">
+                    <ListView x:Name="listView" 
+  Margin="0,0,0,20" 
+  
+  BackgroundColor="Transparent" 
+  ItemsSource="{Binding HD}" 
+  HeightRequest="250"    
+  HorizontalOptions="Fill" 
+  HasUnevenRows="True"
+  SeparatorVisibility="None"  
+  VerticalOptions="Fill">
+
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <Frame Margin="-10,-10,-5,-15" 
+               Padding="5" 
+               BackgroundColor="Transparent" 
+               HasShadow="True"
+               x:Name="TransactionFrame">
+
+                                        <StackLayout Spacing="-5" 
+                         Margin="0" 
+                         BackgroundColor="Transparent"
+                         x:Name="TransactionStack">
+
+                                            <!-- Animated Transaction Items -->
+                                            <Frame BorderColor="White" 
+                       CornerRadius="10"
+                       Margin="5"
+                       HeightRequest="80"
+                       Padding="5"
+                       HasShadow="True"
+                       x:Name="TransactionItem1">
+
+                                                <!-- Dynamic Background based on Status -->
+                                                <Frame.Background>
+                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                        <GradientStop Color="{Binding Status, Converter={StaticResource StatusToGradientStartConverter}}" Offset="0.0" />
+                                                        <GradientStop Color="Black" Offset="1.0" />
+                                                    </LinearGradientBrush>
+                                                </Frame.Background>
+
+                                                <!-- Animation Triggers -->
+
+                                                <Grid ColumnSpacing="10">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <!-- Date Section from Database -->
+                                                    <Frame HeightRequest="50" 
+                               WidthRequest="50"  
+                               BackgroundColor="White" 
+                               HasShadow="False" 
+                               BorderColor="WhiteSmoke"
+                               CornerRadius="8">
+                                                        <StackLayout VerticalOptions="Center" 
+                                         HeightRequest="40" 
+                                         WidthRequest="40" 
+                                         HorizontalOptions="Center" 
+                                         BackgroundColor="White">
+                                                            <Label Text="{Binding CreatedAt, StringFormat='{0:dd}'}"
+                                       FontAttributes="Bold" 
+                                       HorizontalOptions="Center" 
+                                       FontSize="20"
+                                       TextColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}"/>
+                                                            <Label Text="{Binding CreatedAt, StringFormat='{0:MMMM}'}" 
+                                       TextColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}"
+                                       HorizontalOptions="Center"
+                                       FontSize="10"/>
+                                                        </StackLayout>
+                                                    </Frame>
+
+                                                    <!-- Transaction Details -->
+                                                    <StackLayout Grid.Column="1" VerticalOptions="Center">
+                                                        <Label Text="{Binding Description}" 
+                                   FontAttributes="Bold"
+                                   TextColor="White"
+                                   FontSize="14"/>
+                                                        <Label Text="{Binding Role}" 
+                                   FontSize="10"
+                                   TextColor="White"/>
+                                                        <Label Text="{Binding CreatedAt, StringFormat='{0:HH:mm}'}" 
+                                   FontSize="10"
+                                   TextColor="White"/>
+                                                    </StackLayout>
+
+                                                    <!-- Amount and Status -->
+                                                    <StackLayout Grid.Column="2" VerticalOptions="Center">
+                                                        <Label Text="{Binding Amount, StringFormat='₦{0:N2}'}" 
+                                   TextColor="White"
+                                   FontAttributes="Bold"
+                                   FontSize="16"/>
+                                                        <Label Text="{Binding Status}" 
+                                   FontSize="12"
+                                   TextColor="White"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="End"/>
+                                                    </StackLayout>
+                                                </Grid>
+
+                                                <!-- Tap Animation -->
+                                            </Frame>
+                                        </StackLayout>
+                                    </Frame>
+                                </ViewCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </ScrollView>
+
+
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>
+

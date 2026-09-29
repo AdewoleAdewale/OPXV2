@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             NavigationPage.HasNavigationBar="False"
+             x:Class="Opx.Views.WelcomePage">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!-- Animation Resources -->
+          
+
+            <!-- Gradient Background -->
+            <LinearGradientBrush x:Key="BackgroundGradient" 
+                               StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#F8F9FA" Offset="0.0" />
+                <GradientStop Color="#E9ECEF" Offset="1.0" />
+            </LinearGradientBrush>
+
+            <!-- Card Shadow -->
+            <Shadow x:Key="CardShadow" 
+                   Brush="Black" 
+                   Opacity="0.1" 
+                   Radius="8" 
+                   Offset="0,2" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ContentPage.Content>
+        <Grid Background="{StaticResource BackgroundGradient}">
+            <ScrollView>
+                <StackLayout Spacing="30" 
+                           Padding="20" 
+                           HorizontalOptions="Center" 
+                           VerticalOptions="CenterAndExpand">
+
+                    <!-- Logo with animation -->
+                    <Frame BackgroundColor="White" 
+                           CornerRadius="20" 
+                           HasShadow="True"
+                           Shadow="{StaticResource CardShadow}"
+                           Padding="20"
+                           HorizontalOptions="Center"
+                           x:Name="LogoFrame">
+                        <Image Source="logo.png" 
+                               HeightRequest="80"
+                               HorizontalOptions="Center"/>
+                    </Frame>
+
+                    <!-- Header Text with animation -->
+                    <StackLayout x:Name="HeaderSection" Spacing="15">
+                        <Label Text="Welcome On Board"
+                               FontSize="28"
+                               FontAttributes="Bold"
+                               TextColor="#1a1a1a"
+                               HorizontalTextAlignment="Center"/>
+
+                        <Label Text="Secure your digital life with our advanced OPX and Sells or Buy Item with Our  system"
+                               FontSize="16"
+                               TextColor="#6c757d"
+                               HorizontalTextAlignment="Center"
+                               LineHeight="1.4"/>
+                    </StackLayout>
+
+                    <!-- Authentication Options -->
+                    <StackLayout Spacing="20" x:Name="AuthOptionsSection">
+
+                        <!-- Fingerprint Authentication -->
+                        <Frame BackgroundColor="White" 
+                               CornerRadius="16" 
+                               HasShadow="True"
+                               Shadow="{StaticResource CardShadow}"
+                               Padding="0"
+                               x:Name="FingerprintCard">
+                            <Grid Padding="20" RowSpacing="0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Icon Background -->
+                                <Frame Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
+                                       BackgroundColor="#e3f2fd" 
+                                       CornerRadius="12" 
+                                       HasShadow="False"
+                                       Padding="12"
+                                       VerticalOptions="Center">
+                                    <Image Source="fingerprint.png" 
+                                           HeightRequest="24" 
+                                           VerticalOptions="Center" 
+                                           HorizontalOptions="Center"/>
+                                </Frame>
+
+                                <!-- Content -->
+                                <Label Grid.Row="0" Grid.Column="1" 
+                                       Text="Account Authentication"
+                                       FontSize="18" 
+                                       FontAttributes="Bold" 
+                                       TextColor="#1a1a1a"
+                                       VerticalOptions="Center"
+                                       Margin="15,0,0,0"/>
+
+                                <Label Grid.Row="1" Grid.Column="1" 
+                                       Text="Quick and secure access using your Account"
+                                       FontSize="14" 
+                                       TextColor="#6c757d"
+                                       VerticalOptions="Center"
+                                       Margin="15,5,0,0"/>
+
+                                <!-- Status Indicator -->
+                                <Label Grid.Row="0" Grid.Column="2" Grid.RowSpan="2"
+                                       Text="✓"
+                                       FontSize="20"
+                                       TextColor="#28a745"
+                                       VerticalOptions="Center"
+                                       HorizontalOptions="Center"/>
+                            </Grid>
+
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnFingerprintTapped"/>
+                            </Frame.GestureRecognizers>
+                        </Frame>
+
+                        <!-- Face Recognition -->
+                        <Frame BackgroundColor="White" 
+                               CornerRadius="16" 
+                               HasShadow="True"
+                               Shadow="{StaticResource CardShadow}"
+                               Padding="0"
+                               x:Name="FaceCard">
+                            <Grid Padding="20" RowSpacing="0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Icon Background -->
+                                <Frame Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
+                                       BackgroundColor="#fff3e0" 
+                                       CornerRadius="12" 
+                                       HasShadow="False"
+                                       Padding="12"
+                                       VerticalOptions="Center">
+                                    <Image Source="facescan.png" 
+                                           HeightRequest="24" 
+                                           VerticalOptions="Center" 
+                                           HorizontalOptions="Center"/>
+                                </Frame>
+
+                                <!-- Content -->
+                                <Label Grid.Row="0" Grid.Column="1" 
+                                       Text="Contract Creation"
+                                       FontSize="18" 
+                                       FontAttributes="Bold" 
+                                       TextColor="#1a1a1a"
+                                       VerticalOptions="Center"
+                                       Margin="15,0,0,0"/>
+
+                                <Label Grid.Row="1" Grid.Column="1" 
+                                       Text="Effortless login with Password And Create Contract with Our recognition technology"
+                                       FontSize="14" 
+                                       TextColor="#6c757d"
+                                       VerticalOptions="Center"
+                                       Margin="15,5,0,0"/>
+
+                                <!-- Status Indicator -->
+                                <Label Grid.Row="0" Grid.Column="2" Grid.RowSpan="2"
+                                       Text="✓"
+                                       FontSize="20"
+                                       TextColor="#28a745"
+                                       VerticalOptions="Center"
+                                       HorizontalOptions="Center"/>
+                            </Grid>
+
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnFaceRecognitionTapped"/>
+                            </Frame.GestureRecognizers>
+                        </Frame>
+
+                        <!-- Password Authentication -->
+                        <Frame BackgroundColor="White" 
+                               CornerRadius="16" 
+                               HasShadow="True"
+                               Shadow="{StaticResource CardShadow}"
+                               Padding="0"
+                               x:Name="PasswordCard">
+                            <Grid Padding="20" RowSpacing="0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Icon Background -->
+                                <Frame Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
+                                       BackgroundColor="#f3e5f5" 
+                                       CornerRadius="12" 
+                                       HasShadow="False"
+                                       Padding="12"
+                                       VerticalOptions="Center">
+                                    <Image Source="passwordicon.png" 
+                                           HeightRequest="24" 
+                                           VerticalOptions="Center" 
+                                           HorizontalOptions="Center"/>
+                                </Frame>
+
+                                <!-- Content -->
+                                <Label Grid.Row="0" Grid.Column="1" 
+                                       Text="Password Protection"
+                                       FontSize="18" 
+                                       FontAttributes="Bold" 
+                                       TextColor="#1a1a1a"
+                                       VerticalOptions="Center"
+                                       Margin="15,0,0,0"/>
+
+                                <Label Grid.Row="1" Grid.Column="1" 
+                                       Text="Traditional secure authentication method"
+                                       FontSize="14" 
+                                       TextColor="#6c757d"
+                                       VerticalOptions="Center"
+                                       Margin="15,5,0,0"/>
+
+                                <!-- Status Indicator -->
+                                <Label Grid.Row="0" Grid.Column="2" Grid.RowSpan="2"
+                                       Text="✓"
+                                       FontSize="20"
+                                       TextColor="#28a745"
+                                       VerticalOptions="Center"
+                                       HorizontalOptions="Center"/>
+                            </Grid>
+
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnPasswordTapped"/>
+                            </Frame.GestureRecognizers>
+                        </Frame>
+
+                    </StackLayout>
+
+                    <!-- Action Button -->
+                    <Button x:Name="ContinueButton"
+                            Text="Continue"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            TextColor="White"
+                            BackgroundColor="Purple"
+                            CornerRadius="15"
+                            HeightRequest="50"
+                            Margin="0,20,0,0"
+                            HorizontalOptions="FillAndExpand"
+                            Clicked="TapGestureRecognizer_Tapped">
+                        <Button.Shadow>
+                            <Shadow Brush="#007bff" Opacity="0.3" Radius="10" Offset="0,4" />
+                        </Button.Shadow>
+                    </Button>
+
+                    <!-- Skip Option -->
+                    <Label Text="Skip for now"
+                           FontSize="14"
+                           TextColor="#6c757d"
+                           HorizontalTextAlignment="Center"
+                           TextDecorations="Underline"
+                           Margin="0,30,0,20"
+                           x:Name="SkipLabel">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+
+                </StackLayout>
+            </ScrollView>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>

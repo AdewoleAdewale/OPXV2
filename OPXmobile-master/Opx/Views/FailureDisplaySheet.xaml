@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                   xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="Opx.Views.FailureDisplaySheet"
+             Color="Transparent">
+
+    <Frame x:Name="ContentFrame"
+           CornerRadius="24"
+           Padding="0"
+           HasShadow="True"
+           BorderColor="Transparent"
+           BackgroundColor="White"
+           Margin="20,0"
+           MaximumWidthRequest="450">
+
+        <Frame.GestureRecognizers>
+            <TapGestureRecognizer Tapped="OnUserInteraction"/>
+        </Frame.GestureRecognizers>
+
+        <Grid RowDefinitions="Auto,*,Auto">
+
+            <!-- Error Header with Gradient -->
+            <Grid Grid.Row="0" 
+                  HeightRequest="200"
+                  BackgroundColor="#DC3545">
+
+                <Grid.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#DC3545" Offset="0.0" />
+                        <GradientStop Color="#E74C3C" Offset="1.0" />
+                    </LinearGradientBrush>
+                </Grid.Background>
+
+                <!-- Animated Background Pattern -->
+                <BoxView WidthRequest="200" 
+                         HeightRequest="200" 
+                         CornerRadius="100"
+                         Opacity="0.1"
+                         BackgroundColor="White"
+                         HorizontalOptions="Start"
+                         VerticalOptions="Start"
+                         Margin="-50,-50,0,0"/>
+
+                <BoxView WidthRequest="150" 
+                         HeightRequest="150" 
+                         CornerRadius="75"
+                         Opacity="0.1"
+                         BackgroundColor="White"
+                         HorizontalOptions="End"
+                         VerticalOptions="End"
+                         Margin="0,0,-30,-30"/>
+
+                <VerticalStackLayout VerticalOptions="Center" 
+                                    HorizontalOptions="Center"
+                                    Spacing="16">
+
+                    <!-- Error Icon with Circle Background -->
+                    <Frame x:Name="ErrorIcon"
+                           WidthRequest="80"
+                           HeightRequest="80"
+                           CornerRadius="40"
+                           Padding="0"
+                           HasShadow="False"
+                           BackgroundColor="White"
+                           BorderColor="Transparent">
+                        <Label Text="✕"
+                               FontSize="48"
+                               FontAttributes="Bold"
+                               TextColor="#DC3545"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"/>
+                    </Frame>
+
+                    <Label Text="Verification Failed"
+                           x:Name="TitleLabel"
+                           FontSize="24"
+                           FontAttributes="Bold"
+                           TextColor="White"
+                           HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- Content Section -->
+            <ScrollView Grid.Row="1">
+                <ScrollView.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnUserInteraction"/>
+                </ScrollView.GestureRecognizers>
+
+                <VerticalStackLayout Padding="24" Spacing="20">
+
+                    <!-- Error Type -->
+                    <VerticalStackLayout Spacing="8">
+                        <Frame Padding="12,8"
+                               CornerRadius="8"
+                               HasShadow="False"
+                               BackgroundColor="#F8D7DA"
+                               BorderColor="Transparent"
+                               HorizontalOptions="Center">
+                            <Label x:Name="ErrorTypeLabel"
+                                   Text="Verification Failed"
+                                   FontSize="14"
+                                   FontAttributes="Bold"
+                                   TextColor="#721C24"
+                                   HorizontalOptions="Center"/>
+                        </Frame>
+
+                        <Label x:Name="ErrorMessageLabel"
+                               Text="We encountered an issue while verifying your BVN."
+                               FontSize="14"
+                               TextColor="#6C757D"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"
+                               Margin="0,4,0,0"/>
+                    </VerticalStackLayout>
+
+                    <!-- Guidance Frame -->
+                    <Frame x:Name="GuidanceFrame"
+                           CornerRadius="16"
+                           Padding="20"
+                           HasShadow="False"
+                           BorderColor="#E9ECEF"
+                           BackgroundColor="#F8F9FA">
+                        <VerticalStackLayout Spacing="12">
+                            <HorizontalStackLayout Spacing="8">
+                                <Label Text="💡"
+                                       FontSize="20"
+                                       VerticalOptions="Center"/>
+                                <Label Text="What To Do Next"
+                                       FontSize="16"
+                                       FontAttributes="Bold"
+                                       TextColor="#212529"
+                                       VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+
+                            <BoxView HeightRequest="1"
+                                     BackgroundColor="#DEE2E6"
+                                     Margin="0,4"/>
+
+                            <Label x:Name="GuidanceLabel"
+                                   Text="Please check your BVN and try again. If the issue persists, contact our support team."
+                                   FontSize="14"
+                                   TextColor="#6C757D"
+                                   LineBreakMode="WordWrap"
+                                   Margin="0,4"/>
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <!-- Next Steps Frame (Conditional) -->
+                    <Frame x:Name="NextStepsFrame"
+                           CornerRadius="16"
+                           Padding="20"
+                           HasShadow="False"
+                           BackgroundColor="#FFF3CD"
+                           BorderColor="#FFC107"
+                           IsVisible="False">
+                        <VerticalStackLayout Spacing="8">
+                            <HorizontalStackLayout Spacing="8">
+                                <Label Text="📋"
+                                       FontSize="18"
+                                       VerticalOptions="Center"/>
+                                <Label Text="Recommended Action"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       TextColor="#856404"
+                                       VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+                            <Label x:Name="NextStepLabel"
+                                   Text="Please try again later"
+                                   FontSize="13"
+                                   TextColor="#856404"
+                                   LineBreakMode="WordWrap"/>
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <!-- Common Issues Frame -->
+                    <Frame CornerRadius="16"
+                           Padding="20"
+                           HasShadow="False"
+                           BorderColor="#E9ECEF"
+                           BackgroundColor="#F8F9FA">
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="Common Issues"
+                                   FontSize="15"
+                                   FontAttributes="Bold"
+                                   TextColor="#212529"/>
+
+                            <BoxView HeightRequest="1"
+                                     BackgroundColor="#DEE2E6"
+                                     Margin="0,4"/>
+
+                            <VerticalStackLayout Spacing="12" Margin="0,4">
+                                <!-- Issue 1 -->
+                                <HorizontalStackLayout Spacing="12">
+                                    <Label Text="•"
+                                           FontSize="18"
+                                           TextColor="#DC3545"
+                                           VerticalOptions="Start"/>
+                                    <VerticalStackLayout Spacing="4" FlexLayout.Grow="1">
+                                        <Label Text="Incorrect BVN"
+                                               FontSize="13"
+                                               FontAttributes="Bold"
+                                               TextColor="#212529"/>
+                                        <Label Text="Ensure you've entered all 11 digits correctly"
+                                               FontSize="12"
+                                               TextColor="#6C757D"/>
+                                    </VerticalStackLayout>
+                                </HorizontalStackLayout>
+
+                                <!-- Issue 2 -->
+                                <HorizontalStackLayout Spacing="12">
+                                    <Label Text="•"
+                                           FontSize="18"
+                                           TextColor="#DC3545"
+                                           VerticalOptions="Start"/>
+                                    <VerticalStackLayout Spacing="4" FlexLayout.Grow="1">
+                                        <Label Text="Network Connection"
+                                               FontSize="13"
+                                               FontAttributes="Bold"
+                                               TextColor="#212529"/>
+                                        <Label Text="Check your internet connection and try again"
+                                               FontSize="12"
+                                               TextColor="#6C757D"/>
+                                    </VerticalStackLayout>
+                                </HorizontalStackLayout>
+
+                                <!-- Issue 3 -->
+                                <HorizontalStackLayout Spacing="12">
+                                    <Label Text="•"
+                                           FontSize="18"
+                                           TextColor="#DC3545"
+                                           VerticalOptions="Start"/>
+                                    <VerticalStackLayout Spacing="4" FlexLayout.Grow="1">
+                                        <Label Text="Server Issues"
+                                               FontSize="13"
+                                               FontAttributes="Bold"
+                                               TextColor="#212529"/>
+                                        <Label Text="Temporary server issues, please retry"
+                                               FontSize="12"
+                                               TextColor="#6C757D"/>
+                                    </VerticalStackLayout>
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <!-- Support Options Frame -->
+                    <Frame x:Name="SupportFrame"
+                           CornerRadius="16"
+                           Padding="20"
+                           HasShadow="False"
+                           BorderColor="#17A2B8"
+                           BackgroundColor="#D1ECF1">
+                        <VerticalStackLayout Spacing="12">
+                            <HorizontalStackLayout Spacing="8">
+                                <Label Text="❓"
+                                       FontSize="18"
+                                       VerticalOptions="Center"/>
+                                <Label Text="Need Help?"
+                                       FontSize="15"
+                                       FontAttributes="Bold"
+                                       TextColor="#0C5460"
+                                       VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+
+                            <Label Text="Our support team is available 24/7 to assist you with any verification issues."
+                                   FontSize="13"
+                                   TextColor="#0C5460"
+                                   LineBreakMode="WordWrap"/>
+
+                            <StackLayout Orientation="Horizontal" Spacing="8" Margin="0,8,0,0" HorizontalOptions="CenterAndExpand" VerticalOptions="FillAndExpand">
+                                <Button Text="Call Us"
+                                        BackgroundColor="#17A2B8"
+                                        TextColor="White"
+                                        FontSize="13"
+                                        CornerRadius="8"
+                                        HeightRequest="40"
+                                        Clicked="OnSupportButtonClicked"/>
+                                <Button Text="Chat Us"
+                                        BackgroundColor="#17A2B8"
+                                        TextColor="White"
+                                        FontSize="13"
+                                        CornerRadius="8"
+                                        HeightRequest="40"
+                                        Clicked="OnSupportButtonClicked"/>
+                            </StackLayout>
+
+                        </VerticalStackLayout>
+                    </Frame>
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <VerticalStackLayout Grid.Row="2" 
+                          x:Name="FooterStack"
+                          Padding="24,16"
+                          Spacing="16"
+                          BackgroundColor="#F8F9FA">
+
+                <Label x:Name="TimestampLabel"
+                 Text="Verified on Dec 20, 2024 • 10:30 AM"
+                 FontSize="11"
+                 TextColor="#6C757D"
+                 HorizontalOptions="Center"/>
+
+                <Button x:Name="ActionButton"
+         Text="Close"
+         BackgroundColor="#DC3545"
+         TextColor="White"
+         FontSize="16"
+         CornerRadius="15"
+         HeightRequest="50"
+         Clicked="OnActionButtonClicked"/>
+
+            </VerticalStackLayout>
+
+
+        </Grid>
+    </Frame>
+</toolkit:Popup>

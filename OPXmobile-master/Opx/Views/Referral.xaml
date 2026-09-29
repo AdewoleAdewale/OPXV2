@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Opx.Views.Referral">
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="White" Offset="0.0" />
+            <GradientStop Color="WhiteSmoke" Offset="0.5" />
+            <GradientStop Color="WhiteSmoke" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style x:Key="HeaderLabelStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="18" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="HorizontalOptions" Value="Start" />
+                <Setter Property="VerticalOptions" Value="Center" />
+            </Style>
+
+            <Style x:Key="SubHeaderLabelStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="TextColor" Value="Purple" />
+                <Setter Property="HorizontalOptions" Value="Start" />
+                <Setter Property="VerticalOptions" Value="Center" />
+            </Style>
+
+            <Style x:Key="ReferralNameStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="LineBreakMode" Value="TailTruncation" />
+            </Style>
+
+            <Style x:Key="ReferralDetailStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="FontAttributes" Value="None" />
+                <Setter Property="TextColor" Value="#B0B0B0" />
+                <Setter Property="LineBreakMode" Value="TailTruncation" />
+            </Style>
+
+            <Style x:Key="DetailLabelStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="FontAttributes" Value="None" />
+                <Setter Property="TextColor" Value="#B0B0B0" />
+            </Style>
+
+            <Style x:Key="DetailValueStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="FontAttributes" Value="None" />
+                <Setter Property="TextColor" Value="White" />
+            </Style>
+
+            <Style x:Key="ReferralCodeStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="20" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="TextColor" Value="Purple" />
+                <Setter Property="HorizontalOptions" Value="Center" />
+            </Style>
+
+            <Style x:Key="SearchEntryStyle" TargetType="Entry">
+                <Setter Property="BackgroundColor" Value="White" />
+                <Setter Property="TextColor" Value="Black" />
+                <Setter Property="PlaceholderColor" Value="#A25AC4" />
+                <Setter Property="HeightRequest" Value="50" />
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="Margin" Value="0" />
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid BackgroundColor="Transparent">
+        <!-- Header -->
+        <StackLayout VerticalOptions="Start" BackgroundColor="Transparent" Padding="20,50,20,20">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Back Button -->
+                <Button Grid.Column="0" 
+                        ImageSource="back.png"
+                        FontSize="20" 
+                        FontAttributes="Bold"
+                        TextColor="White" 
+                        BackgroundColor="Transparent"
+                        BorderWidth="0"
+                        Padding="0"
+                        Margin="0,0,15,0"
+                        WidthRequest="30"
+                        HeightRequest="30"
+                        x:Name="BackButton"
+                        Clicked="BackButton_Clicked"/>
+
+                <!-- Title -->
+                <Label Grid.Column="1" 
+                       TextColor="Purple"
+                       Text="Referral Program" 
+                       Style="{StaticResource HeaderLabelStyle}"/>
+
+                <!-- Refresh Button -->
+                <Button Grid.Column="2" 
+                        Text="🔄" 
+                        FontSize="18" 
+                        TextColor="White" 
+                        BackgroundColor="Transparent"
+                        BorderWidth="0"
+                        x:Name="RefreshButton"
+                        Clicked="RefreshButton_Clicked"/>
+            </Grid>
+        </StackLayout>
+
+        <!-- Main Content -->
+        <ScrollView Margin="0,120,0,0" BackgroundColor="Transparent">
+            <StackLayout Spacing="15" BackgroundColor="Transparent" Padding="20,20,20,20">
+
+                <!-- Referral Code Section -->
+                <Frame BackgroundColor="White" 
+                       CornerRadius="15" 
+                       Padding="20" 
+                       HasShadow="True">
+                    <StackLayout Spacing="15">
+                        <Label Text="Your Referral Code" 
+                               Style="{StaticResource SubHeaderLabelStyle}"/>
+
+                        <Frame BackgroundColor="White" 
+                               CornerRadius="10" 
+                               Padding="15" 
+                               BorderColor="Purple" >
+                            <Label x:Name="ReferralCodeLabel" 
+                                   Text="Loading..." 
+                                   Style="{StaticResource ReferralCodeStyle}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnReferralCodeTapped"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </Frame>
+
+                        <Label Text="Your Referral Link" 
+                               Style="{StaticResource SubHeaderLabelStyle}"
+                               Margin="0,10,0,0"/>
+
+                        <Frame BackgroundColor="White" 
+       CornerRadius="10" 
+       Padding="10" 
+       HasShadow="True">
+                            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
+                                <Entry x:Name="ReferralLinkEntry" 
+               IsReadOnly="True"
+               Text="Loading..."
+               TextColor="Black"
+               BackgroundColor="White"
+               Grid.Column="0"
+               FontSize="12"/>
+
+                                <Button Grid.Column="1" 
+                Text="📋" 
+                BackgroundColor="Purple" 
+                TextColor="White"
+                CornerRadius="8"
+                Padding="10,0"
+                FontSize="16"
+                x:Name="CopyLinkButton"
+                Clicked="OnCopyLinkClicked"
+                ToolTipProperties.Text="Copy Link"/>
+
+                                <Button Grid.Column="2" 
+                Text="📤" 
+                BackgroundColor="#25D366" 
+                TextColor="White"
+                CornerRadius="8"
+                Padding="10,0"
+                FontSize="16"
+                x:Name="ShareButton"
+                Clicked="OnShareButtonClicked"
+                ToolTipProperties.Text="Share"/>
+                            </Grid>
+                        </Frame>
+
+                        <StackLayout Orientation="Horizontal" Spacing="10" Margin="0,10,0,0">
+                            <Label Text="Total Referrals:" 
+                                   TextColor="Purple" 
+                                   FontSize="14" 
+                                   FontAttributes="Bold"/>
+                            <Label x:Name="TotalReferralsLabel" 
+                                   Text="0" 
+                                   TextColor="Purple" 
+                                   FontSize="14" 
+                                   FontAttributes="Bold"/>
+                        </StackLayout>
+
+                        <Label Text="Share via:" 
+TextColor="Purple" 
+FontSize="14" 
+FontAttributes="Bold"
+Margin="0,15,0,5"/>
+
+                        <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="10" RowSpacing="10">
+                            <Button Grid.Column="0"
+     Text="WhatsApp"
+     BackgroundColor="#25D366"
+     TextColor="White"
+     CornerRadius="8"
+     FontSize="12"
+     Padding="10,5"
+     x:Name="ShareWhatsAppButton"
+     Clicked="OnShareWhatsApp"/>
+
+                            <Button Grid.Column="1"
+     Text="SMS"
+     BackgroundColor="#0084FF"
+     TextColor="White"
+     CornerRadius="8"
+     FontSize="12"
+     Padding="10,5"
+     x:Name="ShareSMSButton"
+     Clicked="OnShareSMS"/>
+
+                            <Button Grid.Column="2"
+     Text="Email"
+     BackgroundColor="#EA4335"
+     TextColor="White"
+     CornerRadius="8"
+     FontSize="12"
+     Padding="10,5"
+     x:Name="ShareEmailButton"
+     Clicked="OnShareEmail"/>
+
+                            <Button Grid.Column="3"
+     Text="More"
+     BackgroundColor="#8E44AD"
+     TextColor="White"
+     CornerRadius="8"
+     FontSize="12"
+     Padding="10,5"
+     x:Name="ShareMoreButton"
+     Clicked="OnShareMore"/>
+                        </Grid>
+                    </StackLayout>
+
+
+
+                  
+                </Frame>
+
+                <!-- Search Bar -->
+                <Frame BackgroundColor="White" 
+                       CornerRadius="15" 
+                       Padding="0" 
+                       HeightRequest="50"
+                       HasShadow="True">
+                    <Grid ColumnDefinitions="50,*,50">
+                        <Label Grid.Column="0" 
+                               Text="🔍" 
+                               FontSize="18" 
+                               TextColor="#A25AC4" 
+                               HorizontalOptions="Center" 
+                               VerticalOptions="Center"/>
+
+                        <Entry Grid.Column="1" 
+                               x:Name="SearchEntry" 
+                               Placeholder="Search by name, email or phone..." 
+                               Style="{StaticResource SearchEntryStyle}"
+                               TextChanged="SearchEntry_TextChanged"/>
+
+                        <Button Grid.Column="2" 
+                                Text="✕" 
+                                FontSize="16" 
+                                TextColor="#A25AC4" 
+                                BackgroundColor="Transparent"
+                                BorderWidth="0"
+                                Padding="0"
+                                x:Name="ClearSearchButton"
+                                Clicked="ClearSearchButton_Clicked"/>
+                    </Grid>
+                </Frame>
+
+                <!-- Loading Indicator -->
+                <StackLayout x:Name="LoadingSection" 
+                            IsVisible="False" 
+                            Padding="20" 
+                            BackgroundColor="Transparent"
+                            VerticalOptions="CenterAndExpand">
+                    <ActivityIndicator x:Name="LoadingIndicator" 
+                                      IsVisible="False" 
+                                      IsRunning="False" 
+                                      Color="Purple" 
+                                      HeightRequest="40"/>
+                    <Label Text="Loading referrals..." 
+                           FontSize="14" 
+                           TextColor="Purple" 
+                           HorizontalOptions="Center" 
+                           Margin="0,10,0,0"/>
+                </StackLayout>
+
+                <!-- Empty State -->
+                <StackLayout x:Name="EmptyStateContainer" 
+                            IsVisible="False" 
+                            Padding="20" 
+                            VerticalOptions="CenterAndExpand"
+                            BackgroundColor="Transparent">
+                    <Label Text="👥" 
+                           FontSize="48" 
+                           HorizontalOptions="Center" 
+                           Margin="0,0,0,10"/>
+                    <Label Text="No Referrals Yet" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           TextColor="Purple" 
+                           HorizontalOptions="Center"
+                           Margin="0,0,0,5"/>
+                    <Label Text="Share your referral link to start earning rewards!" 
+                           TextColor="Purple" 
+                           FontSize="14" 
+                           HorizontalOptions="Center"/>
+                </StackLayout>
+
+                <!-- Error State -->
+                <StackLayout x:Name="ErrorStateContainer" 
+                            IsVisible="False" 
+                            Padding="20" 
+                            VerticalOptions="CenterAndExpand"
+                            BackgroundColor="Transparent">
+                    <Label Text="⚠️" 
+                           FontSize="48" 
+                           HorizontalOptions="Center" 
+                           Margin="0,0,0,10"/>
+                    <Label Text="Unable to Load Referrals" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           TextColor="#E74C3C" 
+                           HorizontalOptions="Center"
+                           Margin="0,0,0,5"/>
+                    <Label Text="Please check your internet connection and try again." 
+                           TextColor="Purple" 
+                           FontSize="14" 
+                           HorizontalOptions="Center"/>
+                    <Button Text="Retry" 
+                           BackgroundColor="Purple" 
+                           TextColor="White" 
+                           CornerRadius="8" 
+                           Margin="0,10,0,0" 
+                           x:Name="RetryButton"
+                           Clicked="RetryButton_Clicked"/>
+                </StackLayout>
+
+                <!-- Referrals List -->
+                <CollectionView x:Name="ReferralsCollectionView" 
+                               ItemsSource="{Binding FilteredReferrals}"
+                               BackgroundColor="Transparent"
+                               SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <StackLayout Margin="0,5,0,5">
+                                <Frame Padding="15" 
+                                       CornerRadius="15" 
+                                       HasShadow="True">
+                                    <Frame.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="Purple" Offset="0.5" />
+                                            <GradientStop Color="Black" Offset="1.0" />
+                                        </LinearGradientBrush>
+                                    </Frame.Background>
+
+                                    <Grid ColumnDefinitions="50,*,Auto" ColumnSpacing="15">
+                                        <!-- Avatar -->
+                                        <Frame Grid.Column="0" 
+                                               BackgroundColor="White" 
+                                               CornerRadius="25" 
+                                               Padding="0" 
+                                               HeightRequest="50" 
+                                               WidthRequest="50"
+                                               HasShadow="False">
+                                            <Label Text="{Binding InitialLetter}" 
+                                                   FontSize="24" 
+                                                   TextColor="Purple" 
+                                                   FontAttributes="Bold"
+                                                   HorizontalOptions="Center" 
+                                                   VerticalOptions="Center"/>
+                                        </Frame>
+
+                                        <!-- Referral Info -->
+                                        <StackLayout Grid.Column="1" 
+                                                     Spacing="8" 
+                                                     VerticalOptions="Center">
+                                            <Label Text="{Binding FullName}" 
+                                                   Style="{StaticResource ReferralNameStyle}"/>
+                                            <Label Text="{Binding Email}" 
+                                                   Style="{StaticResource ReferralDetailStyle}"/>
+                                            <StackLayout Orientation="Horizontal" Spacing="15" Margin="0,5,0,0">
+                                                <StackLayout Spacing="2">
+                                                    <Label Text="Phone" 
+                                                           Style="{StaticResource DetailLabelStyle}"/>
+                                                    <Label Text="{Binding PhoneNumber}" 
+                                                           Style="{StaticResource DetailValueStyle}"/>
+                                                </StackLayout>
+                                                <StackLayout Spacing="2">
+                                                    <Label Text="Joined" 
+                                                           Style="{StaticResource DetailLabelStyle}"/>
+                                                    <Label Text="{Binding JoinedDate}" 
+                                                           Style="{StaticResource DetailValueStyle}"/>
+                                                </StackLayout>
+                                            </StackLayout>
+                                        </StackLayout>
+
+                                        <!-- Action Button -->
+                                        <Button Grid.Column="2" 
+                                                Text="📋" 
+                                                FontSize="20" 
+                                                BackgroundColor="Transparent"
+                                                BorderWidth="0"
+                                                Padding="0"
+                                                VerticalOptions="Center"
+                                                CommandParameter="{Binding .}"
+                                                Clicked="OnCopyReferralInfo"/>
+                                    </Grid>
+                                </Frame>
+                            </StackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- Footer Summary -->
+                <StackLayout Padding="20,20,20,20" 
+                            BackgroundColor="Transparent"
+                            x:Name="FooterSection"
+                            IsVisible="False">
+                    <Label Text="Share your referral link with friends to grow your network!" 
+                           TextColor="Purple" 
+                           FontSize="12" 
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center"/>
+                </StackLayout>
+            </StackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,457 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="Opx.Views.ContractListDetail"
+             NavigationPage.HasNavigationBar="False"
+             BackgroundColor="LightGrey"
+             x:Name="MainPage">
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="WhiteSmoke" Offset="0.0" />
+            <GradientStop Color="WhiteSmoke" Offset="0.5" />
+            <GradientStop Color="WhiteSmoke" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!-- Color Resources -->
+            <Color x:Key="PrimaryColor">#A25AC4</Color>
+            <Color x:Key="SecondaryColor">#9B59B6</Color>
+            <Color x:Key="AccentColor">#E74C3C</Color>
+            <Color x:Key="SuccessColor">#27AE60</Color>
+            <Color x:Key="WarningColor">#F39C12</Color>
+            <Color x:Key="DangerColor">#E74C3C</Color>
+            <Color x:Key="InfoColor">#3498DB</Color>
+            <Color x:Key="LightGray">#ECF0F1</Color>
+            <Color x:Key="DarkGray">#7F8C8D</Color>
+            <Color x:Key="TextPrimary">#2C3E50</Color>
+            <Color x:Key="TextSecondary">#7F8C8D</Color>
+            <Color x:Key="CardBackground">#FFFFFF</Color>
+            <Color x:Key="ShadowColor">#1A000000</Color>
+
+            <!-- Gradient Resources -->
+            <LinearGradientBrush x:Key="PrimaryGradient" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#A25AC4" Offset="0.0" />
+                <GradientStop Color="#9B59B6" Offset="1.0" />
+            </LinearGradientBrush>
+
+            <LinearGradientBrush x:Key="SuccessGradient" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#27AE60" Offset="0.0" />
+                <GradientStop Color="#2ECC71" Offset="1.0" />
+            </LinearGradientBrush>
+
+            <!-- Styles -->
+            <Style x:Key="CardStyle" TargetType="Frame">
+                <Setter Property="BackgroundColor" Value="{StaticResource CardBackground}" />
+                <Setter Property="CornerRadius" Value="16" />
+                <Setter Property="HasShadow" Value="True" />
+                <Setter Property="BorderColor" Value="Transparent" />
+                <Setter Property="Padding" Value="20" />
+                <Setter Property="Margin" Value="0,10" />
+            </Style>
+
+            <Style x:Key="HeaderStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="24" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+                <Setter Property="HorizontalOptions" Value="Center" />
+            </Style>
+
+            <Style x:Key="SectionTitleStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="18" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+                <Setter Property="Margin" Value="0,20,0,10" />
+            </Style>
+
+            <Style x:Key="AmountStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="36" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+                <Setter Property="HorizontalOptions" Value="Center" />
+            </Style>
+
+            <Style x:Key="ButtonStyle" TargetType="Frame">
+                <Setter Property="CornerRadius" Value="10" />
+                <Setter Property="HasShadow" Value="True" />
+                <Setter Property="HeightRequest" Value="60" />
+                <Setter Property="Margin" Value="0,10" />
+                <Setter Property="HorizontalOptions" Value="FillAndExpand" />
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ContentPage.Content>
+        <Grid>
+            <!-- Main Content -->
+            <ScrollView x:Name="MainScrollView" Padding="20">
+                <StackLayout Spacing="0" x:Name="StackContract">
+
+                    <!-- Sophisticated Header with Receipt Style -->
+                    <Frame Style="{StaticResource CardStyle}"  HasShadow="True" BorderColor="LightGray"
+                           BackgroundColor="{StaticResource CardBackground}" 
+                           Margin="0,0,0,10">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <!-- Navigation Header -->
+                            <StackLayout Grid.Row="0" Orientation="Horizontal" VerticalOptions="Center" Spacing="15">
+                              
+                                <Label Text="ESCROW RECEIPT" 
+                                       Style="{StaticResource HeaderStyle}"
+                                       HorizontalOptions="StartAndExpand"
+                                       x:Name="HeaderLabel"/>
+
+                                <!-- Receipt Icon -->
+                                <Frame BackgroundColor="{StaticResource PrimaryColor}" 
+                                       HasShadow="False" 
+                                       Padding="8"
+                                       CornerRadius="10"
+                                       WidthRequest="40"
+                                       HeightRequest="40">
+                                    <Label Text="📋" 
+                                           FontSize="20"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"
+                                           TextColor="White"/>
+                                </Frame>
+                            </StackLayout>
+
+                            <!-- Receipt Number & Date -->
+                            <StackLayout Grid.Row="1" 
+                                       Orientation="Horizontal" 
+                                         x:Name="Escrowcard"
+                                       HorizontalOptions="FillAndExpand"
+                                       Margin="0,15,0,0">
+                                <Label Text="{Binding Token, StringFormat='Receipt #{0}'}" 
+                                       FontSize="12" 
+                                       TextColor="{StaticResource TextSecondary}"
+                                       HorizontalOptions="StartAndExpand"/>
+                                <Label Text="{Binding CreatedAt, StringFormat='{0:MMM dd, yyyy}'}" 
+                                       FontSize="12" 
+                                       TextColor="{StaticResource TextSecondary}"
+                                       HorizontalOptions="End"/>
+                            </StackLayout>
+
+                            <!-- Separator Line -->
+                            <BoxView Grid.Row="2" 
+                                   HeightRequest="1" 
+                                   BackgroundColor="Transparent" 
+                                   Margin="0,15,0,0"/>
+                        </Grid>
+                    </Frame>
+
+                    <!-- Amount Section with Professional Styling -->
+                    <Frame Style="{StaticResource CardStyle}"  BackgroundColor="White" HasShadow="True" BorderColor="LightGray"
+                           x:Name="AmountCard"
+                           Margin="0,0,0,0">
+                        <StackLayout Spacing="5">
+                            <Label Text="TRANSACTION AMOUNT" 
+                                   FontSize="12" 
+                                   TextColor="Black"
+                                   HorizontalOptions="Center"
+                                   FontAttributes="Bold"/>
+
+                            <Label x:Name="AmountLabel" 
+                                   Style="{StaticResource AmountStyle}"
+                                   HorizontalOptions="Center"
+                                   Margin="0,10,0,0">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="₦" TextColor="Purple" FontSize="28"/>
+                                        <Span Text="{Binding Amount, StringFormat='{0:N2}'}"  TextColor="Purple"/>
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+
+                            <Label Text="Nigerian Naira" 
+                                   FontSize="14" 
+                                   TextColor="{StaticResource TextSecondary}"
+                                   HorizontalOptions="Center"/>
+                        </StackLayout>
+                    </Frame>
+
+                    <!-- Transaction Details Section -->
+                    <Label Text="TRANSACTION DETAILS" TextColor="Black" Style="{StaticResource SectionTitleStyle}"  BackgroundColor="Transparent"/>
+                    <Frame Style="{StaticResource CardStyle}"  HasShadow="True" BorderColor="LightGray"
+                           x:Name="TransactionDetailsCard">
+                        <StackLayout Spacing="10">
+
+                            <!-- Description -->
+                            <StackLayout x:Name="DescriptionItem">
+                                <Label Text="Description" 
+                                       FontSize="12" 
+                                       TextColor="{StaticResource TextSecondary}"
+                                       FontAttributes="Bold"/>
+                                <Label Text="{Binding Description}" 
+                                       FontSize="16" 
+                                       TextColor="{StaticResource TextPrimary}"
+                                       FontAttributes="Bold"
+                                       Margin="0,5,0,0"/>
+                            </StackLayout>
+
+                            <BoxView HeightRequest="1" BackgroundColor="{StaticResource LightGray}" />
+
+                            <!-- Role -->
+                            <StackLayout x:Name="RoleItem">
+                                <Label Text="Your Role" 
+                                       FontSize="12" 
+                                       TextColor="{StaticResource TextSecondary}"
+                                       FontAttributes="Bold"/>
+                                <Frame BackgroundColor="{StaticResource PrimaryColor}" 
+                                       CornerRadius="15" 
+                                       HasShadow="False" 
+                                       Padding="10,5"
+                                       HorizontalOptions="Start"
+                                       Margin="0,5,0,0">
+                                    <Label Text="{Binding Role}" 
+                                           TextColor="White" 
+                                           FontSize="14"
+                                           FontAttributes="Bold"/>
+                                </Frame>
+                            </StackLayout>
+
+                            <BoxView HeightRequest="1" BackgroundColor="{StaticResource LightGray}" />
+
+                            <!-- Escrow Token -->
+                            <StackLayout x:Name="TokenItem">
+                                <Label Text="Escrow Token" 
+                                       FontSize="12" 
+                                       TextColor="{StaticResource TextSecondary}"
+                                       FontAttributes="Bold"/>
+                                <Frame BackgroundColor="{StaticResource LightGray}" 
+                                       CornerRadius="8" 
+                                       HasShadow="False" 
+                                       Padding="10"
+                                       Margin="0,5,0,0">
+                                    <Label Text="{Binding Token}" 
+                                           TextColor="{StaticResource TextPrimary}" 
+                                           FontSize="14"
+                                           FontAttributes="Bold"
+                                           FontFamily="Courier"/>
+                                </Frame>
+                            </StackLayout>
+
+                            <BoxView HeightRequest="1" BackgroundColor="{StaticResource LightGray}" />
+
+                            <!-- Status with Color Coding -->
+                            <StackLayout x:Name="StatusItem">
+                                <Label Text="Transaction Status" 
+                                       FontSize="12" 
+                                       TextColor="{StaticResource TextSecondary}"
+                                       FontAttributes="Bold"/>
+                                <Frame x:Name="StatusFrame" 
+                                       CornerRadius="15" 
+                                       HasShadow="False" 
+                                       Padding="10,5"
+                                       HorizontalOptions="Start"
+                                       Margin="0,5,0,0">
+                                    <Label Text="{Binding Status}" 
+                                           x:Name="StatusLabel"
+                                           TextColor="Red" 
+                                           FontSize="14"
+                                           FontAttributes="Bold"/>
+                                </Frame>
+                            </StackLayout>
+
+                        </StackLayout>
+                    </Frame>
+
+                    <!-- Parties Information -->
+                    <Label Text="PARTIES INVOLVED" TextColor="Black" Style="{StaticResource SectionTitleStyle}" BackgroundColor="Transparent" />
+                    <Frame Style="{StaticResource CardStyle}" HasShadow="True" BorderColor="LightGray"
+                           x:Name="PartiesCard">
+                        <StackLayout Spacing="10">
+
+                            <!-- Buyer Information -->
+                            <StackLayout x:Name="BuyerItem">
+                                <StackLayout Orientation="Horizontal" Spacing="10">
+                                    <Frame BackgroundColor="Transparent" 
+                                           CornerRadius="20" 
+                                           HasShadow="False" 
+                                           Padding="8"
+                                           WidthRequest="40"
+                                           HeightRequest="40">
+                                        <Label Text="🛒" 
+                                               FontSize="16"
+                                               TextColor="White"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center"/>
+                                    </Frame>
+                                    <StackLayout HorizontalOptions="FillAndExpand">
+                                        <Label Text="Buyer" 
+                                               FontSize="12" 
+                                               TextColor="{StaticResource TextSecondary}"
+                                               FontAttributes="Bold"/>
+                                        <Label Text="{Binding BuyerName}" 
+                                               FontSize="16" 
+                                               TextColor="{StaticResource TextPrimary}"
+                                               FontAttributes="Bold"/>
+                                    </StackLayout>
+                                </StackLayout>
+                            </StackLayout>
+
+                            <BoxView HeightRequest="1" BackgroundColor="{StaticResource LightGray}" />
+
+                            <!-- Seller Information -->
+                            <StackLayout x:Name="SellerItem">
+                                <StackLayout Orientation="Horizontal" Spacing="10">
+                                    <Frame BackgroundColor="Transparent" 
+                                           CornerRadius="20" 
+                                           HasShadow="False" 
+                                           Padding="8"
+                                           WidthRequest="40"
+                                           HeightRequest="40">
+                                        <Label Text="🏪" 
+                                               FontSize="16"
+                                               TextColor="White"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center"/>
+                                    </Frame>
+                                    <StackLayout HorizontalOptions="FillAndExpand">
+                                        <Label Text="Seller" 
+                                               FontSize="12" 
+                                               TextColor="{StaticResource TextSecondary}"
+                                               FontAttributes="Bold"/>
+                                        <Label Text="{Binding SellerName}" 
+                                               FontSize="16" 
+                                               TextColor="{StaticResource TextPrimary}"
+                                               FontAttributes="Bold"/>
+                                    </StackLayout>
+                                </StackLayout>
+                            </StackLayout>
+
+                        </StackLayout>
+                    </Frame>
+
+                    <!-- Transaction Timeline -->
+                    <Label Text="TRANSACTION TIMELINE" TextColor="Black" Style="{StaticResource SectionTitleStyle}" />
+                    <Frame Style="{StaticResource CardStyle}"  HasShadow="True" BorderColor="LightGray"
+                           x:Name="TimelineCard">
+                        <StackLayout Spacing="15" x:Name="TimelineStack">
+
+                            <StackLayout x:Name="CreatedItem">
+                                <StackLayout Orientation="Horizontal" Spacing="10">
+                                    <Frame BackgroundColor="Transparent"  
+                                           CornerRadius="1" 
+                                           HasShadow="False" 
+                                           Padding="6"
+                                           WidthRequest="30"
+                                           HeightRequest="30">
+                                        <Label Text="📅" 
+                                               FontSize="12"
+                                               TextColor="White"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center"/>
+                                    </Frame>
+                                    <StackLayout HorizontalOptions="FillAndExpand">
+                                        <Label Text="Created" 
+                                               FontSize="12" 
+                                               TextColor="{StaticResource TextSecondary}"
+                                               FontAttributes="Bold"/>
+                                        <Label Text="{Binding CreatedAt, StringFormat='{0:MMM dd, yyyy - HH:mm}'}" 
+                                               FontSize="14" 
+                                               TextColor="{StaticResource TextPrimary}"
+                                               FontAttributes="Bold"/>
+                                    </StackLayout>
+                                </StackLayout>
+                            </StackLayout>
+
+                        </StackLayout>
+                    </Frame>
+
+                    <!-- Action Buttons -->
+                    <StackLayout Spacing="15" Margin="0,0,0,0">
+
+                        <!-- Primary Share Button -->
+                        <Frame Style="{StaticResource ButtonStyle}"  HasShadow="True" BorderColor="LightGray"
+                              BackgroundColor="White"
+                               x:Name="ShareButton">
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnShareTapped" />
+                            </Frame.GestureRecognizers>
+                            <StackLayout Orientation="Horizontal" 
+                                       HorizontalOptions="Center" 
+                                       VerticalOptions="Center"
+                                       Spacing="10">
+                               
+                                <Label Text="Share Receipt" 
+                                       FontSize="16" 
+                                       FontAttributes="Bold"
+                                       TextColor="Purple"
+                                       VerticalOptions="Center"/>
+                            </StackLayout>
+                        </Frame>
+
+                    
+                    </StackLayout>
+
+                    <!-- Footer -->
+                    <StackLayout Margin="0,30,0,20" x:Name="FooterStack">
+                        <Label Text="Opx Escrow Platform" 
+                               FontSize="12" 
+                               TextColor="Purple"
+                               HorizontalOptions="Center"
+                               FontAttributes="Bold"/>
+                        <Label Text="Secure • Transparent • Reliable" 
+                               FontSize="10" 
+                               TextColor="Purple"
+                               HorizontalOptions="Center"
+                               Margin="0,5,0,0"/>
+                    </StackLayout>
+
+                </StackLayout>
+            </ScrollView>
+
+            <!-- Loading Overlay -->
+            <Grid x:Name="LoadingOverlay" 
+                  BackgroundColor="#80000000" 
+                  IsVisible="False"
+                  InputTransparent="False">
+                <Frame BackgroundColor="White" 
+                       CornerRadius="20" 
+                       HasShadow="True"
+                       Padding="30"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       WidthRequest="200"
+                       HeightRequest="120">
+                    <StackLayout HorizontalOptions="Center" 
+                               VerticalOptions="Center"
+                               Spacing="15">
+                        <ActivityIndicator x:Name="LoadingIndicator" 
+                                         IsVisible="True" 
+                                         IsRunning="True" 
+                                         Color="{StaticResource PrimaryColor}"
+                                         HeightRequest="40" 
+                                         WidthRequest="40" />
+                        <Label x:Name="LoadingLabel" 
+                               Text="Loading..." 
+                               FontSize="16" 
+                               TextColor="{StaticResource TextPrimary}"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"/>
+                    </StackLayout>
+                </Frame>
+            </Grid>
+
+            <!-- Error Message -->
+            <Frame x:Name="ErrorFrame" 
+                   BackgroundColor="{StaticResource DangerColor}" 
+                   CornerRadius="10" 
+                   HasShadow="True"
+                   IsVisible="False"
+                   Margin="20"
+                   VerticalOptions="End"
+                   HorizontalOptions="FillAndExpand">
+               
+            </Frame>
+
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>

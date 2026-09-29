@@ -1,0 +1,914 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Opx.MainPage"
+             xmlns:renderers="clr-namespace:Opx.Renderers"
+             BackgroundColor="Transparent"
+             NavigationPage.HasNavigationBar="False">
+
+    <ContentPage.Content>
+        <Grid>
+            <!-- Background Gradient -->
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#A25AC4" Offset="0.0" />
+                    <GradientStop Color="Black" Offset="1.0" />
+                </LinearGradientBrush>
+            </Grid.Background>
+
+            <!-- Floating Background Elements -->
+            <Grid x:Name="FloatingElements" Opacity="0.1">
+                <Ellipse Fill="White" 
+                        WidthRequest="200" 
+                        HeightRequest="200" 
+                        HorizontalOptions="Start" 
+                        VerticalOptions="Start" 
+                        Margin="-100,-100,0,0"/>
+                <Ellipse Fill="White" 
+                        WidthRequest="150" 
+                        HeightRequest="150" 
+                        HorizontalOptions="End" 
+                        VerticalOptions="Center" 
+                        Margin="0,0,-75,0"/>
+                <Ellipse Fill="White" 
+                        WidthRequest="100" 
+                        HeightRequest="100" 
+                        HorizontalOptions="Center" 
+                        VerticalOptions="End" 
+                        Margin="0,0,0,-50"/>
+                <Ellipse Fill="White" 
+                        WidthRequest="60" 
+                        HeightRequest="60" 
+                        HorizontalOptions="Start" 
+                        VerticalOptions="Center" 
+                        Margin="-30,0,0,0"/>
+            </Grid>
+
+            <ScrollView x:Name="MainScrollView" Padding="25,0">
+                <Grid RowSpacing="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Logo Section -->
+                    <StackLayout Grid.Row="0" 
+                               x:Name="LogoSection" 
+                               Spacing="12" 
+                               Margin="0,40,0,25"
+                               Opacity="0">
+
+                        <!-- Logo Container with Shadow -->
+                        <Frame BackgroundColor="White" 
+                               CornerRadius="35" 
+                               HasShadow="True" 
+                               Padding="15" 
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               WidthRequest="70"
+                               HeightRequest="70">
+                            <Frame.Shadow>
+                                <Shadow Brush="Black" 
+                                       Offset="0,8" 
+                                       Radius="15" 
+                                       Opacity="0.3"/>
+                            </Frame.Shadow>
+                            <Image Source="logo.png" 
+                                   WidthRequest="40"
+                                   HeightRequest="40"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Frame>
+
+                        <!-- Welcome Text -->
+                        <Label Text="Create Your Account"
+                               FontSize="28"
+                               FontAttributes="Bold"
+                               TextColor="White"
+                               HorizontalTextAlignment="Center"
+                               Margin="0,5,0,0"/>
+
+                        <Label Text="Join our community and start your journey with us today"
+                               FontSize="14"
+                               TextColor="White"
+                               Opacity="0.8"
+                               HorizontalTextAlignment="Center"
+                               Margin="10,0,10,0"/>
+
+                        <!-- Step Indicator -->
+                        <Grid Margin="0,15,0,0" ColumnSpacing="10" HorizontalOptions="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Step 1 Indicator -->
+                            <Frame Grid.Column="0" 
+                                   x:Name="Step1Indicator"
+                                   BackgroundColor="White" 
+                                   CornerRadius="20" 
+                                   Padding="12,6"
+                                   HasShadow="True">
+                                <Label Text="Step 1" 
+                                       TextColor="#A25AC4" 
+                                       FontSize="12" 
+                                       FontAttributes="Bold"/>
+                            </Frame>
+
+                            <!-- Connector Line -->
+                            <BoxView Grid.Column="1" 
+                                    BackgroundColor="White" 
+                                    WidthRequest="30" 
+                                    HeightRequest="2" 
+                                    Opacity="0.5"
+                                    VerticalOptions="Center"/>
+
+                            <!-- Step 2 Indicator -->
+                            <Frame Grid.Column="2" 
+                                   x:Name="Step2Indicator"
+                                   BackgroundColor="Transparent" 
+                                   BorderColor="White"
+                                   CornerRadius="20" 
+                                   Padding="12,6"
+                                   HasShadow="False">
+                                <Label Text="Step 2" 
+                                       TextColor="White" 
+                                       FontSize="12" 
+                                       FontAttributes="Bold"/>
+                            </Frame>
+                        </Grid>
+                    </StackLayout>
+
+                    <!-- Registration Form -->
+                    <StackLayout Grid.Row="1" 
+                               x:Name="RegistrationForm" 
+                               Spacing="18" 
+                               HorizontalOptions="Fill"
+                               VerticalOptions="Fill"
+                               Margin="0,5,0,0"
+                               Opacity="0">
+
+                        <!-- STEP 1: Personal Information -->
+                        <StackLayout x:Name="Step1Container" IsVisible="True" Spacing="18">
+
+                            <Label Text="Personal Information" 
+                                   TextColor="White" 
+                                   FontSize="16" 
+                                   FontAttributes="Bold"
+                                   Margin="0,0,0,5"/>
+
+                            <!-- Name Fields Row -->
+                            <Grid ColumnSpacing="12" Margin="15,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- First Name Field (REQUIRED) -->
+                                <StackLayout Grid.Column="0">
+                                    <Frame x:Name="FirstNameFrame"
+                                           BackgroundColor="White"
+                                           CornerRadius="15"
+                                           HasShadow="True"
+                                           Padding="0"
+                                           HeightRequest="55">
+                                        <Frame.Shadow>
+                                            <Shadow Brush="Black" 
+                                                   Offset="0,4" 
+                                                   Radius="12" 
+                                                   Opacity="0.1"/>
+                                        </Frame.Shadow>
+
+                                        <Grid ColumnSpacing="0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="45"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Label Grid.Column="0"
+                                                   Text="👤"
+                                                   FontSize="16"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center"/>
+
+                                            <renderers:BorderlessEntry Grid.Column="1"
+                                                                       x:Name="firstname"
+                                                                       Placeholder="First Name *"
+                                                                       PlaceholderColor="Gray"
+                                                                       TextColor="Black"
+                                                                       FontSize="14"
+                                                                       VerticalOptions="Center"
+                                                                       Margin="0,0,10,0"/>
+                                        </Grid>
+                                    </Frame>
+                                    <Label x:Name="FirstNameError" 
+                                           Text="First name is required" 
+                                           TextColor="Red" 
+                                           FontSize="10" 
+                                           IsVisible="False"
+                                           Margin="5,2,0,0"/>
+                                </StackLayout>
+
+                                <!-- Middle Name Field (REQUIRED) -->
+                                <StackLayout Grid.Column="1">
+                                    <Frame x:Name="LastNameFrame"
+                                           BackgroundColor="White"
+                                           CornerRadius="15"
+                                           HasShadow="True"
+                                           Padding="0"
+                                           HeightRequest="55">
+                                        <Frame.Shadow>
+                                            <Shadow Brush="Black" 
+                                                   Offset="0,4" 
+                                                   Radius="12" 
+                                                   Opacity="0.1"/>
+                                        </Frame.Shadow>
+
+                                        <Grid ColumnSpacing="0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="45"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Label Grid.Column="0"
+                                                   Text="👤"
+                                                   FontSize="16"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center"/>
+
+                                            <renderers:BorderlessEntry Grid.Column="1"
+                                                                       x:Name="lastname"
+                                                                       Placeholder="Middle Name *"
+                                                                       PlaceholderColor="Gray"
+                                                                       TextColor="Black"
+                                                                       FontSize="14"
+                                                                       VerticalOptions="Center"
+                                                                       Margin="0,0,10,0"/>
+                                        </Grid>
+                                    </Frame>
+                                    <Label x:Name="MiddleNameError" 
+                                           Text="Middle name is required" 
+                                           TextColor="Red" 
+                                           FontSize="10" 
+                                           IsVisible="False"
+                                           Margin="5,2,0,0"/>
+                                </StackLayout>
+                            </Grid>
+
+                            <!-- Other Names Field (REQUIRED) -->
+                            <StackLayout>
+                                <Frame x:Name="OthernamesFrames"
+                                       BackgroundColor="White"
+                                       CornerRadius="15"
+                                       HasShadow="True"
+                                       Padding="0"
+                                       HeightRequest="50">
+                                    <Frame.Shadow>
+                                        <Shadow Brush="Black" 
+                                               Offset="0,4" 
+                                               Radius="12" 
+                                               Opacity="0.1"/>
+                                    </Frame.Shadow>
+
+                                    <Grid ColumnSpacing="0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="45"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Label Grid.Column="0"
+                                               Text="👤"
+                                               FontSize="14"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center"/>
+
+                                        <renderers:BorderlessEntry Grid.Column="1"
+                                                                   x:Name="Othernamesinfo"
+                                                                   Placeholder="Other Names *"
+                                                                   PlaceholderColor="Gray"
+                                                                   TextColor="Black"
+                                                                   FontSize="14"
+                                                                   Keyboard="Text"
+                                                                   VerticalOptions="Center"
+                                                                   Margin="0,0,15,0"/>
+                                    </Grid>
+                                </Frame>
+                                <Label x:Name="OtherNamesError" 
+                                       Text="Other names are required" 
+                                       TextColor="Red" 
+                                       FontSize="10" 
+                                       IsVisible="False"
+                                       Margin="5,2,0,0"/>
+                            </StackLayout>
+
+                            <!-- State Field (REQUIRED) -->
+                            <StackLayout>
+                                <Frame x:Name="stateNameFrame"
+                                       BackgroundColor="White"
+                                       CornerRadius="15"
+                                       HasShadow="True"
+                                       Padding="0"
+                                       HeightRequest="50">
+                                    <Frame.Shadow>
+                                        <Shadow Brush="Black" 
+                                               Offset="0,4" 
+                                               Radius="12" 
+                                               Opacity="0.1"/>
+                                    </Frame.Shadow>
+
+                                    <Grid ColumnSpacing="0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="45"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Label Grid.Column="0"
+                                               Text="📍"
+                                               FontSize="16"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center"/>
+
+                                        <Frame Grid.Column="1"
+                                               HasShadow="False"
+                                               BackgroundColor="White"
+                                               CornerRadius="5"
+                                               Margin="0,0,10,0">
+                                            <Picker Title="Select State *"
+                                                   x:Name="Addstatename"
+                                                   BackgroundColor="White"
+                                                   HeightRequest="40"
+                                                   TitleColor="Gray"
+                                                   FontSize="14"
+                                                   TextColor="Black"
+                                                   HorizontalOptions="Fill">
+                                                <Picker.ItemsSource>
+                                                    <x:Array Type="{x:Type x:String}">
+                                                        <x:String>Abia</x:String>
+                                                        <x:String>Adamawa</x:String>
+                                                        <x:String>Akwa Ibom</x:String>
+                                                        <x:String>Anambra</x:String>
+                                                        <x:String>Bauchi</x:String>
+                                                        <x:String>Bayelsa</x:String>
+                                                        <x:String>Benue</x:String>
+                                                        <x:String>Borno</x:String>
+                                                        <x:String>Cross River</x:String>
+                                                        <x:String>Delta</x:String>
+                                                        <x:String>Ebonyi</x:String>
+                                                        <x:String>Edo</x:String>
+                                                        <x:String>Ekiti</x:String>
+                                                        <x:String>Abuja</x:String>
+                                                        <x:String>Enugu</x:String>
+                                                        <x:String>Gombe</x:String>
+                                                        <x:String>Imo</x:String>
+                                                        <x:String>Jigawa</x:String>
+                                                        <x:String>Kaduna</x:String>
+                                                        <x:String>Kano</x:String>
+                                                        <x:String>Katsina</x:String>
+                                                        <x:String>Kebbi</x:String>
+                                                        <x:String>Kogi</x:String>
+                                                        <x:String>Kwara</x:String>
+                                                        <x:String>Lagos</x:String>
+                                                        <x:String>Nasarawa</x:String>
+                                                        <x:String>Niger</x:String>
+                                                        <x:String>Ogun</x:String>
+                                                        <x:String>Ondo</x:String>
+                                                        <x:String>Osun</x:String>
+                                                        <x:String>Oyo</x:String>
+                                                        <x:String>Plateau</x:String>
+                                                        <x:String>Rivers</x:String>
+                                                        <x:String>Sokoto</x:String>
+                                                        <x:String>Taraba</x:String>
+                                                        <x:String>Yobe</x:String>
+                                                        <x:String>Zamfara</x:String>
+                                                    </x:Array>
+                                                </Picker.ItemsSource>
+                                            </Picker>
+                                        </Frame>
+                                    </Grid>
+                                </Frame>
+                                <Label x:Name="StateError" 
+                                       Text="State selection is required" 
+                                       TextColor="Red" 
+                                       FontSize="10" 
+                                       IsVisible="False"
+                                       Margin="5,2,0,0"/>
+                            </StackLayout>
+
+                            <!-- Address Field (REQUIRED) -->
+                            <StackLayout>
+                                <Frame x:Name="Addressnames"
+                                       BackgroundColor="White"
+                                       CornerRadius="15"
+                                       HasShadow="True"
+                                       Padding="0"
+                                       HeightRequest="100">
+                                    <Frame.Shadow>
+                                        <Shadow Brush="Black" 
+                                               Offset="0,4" 
+                                               Radius="12" 
+                                               Opacity="0.1"/>
+                                    </Frame.Shadow>
+
+                                    <Grid ColumnSpacing="0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="45"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Label Grid.Column="0"
+                                               Text="🏠"
+                                               FontSize="14"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Start"
+                                               Margin="0,10,0,0"/>
+
+                                        <Editor Grid.Column="1"
+                                               x:Name="Addressinfo"
+                                               Placeholder="Home Address *"
+                                               HeightRequest="100"
+                                               PlaceholderColor="Gray"
+                                               TextColor="Black"
+                                               FontSize="12"
+                                               VerticalOptions="Center"
+                                               Margin="0,0,10,0"/>
+                                    </Grid>
+                                </Frame>
+                                <Label x:Name="AddressError" 
+                                       Text="Address is required" 
+                                       TextColor="Red" 
+                                       FontSize="10" 
+                                       IsVisible="False"
+                                       Margin="5,2,0,0"/>
+                            </StackLayout>
+
+                            <!-- Next Button for Step 1 -->
+                            <Button x:Name="NextButton"
+                                    Text="NEXT →"
+                                    FontSize="16"
+                                    FontAttributes="Bold"
+                                    TextColor="White"
+                                    CornerRadius="15"
+                                    HorizontalOptions="Fill"
+                                    HeightRequest="55"
+                                    Margin="0,20,0,0"
+                                    Clicked="NextButton_Clicked">
+                                <Button.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Color="#A25AC4" Offset="0.0"/>
+                                        <GradientStop Color="Purple" Offset="1.0"/>
+                                    </LinearGradientBrush>
+                                </Button.Background>
+                                <Button.Shadow>
+                                    <Shadow Brush="Black" 
+                                           Offset="0,4" 
+                                           Radius="8" 
+                                           Opacity="0.3"/>
+                                </Button.Shadow>
+                            </Button>
+
+                        </StackLayout>
+
+                        <!-- STEP 2: Contact & Security -->
+                        <StackLayout x:Name="Step2Container" IsVisible="False" Spacing="18">
+
+                            <Label Text="Contact  Security" 
+                                   TextColor="White" 
+                                   FontSize="16" 
+                                   FontAttributes="Bold"
+                                   Margin="0,0,0,5"/>
+
+                            <!-- Phone Field with Country Code (REQUIRED) -->
+                            <StackLayout HorizontalOptions="FillAndExpand" Margin="0,0,-90,0">
+                                <Frame x:Name="PhoneFrame"
+                                       BackgroundColor="White"
+                                       CornerRadius="15"
+                                       HasShadow="True"
+                                       Padding="0" 
+                                       HorizontalOptions="FillAndExpand"
+                                       HeightRequest="55">
+                                    <Frame.Shadow>
+                                        <Shadow Brush="Black" 
+                                               Offset="0,4" 
+                                               Radius="12" 
+                                               Opacity="0.1"/>
+                                    </Frame.Shadow>
+
+                                    <Grid ColumnSpacing="0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="45"/>
+                                            <ColumnDefinition Width="90"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Label Grid.Column="0"
+                                               Text="📱"
+                                               FontSize="16"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center"/>
+
+                                        <Picker Grid.Column="1"
+                                               x:Name="CountryCodePicker"
+                                               BackgroundColor="White"
+                                               TitleColor="Gray"
+                                               FontSize="12"
+                                               TextColor="Black"
+                                               HorizontalOptions="Fill"
+                                               VerticalOptions="Center">
+                                            <Picker.ItemsSource>
+                                                <x:Array Type="{x:Type x:String}">
+                                                    <x:String>+234</x:String>
+                                                    <x:String>+1</x:String>
+                                                    <x:String>+44</x:String>
+                                                    <x:String>+91</x:String>
+                                                    <x:String>+86</x:String>
+                                                    <x:String>+81</x:String>
+                                                    <x:String>+49</x:String>
+                                                    <x:String>+33</x:String>
+                                                    <x:String>+39</x:String>
+                                                    <x:String>+7</x:String>
+                                                    <x:String>+27</x:String>
+                                                    <x:String>+254</x:String>
+                                                    <x:String>+233</x:String>
+                                                    <x:String>+20</x:String>
+                                                </x:Array>
+                                            </Picker.ItemsSource>
+                                        </Picker>
+
+                                        <renderers:BorderlessEntry Grid.Column="2"
+                                                                   x:Name="UserPhone"
+                                                                   Placeholder="Phone Number *"
+                                                                   PlaceholderColor="Gray"
+                                                                   TextColor="Black"
+                                                                   FontSize="14"
+                                                                   MaxLength="10"
+                                                                   Keyboard="Telephone"
+                                                                   VerticalOptions="Center"
+                                                                   Margin="5,0,15,0"/>
+                                    </Grid>
+                                </Frame>
+                                <Label x:Name="PhoneError" 
+                                       Text="Phone number is required" 
+                                       TextColor="Red" 
+                                       FontSize="10" 
+                                       IsVisible="False"
+                                       Margin="5,2,0,0"/>
+                            </StackLayout>
+
+                            <!-- Email Field (REQUIRED) -->
+                            <StackLayout HorizontalOptions="FillAndExpand" Margin="0,0,-90,0">
+                                <Frame x:Name="EmailFrame"
+                                       BackgroundColor="White"
+                                       CornerRadius="15"
+                                       HasShadow="True"
+                                       Padding="0" 
+                                       HorizontalOptions="Fill"
+                                       HeightRequest="55">
+                                    <Frame.Shadow>
+                                        <Shadow Brush="Black" 
+                                               Offset="0,4" 
+                                               Radius="12" 
+                                               Opacity="0.1"/>
+                                    </Frame.Shadow>
+
+                                    <Grid ColumnSpacing="0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="45"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Label Grid.Column="0"
+                                               Text="📧"
+                                               FontSize="16"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center"/>
+
+                                        <renderers:BorderlessEntry Grid.Column="1"
+                                                                   x:Name="Email"
+                                                                   Placeholder="Email Address *"
+                                                                   PlaceholderColor="Gray"
+                                                                   TextColor="Black"
+                                                                   FontSize="14"
+                                                                   Keyboard="Email"
+                                                                   ClearButtonVisibility="WhileEditing"
+                                                                   VerticalOptions="Center"
+                                                                   Margin="0,0,15,0"/>
+                                    </Grid>
+                                </Frame>
+                                <Label x:Name="EmailError" 
+                                       Text="Valid email is required" 
+                                       TextColor="Red" 
+                                       FontSize="10" 
+                                       IsVisible="False"
+                                       Margin="5,2,0,0"/>
+                            </StackLayout>
+
+                            <!-- Password Field (REQUIRED) -->
+                            <StackLayout HorizontalOptions="FillAndExpand" Margin="0,0,-90,0">
+                                <Frame x:Name="PasswordFrame"
+                                       BackgroundColor="White"
+                                       CornerRadius="15"
+                                       HasShadow="True"
+                                       HorizontalOptions="FillAndExpand"
+                                       Padding="0"
+                                       HeightRequest="55">
+                                    <Frame.Shadow>
+                                        <Shadow Brush="Black" 
+                                               Offset="0,4" 
+                                               Radius="12" 
+                                               Opacity="0.1"/>
+                                    </Frame.Shadow>
+
+                                    <Grid ColumnSpacing="0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="45"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="45"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Label Grid.Column="0"
+                                               Text="🔒"
+                                               FontSize="16"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center"/>
+
+                                        <renderers:BorderlessEntry Grid.Column="1"
+                                                                   x:Name="Password"
+                                                                   Placeholder="Password *"
+                                                                   PlaceholderColor="Gray"
+                                                                   TextColor="Black"
+                                                                   FontSize="14"
+                                                                   IsPassword="True"
+                                                                   ClearButtonVisibility="WhileEditing"
+                                                                   VerticalOptions="Center"
+                                                                   Margin="0,0,5,0"/>
+
+                                        <Button Grid.Column="2"
+                                               x:Name="ShowPasswordButton"
+                                               Text="👁️"
+                                               FontSize="14"
+                                               BackgroundColor="Transparent"
+                                               BorderColor="Transparent"
+                                               TextColor="Gray"
+                                               Clicked="ShowPasswordButton_Clicked"
+                                               Padding="0"/>
+                                    </Grid>
+                                </Frame>
+                                <Label x:Name="PasswordError" 
+                                       Text="Password must be 8+ characters with uppercase, lowercase, and numbers" 
+                                       TextColor="Red" 
+                                       FontSize="10" 
+                                       IsVisible="False"
+                                       Margin="5,2,0,0"/>
+                            </StackLayout>
+
+                            <!-- Confirm Password Field (REQUIRED) -->
+                            <StackLayout HorizontalOptions="FillAndExpand" Margin="0,0,-90,0">
+                                <Frame x:Name="ConfirmPasswordFrame"
+                                       BackgroundColor="White"
+                                       CornerRadius="15"
+                                       HasShadow="True"
+                                       HorizontalOptions="FillAndExpand"
+                                       Padding="0"
+                                       HeightRequest="55">
+                                    <Frame.Shadow>
+                                        <Shadow Brush="Black" 
+                                               Offset="0,4" 
+                                               Radius="12" 
+                                               Opacity="0.1"/>
+                                    </Frame.Shadow>
+
+                                    <Grid ColumnSpacing="0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="45"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="45"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Label Grid.Column="0"
+                                               Text="🔑"
+                                               FontSize="16"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center"/>
+
+                                        <renderers:BorderlessEntry Grid.Column="1"
+                                                                   x:Name="ConfirmPassword"
+                                                                   Placeholder="Confirm Password *"
+                                                                   PlaceholderColor="Gray"
+                                                                   TextColor="Black"
+                                                                   FontSize="14"
+                                                                   IsPassword="True"
+                                                                   ClearButtonVisibility="WhileEditing"
+                                                                   VerticalOptions="Center"
+                                                                   Margin="0,0,5,0"/>
+
+                                        <Button Grid.Column="2"
+                                               x:Name="ShowConfirmPasswordButton"
+                                               Text="👁️"
+                                               FontSize="14"
+                                               BackgroundColor="Transparent"
+                                               BorderColor="Transparent"
+                                               TextColor="Gray"
+                                               Clicked="ShowConfirmPasswordButton_Clicked"
+                                               Padding="0"/>
+                                    </Grid>
+                                </Frame>
+                                <Label x:Name="ConfirmPasswordError" 
+                                       Text="Passwords must match" 
+                                       TextColor="Red" 
+                                       FontSize="10" 
+                                       IsVisible="False"
+                                       Margin="5,2,0,0"/>
+                            </StackLayout>
+
+                            <StackLayout HorizontalOptions="FillAndExpand" Margin="0,10,0,0">
+                                <Frame x:Name="ReferralNumber"
+             BackgroundColor="White"
+             CornerRadius="15"
+             HasShadow="True"
+             HorizontalOptions="FillAndExpand"
+             Padding="0"
+             HeightRequest="50">
+                                    <Frame.Shadow>
+                                        <Shadow Brush="Black" 
+                     Offset="0,4" 
+                     Radius="12" 
+                     Opacity="0.1"/>
+                                    </Frame.Shadow>
+
+                                    <Grid ColumnSpacing="0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="45"/>
+                                            <ColumnDefinition Width="*"/>
+                                        
+                                        </Grid.ColumnDefinitions>
+
+                                        <Label Grid.Column="0"
+                     Text="+"
+                     FontSize="16"
+                     HorizontalOptions="Center"
+                     VerticalOptions="Center"/>
+
+                                        <renderers:BorderlessEntry Grid.Column="1"
+                                         x:Name="refcode"
+                                         Placeholder="Referral Code [optional] *"
+                                         PlaceholderColor="Gray"
+                                         TextColor="Black"
+                                         FontSize="14"
+                                       MaxLength="10"
+                                         ClearButtonVisibility="WhileEditing"
+                                         VerticalOptions="Center"
+                                         Margin="0,0,5,0"/>
+
+                                    
+                                    </Grid>
+                                </Frame>
+                          
+                            </StackLayout>
+
+                            <!-- Back and Register Buttons -->
+                            <Grid ColumnSpacing="12" Margin="0,20,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="2*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Back Button -->
+                                <Button Grid.Column="0"
+                                        x:Name="BackButton"
+                                        Text="← BACK"
+                                        FontSize="14"
+                                        FontAttributes="Bold"
+                                        TextColor="#A25AC4"
+                                        BackgroundColor="White"
+                                        CornerRadius="15"
+                                        HeightRequest="55"
+                                        Clicked="BackButton_Clicked">
+                                    <Button.Shadow>
+                                        <Shadow Brush="Black" 
+                                               Offset="0,4" 
+                                               Radius="8" 
+                                               Opacity="0.3"/>
+                                    </Button.Shadow>
+                                </Button>
+
+                                <!-- Register Button -->
+                                <Button Grid.Column="1"
+                                        x:Name="RegisterButton"
+                                        Text="CREATE ACCOUNT"
+                                        FontSize="16"
+                                        FontAttributes="Bold"
+                                        TextColor="White"
+                                        CornerRadius="15"
+                                        HeightRequest="55"
+                                        Clicked="Button_Clicked">
+                                    <Button.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                            <GradientStop Color="#A25AC4" Offset="0.0"/>
+                                            <GradientStop Color="Purple" Offset="1.0"/>
+                                        </LinearGradientBrush>
+                                    </Button.Background>
+                                    <Button.Shadow>
+                                        <Shadow Brush="Black" 
+                                               Offset="0,4" 
+                                               Radius="8" 
+                                               Opacity="0.3"/>
+                                    </Button.Shadow>
+                                </Button>
+                            </Grid>
+
+                        </StackLayout>
+
+                        <Label Text="* Required fields" 
+                               TextColor="White" 
+                               FontSize="10" 
+                               Opacity="0.7"
+                               HorizontalOptions="Center"
+                               Margin="0,5,0,0"/>
+
+                        <!-- Social Login Divider -->
+                        <Grid Margin="0,15,0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <BoxView Grid.Column="0" 
+                                    BackgroundColor="White" 
+                                    HeightRequest="1" 
+                                    Opacity="0.3"
+                                    VerticalOptions="Center"
+                                    Margin="0,0,10,0"/>
+
+                            <Label Grid.Column="1" 
+                                  Text="OR" 
+                                  TextColor="White" 
+                                  FontSize="12" 
+                                  Margin="10,0"
+                                  Opacity="0.7"/>
+
+                            <BoxView Grid.Column="2" 
+                                    BackgroundColor="White" 
+                                    HeightRequest="1" 
+                                    Opacity="0.3"
+                                    VerticalOptions="Center"
+                                    Margin="10,0,0,0"/>
+                        </Grid>
+
+                    </StackLayout>
+
+                    <!-- Footer Section -->
+                    <StackLayout Grid.Row="2" 
+                               x:Name="FooterSection" 
+                               Spacing="15" 
+                               Margin="0,15,0,25"
+                               Opacity="0">
+
+                        <!-- Sign In Link -->
+                        <StackLayout Orientation="Horizontal" 
+                                   HorizontalOptions="Center"
+                                   Margin="0,5,0,0">
+                            <Label Text="Already have an account? "
+                                   FontSize="14"
+                                   TextColor="White"
+                                   Opacity="0.8"/>
+                            <Label Text="Sign In"
+                                   FontSize="14"
+                                   TextColor="White"
+                                   FontAttributes="Bold"
+                                   TextDecorations="Underline">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <StackLayout.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
+                            </StackLayout.GestureRecognizers>
+                        </StackLayout>
+                    </StackLayout>
+                </Grid>
+            </ScrollView>
+
+            <!-- Loading Overlay -->
+            <Grid x:Name="LoadingOverlay" 
+                  IsVisible="False" 
+                  BackgroundColor="Black" 
+                  Opacity="0.7">
+                <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
+                    <ActivityIndicator x:Name="LoadingIndicator" 
+                                     IsRunning="False" 
+                                     Color="White" 
+                                     Scale="1.5"/>
+                    <Label x:Name="LoadingText" 
+                           Text="Processing..." 
+                           TextColor="White" 
+                           FontSize="14"
+                           HorizontalOptions="Center"
+                           Margin="0,10,0,0"/>
+                </StackLayout>
+            </Grid>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>

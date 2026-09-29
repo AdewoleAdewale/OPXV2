@@ -1,0 +1,474 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             Padding="0,0,0,0" 
+             xmlns:renderers="clr-namespace:Opx.Renderers"
+             xmlns:views="clr-namespace:Opx.Views"
+             BackgroundColor="White"
+            
+             NavigationPage.HasNavigationBar="False"
+             x:Class="Opx.Views.CurrentBalance"
+             Loaded="ContentPage_Loaded">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!-- Card Animation Styles -->
+            <Style x:Key="CardContainerStyle" TargetType="Frame">
+                <Setter Property="BackgroundColor" Value="Transparent"/>
+                <Setter Property="CornerRadius" Value="20"/>
+                <Setter Property="HasShadow" Value="True"/>
+                <Setter Property="Margin" Value="5"/>
+                <Setter Property="HeightRequest" Value="300"/>
+                <Setter Property="BorderColor" Value="Transparent"/>
+                <Setter Property="Visual" Value="Material"/>
+            </Style>
+
+            <Style x:Key="CardContentStyle" TargetType="Grid">
+                <Setter Property="Padding" Value="20"/>
+                <Setter Property="RowSpacing" Value="15"/>
+            </Style>
+
+            <Style x:Key="SectionTitleStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="18"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="TextColor" Value="#FFFFFF"/>
+                <Setter Property="Margin" Value="0,10,0,5"/>
+            </Style>
+
+            <Style x:Key="InputLabelStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="TextColor" Value="Black"/>
+            </Style>
+
+            <Style x:Key="InputFrameStyle" TargetType="Frame">
+                <Setter Property="HeightRequest" Value="50"/>
+                <Setter Property="HasShadow" Value="False"/>
+                <Setter Property="BorderColor" Value="LightGray"/>
+                <Setter Property="CornerRadius" Value="8"/>
+                <Setter Property="Padding" Value="10"/>
+                <Setter Property="BackgroundColor" Value="White"/>
+            </Style>
+
+            <!-- Recipient Card Styles -->
+            <Style x:Key="RecipientCardStyle" TargetType="Frame">
+                <Setter Property="BackgroundColor" Value="Transparent"/>
+                <Setter Property="CornerRadius" Value="20"/>
+                <Setter Property="HasShadow" Value="True"/>
+                <Setter Property="Margin" Value="5"/>
+                <Setter Property="Padding" Value="0"/>
+                <Setter Property="BorderColor" Value="Transparent"/>
+                <Setter Property="Visual" Value="Material"/>
+            </Style>
+
+            <Style x:Key="RecipientCardLabelStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="TextColor" Value="#CCCCCC"/>
+                <Setter Property="Margin" Value="0,0,0,2"/>
+            </Style>
+
+            <Style x:Key="RecipientCardValueStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="16"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="TextColor" Value="#FFFFFF"/>
+                <Setter Property="Margin" Value="0,0,0,10"/>
+            </Style>
+
+            <!-- Header Styles -->
+            <Style x:Key="HeaderStyle" TargetType="Grid">
+                <Setter Property="Padding" Value="15,10"/>
+                <Setter Property="Margin" Value="0,0,0,10"/>
+            </Style>
+
+            <Style x:Key="BackButtonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="Transparent"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="FontSize" Value="18"/>
+                <Setter Property="WidthRequest" Value="40"/>
+                <Setter Property="HeightRequest" Value="40"/>
+                <Setter Property="CornerRadius" Value="20"/>
+                <Setter Property="BorderColor" Value="White"/>
+                <Setter Property="BorderWidth" Value="1"/>
+                <Setter Property="Padding" Value="0"/>
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid>
+        <!-- Background Gradient -->
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="White" Offset="0.0" />
+                <GradientStop Color="White" Offset="0.5" />
+                <GradientStop Color="WhiteSmoke" Offset="1.0" />
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <!-- Header with Back Button -->
+        <Grid Grid.Row="0" Style="{StaticResource HeaderStyle}" VerticalOptions="Start">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Back Button -->
+            <Button Grid.Column="0"
+                    x:Name="BackButton"
+                    ImageSource="back.png"
+                   
+                    Style="{StaticResource BackButtonStyle}"
+                    Clicked="BackButton_Clicked"
+                    HorizontalOptions="Start"/>
+
+            <!-- Page Title -->
+            <Label Grid.Column="1"
+                   Text="RECIPIENT MANAGEMENT"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   TextColor="Purple"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"/>
+
+            <!-- Optional Menu/Settings Button -->
+            <Button Grid.Column="2"
+                    Text="⋮" TextColor="Purple"
+                    Style="{StaticResource BackButtonStyle}"
+                    HorizontalOptions="End"
+                    IsVisible="False"/>
+        </Grid>
+
+        <!-- Main Content -->
+        <RefreshView IsRefreshing="{Binding IsRefreshing}"
+                     Command="{Binding RefreshCommand}"
+                     RefreshColor="#6C63FF"
+                     Margin="0,70,0,0">
+            <ScrollView>
+                <StackLayout Spacing="0" Padding="0,10,0,0">
+                    <Label Text="ACCOUNT BALANCE" TextColor="White" FontSize="15" HorizontalTextAlignment="Center"/>
+
+                    <!-- Subtitle with Glow Effect -->
+                    <Label Text="Manage your virtual account recipient details"
+                           FontSize="14"
+                           TextColor="Purple"
+                           HorizontalOptions="Center"
+                           Margin="0,0,0,20"/>
+                    <BoxView HeightRequest="10" BackgroundColor="Transparent"/>
+
+                    <!-- Payment Cards Section -->
+                    <Grid Margin="5,-10,5,10">
+                        <Frame Style="{StaticResource CardContainerStyle}" 
+                               x:Name="PaymentCardsCollection">
+                            <Frame.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#1A2525" Offset="0.0"/>
+                                    <GradientStop Color="Purple" Offset="1.0"/>
+                                </LinearGradientBrush>
+                            </Frame.Background>
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnCardTapped"/>
+                            </Frame.GestureRecognizers>
+                            <Grid Style="{StaticResource CardContentStyle}">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- Card Header with Mastercard Logo -->
+                                <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
+                                    <!-- Simulated Chip -->
+                                    <Image Grid.Column="0"
+                                           WidthRequest="50"
+                                           HeightRequest="30"
+                                           Source="logo.png"
+                                           Margin="0,0,10,0"/>
+                                    <Label Grid.Column="1" 
+                                           Text="VIRTUAL ACCOUNT DETAILS"
+                                           FontSize="16"
+                                           HorizontalTextAlignment="Center"
+                                           FontAttributes="Bold"
+                                           TextColor="#FFFFFF"/>
+                                    <Image Grid.Column="2"
+                                           Source="mastard.png"
+                                           WidthRequest="40"
+                                           HeightRequest="40"
+                                           Margin="0,0,10,0"/>
+                                </Grid>
+
+                                <!-- Balance -->
+                                <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
+                                    <StackLayout Grid.Column="0">
+                                        <Label Text="ACCOUNT NAME"
+                                               FontSize="12"
+                                               TextColor="#CCCCCC"/>
+                                        <Label x:Name="cardAccountname"
+                                               FontSize="20"
+                                               FontAttributes="Bold"
+                                               TextColor="#FFFFFF"/>
+                                    </StackLayout>
+                                    <StackLayout Grid.Column="1" 
+                                                HorizontalOptions="End"
+                                                VerticalOptions="Center">
+                                        <Label x:Name="cardaccountNumber"
+                                               FontSize="14"
+                                               TextColor="#CCCCCC"
+                                               HorizontalOptions="End"/>
+                                        <Label x:Name="cardExiprydate"
+                                               FontSize="12"
+                                               TextColor="#999999"
+                                               HorizontalOptions="End"/>
+                                    </StackLayout>
+                                </Grid>
+
+                                <!-- Card Number in Mastercard Format -->
+                                <Label Grid.Row="2"
+                                       x:Name="cardNumberDisplay"
+                                       Text="**** **** ****"
+                                       FontSize="18"
+                                       FontFamily="Courier"
+                                       TextColor="#FFFFFF"
+                                       Margin="0,10"/>
+
+                                <!-- Divider -->
+                                <BoxView Grid.Row="3" 
+                                         HeightRequest="1"
+                                         BackgroundColor="#FFFFFF50"
+                                         Margin="0,10"/>
+                            </Grid>
+                        </Frame>
+                    </Grid>
+
+                    <!-- Recipient Details Card -->
+                    <Frame x:Name="RecipientDetailsCard" 
+                           Style="{StaticResource RecipientCardStyle}" Margin="10">
+                        <Frame.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#4A90E2" Offset="0.0"/>
+                                <GradientStop Color="Black" Offset="1.0"/>
+                            </LinearGradientBrush>
+                        </Frame.Background>
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnRecipientCardTapped"/>
+                        </Frame.GestureRecognizers>
+                        <Grid Style="{StaticResource CardContentStyle}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Card Header -->
+                            <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
+                                <Image Grid.Column="0"
+                                       Source="logo.png"
+                                       WidthRequest="50"
+                                       HeightRequest="30"
+                                       Margin="0,0,10,0"/>
+                                <Label Grid.Column="1" 
+                                       Text="WITHDRAWAL DETAILS"
+                                       FontSize="16" HorizontalTextAlignment="Center"
+                                       FontAttributes="Bold"
+                                       TextColor="#FFFFFF"/>
+                                <Button Grid.Column="2"
+                                        x:Name="EditRecipientIcon"
+                                        Text="✎"
+                                        FontSize="18"
+                                        TextColor="White"
+                                        BackgroundColor="Transparent"
+                                        BorderColor="White"
+                                        BorderWidth="1"
+                                        CornerRadius="15"
+                                        WidthRequest="30"
+                                        HeightRequest="30"
+                                        Padding="0"
+                                        Clicked="EditRecipientBtn_Clicked"/>
+                            </Grid>
+
+                            <!-- Bank Name -->
+                            <StackLayout Grid.Row="1" Grid.Column="1" HorizontalOptions="Start">
+                                <Label Text="BANK NAME"
+                                       Style="{StaticResource RecipientCardLabelStyle}"/>
+                                <Label x:Name="RecipientBankName"
+                                       Text="Not Set"
+                                       Style="{StaticResource RecipientCardValueStyle}"/>
+                            </StackLayout>
+
+                            <!-- Account Number -->
+                            <StackLayout Grid.Row="2">
+                                <Label Text="ACCOUNT NUMBER"
+                                       Style="{StaticResource RecipientCardLabelStyle}"/>
+                                <Label x:Name="RecipientAccountNumber"
+                                       Text="Not Set"
+                                       Style="{StaticResource RecipientCardValueStyle}"/>
+                            </StackLayout>
+
+                            <!-- Account Name -->
+                            <StackLayout Grid.Row="3">
+                                <Label Text="ACCOUNT HOLDER NAME"
+                                       Style="{StaticResource RecipientCardLabelStyle}"/>
+                                <Label x:Name="RecipientAccountName"
+                                       Text="Not Set"
+                                       Style="{StaticResource RecipientCardValueStyle}"/>
+                            </StackLayout>
+
+                            <!-- Status Indicator -->
+                            <Grid Grid.Row="4" ColumnDefinitions="Auto,*" Margin="0,10,0,0">
+                                <Ellipse Grid.Column="0"
+                                         x:Name="StatusIndicator"
+                                         WidthRequest="10"
+                                         HeightRequest="10"
+                                         Fill="Red"
+                                         Margin="0,0,8,0"/>
+                                <Label Grid.Column="1"
+                                       x:Name="StatusLabel"
+                                       Text="No recipient set"
+                                       FontSize="12"
+                                       TextColor="#E0E0E0"/>
+                            </Grid>
+                        </Grid>
+                    </Frame>
+
+                    <!-- Edit Recipient Form -->
+                    <Frame x:Name="EditRecipientForm" 
+                           Style="{StaticResource CardContainerStyle}"
+                           IsVisible="False"
+                           HeightRequest="-1"
+                           Margin="10,10,10,0">
+                        <Frame.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#F8F9FA" Offset="0.0"/>
+                                <GradientStop Color="Purple" Offset="1.0"/>
+                            </LinearGradientBrush>
+                        </Frame.Background>
+                        <Grid Style="{StaticResource CardContentStyle}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Section Header -->
+                            <Label Grid.Row="0" 
+                                   Text="Update Recipient Details"
+                                   FontSize="18"
+                                   FontAttributes="Bold"
+                                   TextColor="#333333"
+                                   Margin="0,0,0,15"/>
+
+                            <!-- Bank Name Field -->
+                            <StackLayout Grid.Row="1" Spacing="5">
+                                <Frame Style="{StaticResource InputFrameStyle}">
+                                    <Picker Title="Select Bank"
+                                            FontSize="14"    
+                                            x:Name="Addbankname"
+                                            BackgroundColor="Transparent"
+                                            HeightRequest="40"
+                                            TitleColor="Gray"
+                                            TextColor="Black"
+                                            HorizontalOptions="FillAndExpand"
+                                            SelectedIndexChanged="Addbankname_SelectedIndexChanged">
+                                    </Picker>
+                                </Frame>
+                            </StackLayout>
+
+                            <!-- Account Number Field -->
+                            <StackLayout Grid.Row="2" Spacing="5">
+                                <Frame Style="{StaticResource InputFrameStyle}">
+                                    <Entry x:Name="accountnumber"
+                                           Placeholder="Enter account number" 
+                                           HorizontalOptions="FillAndExpand"
+                                           HeightRequest="40"
+                                           BackgroundColor="Transparent"
+                                           FontSize="14"
+                                           Keyboard="Numeric"
+                                          
+                                           Unfocused="accountnumber_Unfocused"
+                                           MaxLength="20"
+                                           TextChanged="accountnumber_TextChanged"/>
+                                </Frame>
+                            </StackLayout>
+
+                            <!-- Account Holder Name Field -->
+                            <StackLayout Grid.Row="3" Spacing="5">
+                                <Frame Style="{StaticResource InputFrameStyle}" x:Name="AccountnameHolder" >
+                                    <Entry x:Name="accountHolderName"
+                                           IsReadOnly="True"
+                                           Placeholder="Enter account holder name" 
+                                           HorizontalOptions="FillAndExpand"
+                                           HeightRequest="40"
+                                           BackgroundColor="Transparent"
+                                           FontSize="14"/>
+                                </Frame>
+                            </StackLayout>
+
+          
+
+
+                            <!-- Loading Indicator -->
+                            <ActivityIndicator x:Name="LoadingIndicator"
+                                               Grid.Row="4"
+                                               IsVisible="False"
+                                               IsRunning="False"
+                                               Color="#6C63FF"
+                                               HeightRequest="30"
+                                               Margin="0,10"/>
+
+                            <!-- Error/Success Labels -->
+                            <Label x:Name="ErrorLabel"
+                                   Grid.Row="5"
+                                   TextColor="Red"
+                                   IsVisible="False"
+                                   FontSize="12"
+                                   HorizontalTextAlignment="Center"
+                                   Margin="0,10"/>
+
+                            <Label x:Name="SuccessLabel"
+                                   Grid.Row="5"
+                                   TextColor="Green"
+                                   IsVisible="False"
+                                   FontSize="12"
+                                   HorizontalTextAlignment="Center"
+                                   Margin="0,10"/>
+
+                            <!-- Buttons -->
+                            <Grid Grid.Row="6" ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,20,0,0" x:Name="Addbanksaccounts">
+                                <Button Grid.Column="0"
+                                        x:Name="setrecipient"
+                                        Text="Save Changes"
+                                        Clicked="setrecipient_Clicked"
+                                        BackgroundColor="Purple"
+                                        TextColor="White"
+                                        CornerRadius="8"
+                                        HeightRequest="45"
+                                        FontSize="14"
+                                        FontAttributes="Bold"/>
+
+                                <Button Grid.Column="1"
+                                        x:Name="CancelEditBtn"
+                                        Text="Cancel"
+                                        Clicked="CancelEditBtn_Clicked"
+                                        BackgroundColor="ForestGreen"
+                                        TextColor="White"
+                                        CornerRadius="8"
+                                        HeightRequest="45"
+                                        FontSize="14"/>
+                            </Grid>
+                        </Grid>
+                    </Frame>
+
+                    <!-- Footer Space -->
+                    <BoxView HeightRequest="20" BackgroundColor="Transparent"/>
+                </StackLayout>
+            </ScrollView>
+        </RefreshView>
+    </Grid>
+</ContentPage>

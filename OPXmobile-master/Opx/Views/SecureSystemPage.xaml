@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Opx.Views.SecureSystemPage"
+             BackgroundColor="White"
+             NavigationPage.HasNavigationBar="False"
+             Title="SecureSystemPage">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!-- Gradient Brushes -->
+            <LinearGradientBrush x:Key="PrimaryGradient" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#A25AC4" Offset="0.0" />
+                <GradientStop Color="Purple" Offset="1.0" />
+            </LinearGradientBrush>
+
+            <LinearGradientBrush x:Key="BackgroundGradient" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Color="White" Offset="0.0" />
+                <GradientStop Color="White" Offset="1.0" />
+            </LinearGradientBrush>
+
+            <!-- Animations -->
+           
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ContentPage.Content>
+        <ScrollView>
+            <StackLayout Padding="0" Spacing="0" Background="{StaticResource BackgroundGradient}">
+
+                <!-- Animated Top Bar with Gradient -->
+                <Grid BackgroundColor="White" Padding="15,10" HeightRequest="60" x:Name="TopBar">
+                    <Grid.Shadow>
+                        <Shadow Brush="Black" Opacity="0.1" Radius="10" Offset="0,2" />
+                    </Grid.Shadow>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Status Indicator -->
+                    <Frame Grid.Column="2" BackgroundColor="Purple" CornerRadius="15" 
+                           Padding="8,4" HasShadow="False" x:Name="StatusIndicator">
+                        <Label Text="SECURE" FontSize="10" FontAttributes="Bold" 
+                               TextColor="White" HorizontalOptions="Center"/>
+                    </Frame>
+                </Grid>
+
+                <!-- Animated Logo Section -->
+                <StackLayout Padding="20,0,20,-40" HorizontalOptions="Center" x:Name="LogoSection">
+                    <Frame BackgroundColor="White" CornerRadius="125" HasShadow="True" 
+                           Padding="20" x:Name="LogoFrame">
+                        <Frame.Shadow>
+                            <Shadow Brush="Black" Opacity="0.15" Radius="20" Offset="0,8" />
+                        </Frame.Shadow>
+
+                        <Image Source="logo.png" HeightRequest="100" WidthRequest="100" 
+                               x:Name="LogoImage">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
+                            </Image.GestureRecognizers>
+                        </Image>
+                    </Frame>
+
+                    <!-- Animated Security Badge -->
+                    <Frame BackgroundColor="Purple" CornerRadius="10" Padding="12,6" 
+                           HasShadow="True" Margin="0,15,0,0" x:Name="SecurityBadge">
+                        <StackLayout Orientation="Horizontal" HorizontalOptions="Center" Spacing="8">
+                            <Label Text="🔒" FontSize="16"/>
+                            <Label Text="OPX SECURED" FontSize="12" FontAttributes="Bold" 
+                                   TextColor="White"/>
+                        </StackLayout>
+                    </Frame>
+                </StackLayout>
+
+                <!-- Enhanced Form Card with Animations -->
+                <Frame Margin="10,10" Padding="25" BackgroundColor="White" 
+                       CornerRadius="15" HasShadow="True" x:Name="FormCard">
+                    <Frame.Shadow>
+                        <Shadow Brush="Black" Opacity="0.1" Radius="25" Offset="0,10" />
+                    </Frame.Shadow>
+
+                    <StackLayout Spacing="25">
+                        <!-- Animated Title with Gradient Background -->
+                        <Frame Background="{StaticResource PrimaryGradient}" 
+                               CornerRadius="15" Padding="20,15" HasShadow="False" 
+                               x:Name="TitleFrame">
+                            <Label Text="OPX MOBILE APP" 
+                                   FontSize="28" 
+                                   FontAttributes="Bold"
+                                   HorizontalTextAlignment="Center"
+                                   TextColor="White"/>
+                        </Frame>
+
+                        <!-- Enhanced Description with Better Typography -->
+                        <StackLayout Spacing="15" x:Name="DescriptionSection">
+                            <BoxView HeightRequest="2" BackgroundColor="#E5E7EB" 
+                                     CornerRadius="1" Margin="20,0"/>
+
+                            <Label Text="Advanced Security Protocol Active"
+                                   FontSize="18"
+                                   FontAttributes="Bold"
+                                   TextColor="#374151"
+                                   HorizontalTextAlignment="Center"/>
+
+                            <Label Text="Your system is protected by our multi-layered security framework. All communications are encrypted and monitored for optimal protection against threats."
+                                   FontSize="14"
+                                   TextColor="#6B7280"
+                                   HorizontalTextAlignment="Center"
+                                   LineHeight="1.5"/>
+                        </StackLayout>
+
+                        <!-- Security Features Grid -->
+                        <Grid RowSpacing="15" ColumnSpacing="15" Margin="0,10,0,0" x:Name="FeaturesGrid">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Feature 1 -->
+                            <Frame Grid.Row="0" Grid.Column="0" BackgroundColor="#F0F9FF" 
+                                   CornerRadius="15" Padding="15" HasShadow="False">
+                                <StackLayout Spacing="5">
+                                    <Label Text="🛡️" FontSize="24" HorizontalOptions="Center"/>
+                                    <Label Text="End-to-End Encryption" FontSize="12" FontAttributes="Bold" 
+                                           TextColor="#0369A1" HorizontalTextAlignment="Center"/>
+                                </StackLayout>
+                            </Frame>
+
+                            <!-- Feature 2 -->
+                            <Frame Grid.Row="0" Grid.Column="1" BackgroundColor="#F0FDF4" 
+                                   CornerRadius="15" Padding="15" HasShadow="False">
+                                <StackLayout Spacing="5">
+                                    <Label Text="🔍" FontSize="24" HorizontalOptions="Center"/>
+                                    <Label Text="Real-time Monitoring" FontSize="12" FontAttributes="Bold" 
+                                           TextColor="#16A34A" HorizontalTextAlignment="Center"/>
+                                </StackLayout>
+                            </Frame>
+
+                            <!-- Feature 3 -->
+                            <Frame Grid.Row="1" Grid.Column="0" BackgroundColor="#FEF3F2" 
+                                   CornerRadius="15" Padding="15" HasShadow="False">
+                                <StackLayout Spacing="5">
+                                    <Label Text="⚡" FontSize="24" HorizontalOptions="Center"/>
+                                    <Label Text="Instant Response" FontSize="12" FontAttributes="Bold" 
+                                           TextColor="#DC2626" HorizontalTextAlignment="Center"/>
+                                </StackLayout>
+                            </Frame>
+
+                            <!-- Feature 4 -->
+                            <Frame Grid.Row="1" Grid.Column="1" BackgroundColor="#FDF4FF" 
+                                   CornerRadius="15" Padding="15" HasShadow="False">
+                                <StackLayout Spacing="5">
+                                    <Label Text="🚀" FontSize="24" HorizontalOptions="Center"/>
+                                    <Label Text="Auto Updates" FontSize="12" FontAttributes="Bold" 
+                                           TextColor="#9333EA" HorizontalTextAlignment="Center"/>
+                                </StackLayout>
+                            </Frame>
+                        </Grid>
+
+                        <!-- Progress Section -->
+                        <StackLayout Spacing="10" x:Name="ProgressSection">
+                            <Label Text="System Status: Initializing..." 
+                                   FontSize="14" FontAttributes="Bold"
+                                   TextColor="#374151" HorizontalTextAlignment="Center"/>
+
+                            <Frame BackgroundColor="#F3F4F6" CornerRadius="10" 
+                                   Padding="0" HasShadow="False" HeightRequest="8">
+                                <Frame BackgroundColor="Purple" CornerRadius="10" 
+                                       Padding="0" HasShadow="False" HeightRequest="8" 
+                                       HorizontalOptions="Start" WidthRequest="200"
+                                       x:Name="ProgressBar"/>
+                            </Frame>
+                        </StackLayout>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Enhanced Loading Section -->
+                <StackLayout Padding="20" Spacing="20" x:Name="LoadingSection">
+                    <!-- Animated Activity Indicator -->
+                    <Frame BackgroundColor="Transparent" CornerRadius="40" Padding="20" 
+                          HorizontalOptions="Center" x:Name="LoadingFrame">
+                       
+
+                        <StackLayout Spacing="15" HorizontalOptions="Center" BackgroundColor="Transparent">
+                            <ActivityIndicator IsRunning="True" 
+                                             Color="#667eea" 
+                                             HeightRequest="40"
+                                             WidthRequest="200"/>
+                            <Label Text="Securing Connection..." 
+                                   FontSize="14" FontAttributes="Bold"
+                                   TextColor="#6B7280" HorizontalTextAlignment="Center"/>
+                        </StackLayout>
+                    </Frame>
+
+                    <!-- Animated Dots -->
+                    <StackLayout Orientation="Horizontal" HorizontalOptions="Center" 
+                                 Spacing="10" x:Name="AnimatedDots">
+                        <Frame BackgroundColor="Purple" CornerRadius="5" 
+                               WidthRequest="10" HeightRequest="10" 
+                               HasShadow="False" x:Name="Dot1"/>
+                        <Frame BackgroundColor="Black" CornerRadius="5" 
+                               WidthRequest="10" HeightRequest="10" 
+                               HasShadow="False" x:Name="Dot2"/>
+                        <Frame BackgroundColor="#8E44AD" CornerRadius="5" 
+                               WidthRequest="10" HeightRequest="10" 
+                               HasShadow="False" x:Name="Dot3"/>
+                    </StackLayout>
+                </StackLayout>
+
+                <!-- Bottom Spacing -->
+                <BoxView HeightRequest="30" BackgroundColor="Transparent"/>
+
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

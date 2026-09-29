@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                  xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="Opx.Views.SuccessDisplaySheet"
+               Color="Transparent"
+               CanBeDismissedByTappingOutsideOfPopup="True">
+
+    <Frame x:Name="ContentFrame"
+           CornerRadius="24"
+           Padding="0"
+           HasShadow="True"
+           BorderColor="Transparent"
+           BackgroundColor="White"
+           Margin="20,0"
+           MaximumWidthRequest="450">
+
+        <Grid RowDefinitions="Auto,*,Auto">
+
+            <!-- Success Header with Gradient -->
+            <Grid Grid.Row="0" 
+                  HeightRequest="200"
+                  BackgroundColor="#28A745">
+
+                <Grid.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#28A745" Offset="0.0" />
+                        <GradientStop Color="#20C997" Offset="1.0" />
+                    </LinearGradientBrush>
+                </Grid.Background>
+
+                <!-- Animated Background Pattern -->
+                <BoxView WidthRequest="200" 
+                         HeightRequest="200" 
+                         CornerRadius="100"
+                         Opacity="0.1"
+                         BackgroundColor="White"
+                         HorizontalOptions="Start"
+                         VerticalOptions="Start"
+                         Margin="-50,-50,0,0"/>
+
+                <BoxView WidthRequest="150" 
+                         HeightRequest="150" 
+                         CornerRadius="75"
+                         Opacity="0.1"
+                         BackgroundColor="White"
+                         HorizontalOptions="End"
+                         VerticalOptions="End"
+                         Margin="0,0,-30,-30"/>
+
+                <VerticalStackLayout VerticalOptions="Center" 
+                                    HorizontalOptions="Center"
+                                    Spacing="16">
+
+                    <!-- Checkmark Icon with Circle Background -->
+                    <Frame x:Name="CheckmarkIcon"
+                           WidthRequest="80"
+                           HeightRequest="80"
+                           CornerRadius="40"
+                           Padding="0"
+                           HasShadow="False"
+                           BackgroundColor="White"
+                           BorderColor="Transparent">
+                        <Label Text="✓"
+                               FontSize="48"
+                               FontAttributes="Bold"
+                               TextColor="#28A745"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"/>
+                    </Frame>
+
+                    <Label Text="Verification Successful!"
+                           x:Name="TitleLabel"
+                           FontSize="24"
+                           FontAttributes="Bold"
+                           TextColor="White"
+                           HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- Content Section -->
+            <ScrollView Grid.Row="1">
+                <VerticalStackLayout Padding="24" Spacing="20">
+
+                    <!-- Welcome Message -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Welcome,"
+                               FontSize="14"
+                               TextColor="#6C757D"
+                               HorizontalOptions="Center"/>
+                        <Label x:Name="UsernameLabel"
+                               Text="John Doe"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               TextColor="#212529"
+                               HorizontalOptions="Center"/>
+                        <Label x:Name="MessageLabel"
+                               Text="Your BVN has been verified successfully!"
+                               FontSize="14"
+                               TextColor="#6C757D"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"
+                               Margin="0,4,0,0"/>
+                    </VerticalStackLayout>
+
+                    <!-- Details Frame -->
+                    <Frame x:Name="DetailsFrame"
+                           CornerRadius="16"
+                           Padding="20"
+                           HasShadow="False"
+                           BorderColor="#E9ECEF"
+                           BackgroundColor="#F8F9FA">
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="Verification Details"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="#212529"/>
+
+                            <BoxView HeightRequest="1"
+                                     BackgroundColor="#DEE2E6"
+                                     Margin="0,4"/>
+
+                            <Grid ColumnDefinitions="*,Auto" Margin="0,4">
+                                <Label Text="Status"
+                                       FontSize="14"
+                                       TextColor="#6C757D"
+                                       VerticalOptions="Center"/>
+                                <Frame Grid.Column="1"
+                                       Padding="8,4"
+                                       CornerRadius="8"
+                                       HasShadow="False"
+                                       BackgroundColor="#D4EDDA"
+                                       BorderColor="Transparent">
+                                    <Label Text="✓ Verified"
+                                           FontSize="12"
+                                           FontAttributes="Bold"
+                                           TextColor="#155724"/>
+                                </Frame>
+                            </Grid>
+
+                            <Grid ColumnDefinitions="*,*" Margin="0,4">
+                                <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                    <Label Text="Verification ID"
+                                           FontSize="12"
+                                           TextColor="#6C757D"/>
+                                    <Label Text="#VER2024xxxxx"
+                                           FontSize="14"
+                                           FontAttributes="Bold"
+                                           TextColor="#212529"/>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                    <Label Text="Method"
+                                           FontSize="12"
+                                           TextColor="#6C757D"/>
+                                    <Label Text="BVN"
+                                           FontSize="14"
+                                           FontAttributes="Bold"
+                                           TextColor="#212529"/>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <!-- Bank Information Frame (Conditional) -->
+                    <Frame x:Name="BankInfoFrame"
+                           CornerRadius="16"
+                           Padding="20"
+                           HasShadow="False"
+                           BorderColor="#E9ECEF"
+                           BackgroundColor="#F8F9FA"
+                           IsVisible="False">
+                        <VerticalStackLayout Spacing="12">
+                            <HorizontalStackLayout Spacing="8">
+                                <Label Text="🏦"
+                                       FontSize="20"
+                                       VerticalOptions="Center"/>
+                                <Label Text="Bank Information"
+                                       FontSize="16"
+                                       FontAttributes="Bold"
+                                       TextColor="#212529"
+                                       VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+
+                            <BoxView HeightRequest="1"
+                                     BackgroundColor="#DEE2E6"
+                                     Margin="0,4"/>
+
+                            <VerticalStackLayout Spacing="8" Margin="0,4">
+                                <Label Text="Bank Name"
+                                       FontSize="12"
+                                       TextColor="#6C757D"/>
+                                <Label x:Name="BankNameLabel"
+                                       Text="First Bank of Nigeria"
+                                       FontSize="15"
+                                       FontAttributes="Bold"
+                                       TextColor="#212529"/>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="Account Number"
+                                       FontSize="12"
+                                       TextColor="#6C757D"/>
+                                <Label x:Name="AccountNumberLabel"
+                                       Text="1234567890"
+                                       FontSize="15"
+                                       FontAttributes="Bold"
+                                       TextColor="#212529"/>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <!-- Token Frame (Conditional) -->
+                    <Frame x:Name="TokenFrame"
+                           CornerRadius="16"
+                           Padding="20"
+                           HasShadow="False"
+                           BackgroundColor="#FFF3CD"
+                           BorderColor="#FFC107"
+                           IsVisible="False">
+                        <VerticalStackLayout Spacing="8">
+                            <HorizontalStackLayout Spacing="8">
+                                <Label Text="🔑"
+                                       FontSize="18"
+                                       VerticalOptions="Center"/>
+                                <Label Text="Access Token Generated"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       TextColor="#856404"
+                                       VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+                            <Label x:Name="TokenLabel"
+                                   Text="Token: abc123..."
+                                   FontSize="12"
+                                   TextColor="#856404"
+                                   LineBreakMode="TailTruncation"/>
+                        </VerticalStackLayout>
+                    </Frame>
+
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <!-- Footer Section -->
+            <VerticalStackLayout Grid.Row="2" 
+                                x:Name="FooterStack"
+                                Padding="24,16"
+                                Spacing="16"
+                                BackgroundColor="#F8F9FA">
+
+                <Label x:Name="TimestampLabel"
+                       Text="Verified on Dec 20, 2024 • 10:30 AM"
+                       FontSize="11"
+                       TextColor="#6C757D"
+                       HorizontalOptions="Center"/>
+
+                <Button Text="Continue to Dashboard"
+                        Clicked="OnCloseButtonClicked"
+                        BackgroundColor="#28A745"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        FontSize="16"
+                        CornerRadius="12"
+                        HeightRequest="50"
+                        Margin="0,0,0,8">
+                    <Button.Shadow>
+                        <Shadow Brush="#28A745"
+                                Offset="0,4"
+                                Radius="8"
+                                Opacity="0.3"/>
+                    </Button.Shadow>
+                </Button>
+
+            </VerticalStackLayout>
+
+        </Grid>
+    </Frame>
+
+    </toolkit:Popup>
