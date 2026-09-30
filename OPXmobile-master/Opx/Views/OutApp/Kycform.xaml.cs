@@ -7,6 +7,8 @@ using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using Opx.Model;
+using Opx.Services;
 using Snackbar = CommunityToolkit.Maui.Alerts.Snackbar;
 
 namespace Opx.Views;
@@ -409,11 +411,25 @@ public partial class Kycform : ContentPage, INotifyPropertyChanged
             // Show sophisticated success display sheet
             await ShowSuccessDisplaySheet(response);
 
-            // Wait for display sheet animation
-            await Task.Delay(3500);
+            // The API's nextStep tells us where to go after BVN is verified.
+            await Task.Delay(2000);
 
-            // Navigate to login page
-            await NavigateToLoginPage();
+            if (response.NextStep == "set-recipient-account")
+            {
+                // Auto-link worked: go straight to payout account setup.
+                await Application.Current.MainPage.ShowPopupAsync(new AddAccount());
+            }
+            else if (!string.IsNullOrWhiteSpace(response.Token) && !string.IsNullOrWhiteSpace(response.AccountReference))
+            {
+                // Auto-link failed: show the token/accountRef entry form.
+                await Application.Current.MainPage.ShowPopupAsync(
+                    new BvnToken(response.Token!, response.AccountReference!));
+            }
+            else
+            {
+                // Fallback – refresh dashboard.
+                await NavigateToLoginPage();
+            }
         });
     }
 
@@ -703,151 +719,25 @@ public partial class Kycform : ContentPage, INotifyPropertyChanged
 
     private async Task<BvnApiResponse> CallBvnApiAsync(string bvn, CancellationToken cancellationToken)
     {
-        const string apiUrl = "https://opxng.com/api/agencies/create";
-        try
-        {
-            if (string.IsNullOrWhiteSpace(bvn))
-                throw new ArgumentException("BVN cannot be empty.", nameof(bvn));
+        if (string.IsNullOrWhiteSpace(bvn))
+            throw new ArgumentException("BVN cannot be empty.", nameof(bvn));
 
-            if (string.IsNullOrWhiteSpace(LoginPage.myemail))
-                throw new InvalidOperationException("User Email Not Found. Please log in again.");
+        if (string.IsNullOrWhiteSpace(LoginPage.myemail))
+            throw new InvalidOperationException("User email not found. Please log in again.");
 
-            var requestPayload = new BvnRequest
-            {
-                bvn = bvn,
-                Email = LoginPage.myemail
-            };
+        var result = await OpxApi.PostAsync<BvnApiResponse>(
+            "/agencies/create",
+            new BvnRequest { bvn = bvn, Email = LoginPage.myemail },
+            cancellationToken);
 
-            var jsonPayload = JsonConvert.SerializeObject(requestPayload, Formatting.None);
+        if (result.IsNetworkError)
+            throw new HttpRequestException(result.ErrorMessage);
 
-            // ✅ Fix SSL issues with HttpClientHandler
-            var handler = new HttpClientHandler
-            {
-                ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
-            };
+        if (!result.IsHttpSuccess || result.Data == null)
+            throw new HttpRequestException($"API Error ({(int)result.StatusCode}): {result.ErrorMessage}");
 
-            using (var client = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(30) })
-            {
-                // Force TLS 1.2 or 1.3
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
-
-                // Log request details
-                System.Diagnostics.Debug.WriteLine($"[API REQUEST] {apiUrl}");
-                System.Diagnostics.Debug.WriteLine(jsonPayload);
-
-                HttpResponseMessage response = null;
-
-                // Retry policy (3 attempts for transient network errors)
-                const int maxRetries = 3;
-                for (int attempt = 1; attempt <= maxRetries; attempt++)
-                {
-                    try
-                    {
-                        var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
-                        response = await client.PostAsync(apiUrl, content, cancellationToken);
-                        break; // Success → exit retry loop
-                    }
-                    catch (HttpRequestException ex) when (attempt < maxRetries)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"Network error (attempt {attempt}): {ex.Message}. Retrying...");
-                        await Task.Delay(1000 * attempt, cancellationToken); // incremental backoff
-                    }
-                }
-
-                if (response == null)
-                    throw new HttpRequestException("No response received from server after multiple attempts.");
-
-                // Log response
-                var responseContent = await response.Content.ReadAsStringAsync();
-                System.Diagnostics.Debug.WriteLine($"[API RESPONSE] {response.StatusCode}");
-                System.Diagnostics.Debug.WriteLine(responseContent);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    try
-                    {
-                        var errorResponse = JsonConvert.DeserializeObject<BvnApiResponse>(responseContent);
-                        var message = errorResponse?.Message ?? "Unknown API error.";
-                        throw new HttpRequestException($"API Error ({response.StatusCode}): {message}");
-                    }
-                    catch (JsonException)
-                    {
-                        throw new HttpRequestException($"API returned {response.StatusCode}: {responseContent}");
-                    }
-                }
-
-                if (string.IsNullOrWhiteSpace(responseContent))
-                    throw new InvalidOperationException("Empty response received from the server.");
-
-                var bvnResponse = DeserializeResponse(responseContent)
-                    ?? throw new JsonException("Failed to parse server response (null).");
-
-                System.Diagnostics.Debug.WriteLine($"[PARSED RESPONSE] Success: {bvnResponse.Success}, Message: {bvnResponse.Message}");
-
-                return bvnResponse;
-            }
-        }
-        catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested)
-        {
-            System.Diagnostics.Debug.WriteLine($"Request Timeout: {ex.Message}");
-            throw new HttpRequestException("Request timed out. Please check your internet connection.", ex);
-        }
-        catch (HttpRequestException ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"HTTP Error: {ex.Message}");
-            throw new HttpRequestException($"Network error: {ex.Message}. Please try again.", ex);
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Unexpected Error: {ex.GetType().Name} - {ex.Message}");
-            throw new Exception("An unexpected error occurred while contacting the server.", ex);
-        }
-    }
-    private BvnApiResponse DeserializeResponse(string responseContent)
-    {
-        try
-        {
-            var response = JsonConvert.DeserializeObject<BvnApiResponse>(responseContent);
-            if (response != null)
-            {
-                return response;
-            }
-
-            var dynamicResponse = JsonConvert.DeserializeObject<dynamic>(responseContent);
-            if (dynamicResponse != null)
-            {
-                return new BvnApiResponse
-                {
-                    Success = dynamicResponse.success?.ToString() ??
-                             dynamicResponse.status?.ToString() ??
-                             string.Empty,
-                    Message = dynamicResponse.message?.ToString() ??
-                             dynamicResponse.msg?.ToString() ??
-                             string.Empty,
-                    Agency = dynamicResponse.agency?.ToString() ??
-                            dynamicResponse.username?.ToString() ??
-                            string.Empty,
-                    AgencyToken = dynamicResponse.agencyToken?.ToString() ??
-                                 dynamicResponse.token?.ToString() ??
-                                 string.Empty,
-                    NextStep = dynamicResponse.nextStep?.ToString() ??
-                              string.Empty,
-                    AccountReference = dynamicResponse.accountReference?.ToString() ??
-                                      string.Empty,
-                    bankName = dynamicResponse.BankName?.ToString() ??
-                              string.Empty,
-                    accountNumber = dynamicResponse.AccountNumber?.ToString() ??
-                                   string.Empty
-                };
-            }
-
-            throw new JsonException("Unable to deserialize response");
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Deserialization error: {ex.Message}");
-            throw;
-        }
+        System.Diagnostics.Debug.WriteLine($"[PARSED RESPONSE] Success: {result.Data.Success}, NextStep: {result.Data.NextStep}");
+        return result.Data;
     }
 
     private async Task HandleBvnResponseAsync(BvnApiResponse response)
@@ -863,13 +753,7 @@ public partial class Kycform : ContentPage, INotifyPropertyChanged
                 return;
             }
 
-            bool isSuccess = response.Success ||
-                           (!string.IsNullOrEmpty(response.Success.ToString()) &&
-                            (response.Success.ToString().Equals("true", StringComparison.OrdinalIgnoreCase) ||
-                             response.Success.ToString() == "1" ||
-                             response.Success.ToString().Equals("success", StringComparison.OrdinalIgnoreCase)));
-
-            if (isSuccess)
+            if (response.Success)
             {
                 await HandleSuccessfulVerificationAsync(response);
             }
@@ -899,26 +783,21 @@ public partial class Kycform : ContentPage, INotifyPropertyChanged
         [JsonProperty("message")]
         public string? Message { get; set; }
 
-        [JsonProperty("agency")]
-        public string? Agency { get; set; }
-
-        [JsonProperty("agencyToken")]
-        public string? AgencyToken { get; set; }
-
-        [JsonProperty("nextStep")]
-        public string? NextStep { get; set; }
-
         [JsonProperty("token")]
         public string? Token { get; set; }
 
         [JsonProperty("accountReference")]
         public string? AccountReference { get; set; }
 
-        [JsonProperty("BankName")]
-        public string? bankName { get; set; }
+        [JsonProperty("bankName")]
+        public string? BankName { get; set; }
 
-        [JsonProperty("AccountNumber")]
-        public string? accountNumber { get; set; }
+        [JsonProperty("accountNumber")]
+        public string? AccountNumber { get; set; }
+
+        [JsonProperty("nextStep")]
+        public string? NextStep { get; set; }
+        public string? Agency { get; internal set; }
     }
     #endregion
 

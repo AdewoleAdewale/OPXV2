@@ -117,79 +117,82 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="Views\AddAccount.xaml">
+	  <MauiXaml Update="Views\SetApp\AddAccount.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\BvnToken.xaml">
+	  <MauiXaml Update="Views\OutApp\BvnToken.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Congratulations.xaml">
+	  <MauiXaml Update="Views\SetApp\ChangePasswordPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\ContractList.xaml">
+	  <MauiXaml Update="Views\OutApp\Congratulations.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\ContractListDetail.xaml">
+	  <MauiXaml Update="Views\InApp\ContractList.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\CreateContract.xaml">
+	  <MauiXaml Update="Views\InApp\ContractListDetail.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\CurrentBalance.xaml">
+	  <MauiXaml Update="Views\InApp\CreateContract.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\DashBoard.xaml">
+	  <MauiXaml Update="Views\InApp\CurrentBalance.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Dispute.xaml">
+	  <MauiXaml Update="Views\InApp\DashBoard.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\FailureDisplaySheet.xaml">
+	  <MauiXaml Update="Views\InApp\Dispute.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\ForgetPassword.xaml">
+	  <MauiXaml Update="Views\InApp\FailureDisplaySheet.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Home.xaml">
+	  <MauiXaml Update="Views\OutApp\ForgetPassword.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Kycform.xaml">
+	  <MauiXaml Update="Views\InApp\Home.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\LoginPage.xaml">
+	  <MauiXaml Update="Views\OutApp\Kycform.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\ProfilePage.xaml">
+	  <MauiXaml Update="Views\OutApp\LoginPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\ResetPassword.xaml">
+	  <MauiXaml Update="Views\SetApp\ProfilePage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\RPage.xaml">
+	  <MauiXaml Update="Views\OutApp\ResetPassword.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\SecureSystemPage.xaml">
+	  <MauiXaml Update="Views\OutApp\RPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\SuccessDisplaySheet.xaml">
+	  <MauiXaml Update="Views\OutApp\SecureSystemPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\TransactionPage.xaml">
+	  <MauiXaml Update="Views\InApp\SuccessDisplaySheet.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Verification.xaml">
+	  <MauiXaml Update="Views\InApp\TransactionPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\VerificationErrorSheet.xaml">
+	  <MauiXaml Update="Views\OutApp\Verification.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\VerificationSuccessSheet.xaml">
+	  <MauiXaml Update="Views\InApp\VerificationErrorSheet.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\VerifyToken.xaml">
+	  <MauiXaml Update="Views\InApp\VerificationSuccessSheet.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\WelcomePage.xaml">
+	  <MauiXaml Update="Views\OutApp\VerifyToken.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\OutApp\WelcomePage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>

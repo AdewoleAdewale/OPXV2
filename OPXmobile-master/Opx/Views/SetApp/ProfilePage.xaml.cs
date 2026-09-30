@@ -430,14 +430,11 @@ public partial class ProfilePage : ContentPage
 
         try
         {
-            await SetLoadingState(true, "Opening password reset...");
+            await SetLoadingState(true, "Opening change password...");
 
-            if (_resetPasswordPopup == null)
-            {
-                _resetPasswordPopup = new ResetPassword();
-            }
-
-            var result = await this.ShowPopupAsync(_resetPasswordPopup);
+            // Signed-in users change their password with the current one (POST /AuthAccount/ChangePassword).
+            // The OTP-based ResetPassword popup is only for the forgot-password flow.
+            await Navigation.PushModalAsync(new ChangePasswordPage());
         }
         catch (InvalidOperationException ex)
         {
@@ -575,6 +572,9 @@ public partial class ProfilePage : ContentPage
             // Cancel any ongoing operations
             _cancellationTokenSource?.Cancel();
 
+            // Clear the shared HttpClient session cookie so /ChangePassword can't be replayed.
+            Opx.Services.OpxApi.ClearSession();
+
             // Clear authentication data
             SecureStorage.Remove("auth_token");
             Preferences.Remove("user_id");
@@ -589,6 +589,13 @@ public partial class ProfilePage : ContentPage
 
             // Clear operation states
             _operationStates.Clear();
+
+            // Clear in-memory login state
+            LoginPage.myemail = LoginPage.myfullname = LoginPage.mytoken = null;
+            LoginPage.availableBalance = LoginPage.ledgerBalance = null;
+            LoginPage.completedTransactions = LoginPage.totalTransactions = null;
+            LoginPage.pendingTransactions = LoginPage.disputes = null;
+            LoginPage.accountName = LoginPage.accountNumber = LoginPage.bankName = null;
 
             // Navigate to login page
             MainThread.BeginInvokeOnMainThread(() =>

@@ -596,9 +596,8 @@ namespace Opx.Views
 
                         if (!response.IsSuccessStatusCode)
                         {
-                            string errorMsg = string.IsNullOrWhiteSpace(resultString)
-                                ? $"Server returned {response.StatusCode}"
-                                : resultString;
+                            // API returns { success:false, message } on 400 – show just the message
+                            string errorMsg = Opx.Services.OpxApi.ExtractError(resultString, response.StatusCode);
 
                             await ShowCustomErrorSheet(
                                 $"Verification Failed ({response.StatusCode})",
@@ -631,7 +630,7 @@ namespace Opx.Views
                         }
 
                         // Inside CreateContractAsync
-                        if (!string.IsNullOrEmpty(contractResponse.success))
+                        if (contractResponse.success)
                         {
                             await DismissSheet();
                             await Task.Delay(100);
@@ -886,16 +885,19 @@ namespace Opx.Views
             public string Email { get; set; } = "";
         }
 
+        // POST /api/ContractsApi/confirm-delivery – 200 response
         public class VerifyTokenResponse
         {
-            public string? success { get; set; }
+            public bool success { get; set; }
             public string? message { get; set; }
+            public int? contractId { get; set; }
             public decimal? amount { get; set; }
-            public string? SellerName { get; set; }
+            public decimal? processingFee { get; set; }
+            public string? sellerName { get; set; }
             public string? buyerName { get; set; }
             public string? confirmedAt { get; set; }
+            public string? reference { get; set; }
             public string? status { get; set; }
-            public int? contractId { get; set; }
         }
     }
 }

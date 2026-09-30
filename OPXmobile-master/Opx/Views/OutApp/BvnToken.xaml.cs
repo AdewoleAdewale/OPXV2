@@ -96,6 +96,12 @@ public partial class BvnToken : Popup, IDisposable, INotifyPropertyChanged
 
     public bool CanValidate => !IsProcessing && !string.IsNullOrWhiteSpace(TokenText) && !string.IsNullOrWhiteSpace(ReferenceText);
 
+    public BvnToken(string token, string accountRef) : this()
+    {
+        TokenText = token;
+        ReferenceText = accountRef;
+    }
+
     public BvnToken(ILogger<BvnToken>? logger = null)
     {
         _logger = logger;
@@ -408,7 +414,7 @@ public partial class BvnToken : Popup, IDisposable, INotifyPropertyChanged
     {
         HttpClient client = null;
         const int maxRetries = 3;
-        const string apiUrl = "https://opxng.com/api/agencies/email/link-virtual-account";
+        const string apiUrl = "https://opxng.com/api/agencies/link-virtual-account";
 
         for (int attempt = 1; attempt <= maxRetries; attempt++)
         {
@@ -469,15 +475,15 @@ public partial class BvnToken : Popup, IDisposable, INotifyPropertyChanged
                         return ValidationResult.Failure("Invalid response format from server");
                     }
 
-                    if (!string.IsNullOrEmpty(validationResponse.success))
+                    if (validationResponse.success || validationResponse.alreadyLinked)
                     {
-                        LogInfo("BVN validation successful");
+                        LogInfo($"BVN link successful. NextStep: {validationResponse.nextStep}, AlreadyLinked: {validationResponse.alreadyLinked}");
                         return ValidationResult.Success(validationResponse);
                     }
                     else
                     {
-                        var errorMsg = validationResponse.message ?? "BVN validation failed";
-                        LogWarning($"BVN validation failed: {errorMsg}");
+                        var errorMsg = validationResponse.message ?? "Virtual account link failed";
+                        LogWarning($"BVN link failed: {errorMsg}");
                         return ValidationResult.Failure(errorMsg);
                     }
                 }
@@ -828,12 +834,22 @@ public partial class BvnToken : Popup, IDisposable, INotifyPropertyChanged
 
     internal class BvnValidationResponse
     {
-        public string? success { get; set; }
+        [Newtonsoft.Json.JsonProperty("success")]
+        public bool success { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("message")]
         public string? message { get; set; }
 
-        public string? accountNumber { get; set; }
+        [Newtonsoft.Json.JsonProperty("bankName")]
         public string? bankName { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("accountNumber")]
+        public string? accountNumber { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("alreadyLinked")]
+        public bool alreadyLinked { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("nextStep")]
         public string? nextStep { get; set; }
     }
 

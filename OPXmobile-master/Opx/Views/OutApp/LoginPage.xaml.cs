@@ -19,6 +19,8 @@ public partial class LoginPage : ContentPage
     public static string? mytoken { get; set; }
     public static string? completedTransactions { get; set; }
     public static string? totalTransactions { get; set; }
+    public static string? pendingTransactions { get; set; }
+    public static string? disputes { get; set; }
     public static string? ledgerBalance { get; set; }
     public static string? availableBalance { get; set; }
     public static string? accountName { get; set; }
@@ -650,25 +652,16 @@ public partial class LoginPage : ContentPage
             {
                 email = MyEmail,
                 password = MyPassword,
-                isMobile = rememberme,
+                rememberMe = rememberme,
+                isMobile = true,
             };
 
             string jsonPayload = JsonConvert.SerializeObject(requestPayload, Formatting.None);
 
             System.Diagnostics.Debug.WriteLine($"Login request for: {MyEmail}");
 
-            client = new HttpClient(new HttpClientHandler
-            {
-                ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true,
-                AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate
-            })
-            {
-                Timeout = TimeSpan.FromSeconds(90)
-            };
-
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(
-                new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+            // Shared client: it stores the auth cookie returned here so /ChangePassword works later.
+            client = Opx.Services.OpxApi.Client;
 
             var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
 
@@ -698,7 +691,7 @@ public partial class LoginPage : ContentPage
 
             if (!response.IsSuccessStatusCode)
             {
-                string errorMsg = loginResponse.message ?? $"Server returned status: {response.StatusCode}";
+                string errorMsg = loginResponse.error ?? loginResponse.message ?? $"Server returned status: {response.StatusCode}";
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
                     await ShowErrorSnackbar(errorMsg);
@@ -723,17 +716,13 @@ public partial class LoginPage : ContentPage
                 await ShowErrorSnackbar($"An error occurred: {ex.Message}");
             });
         }
-        finally
-        {
-            client?.Dispose();
-        }
     }
 
     private async Task HandleLoginResponseAsync(LoginResponse loginResponse, string email)
     {
         try
         {
-            if (!string.IsNullOrEmpty(loginResponse.success))
+            if (loginResponse.success == true)
             {
                 if (loginResponse.redirectTo == "Dashboard")
                 {
@@ -743,6 +732,8 @@ public partial class LoginPage : ContentPage
                     ledgerBalance = loginResponse.ledgerBalance ?? "";
                     availableBalance = loginResponse.availableBalance ?? "";
                     totalTransactions = loginResponse.totalTransactions ?? "";
+                    pendingTransactions = loginResponse.pendingTransactions ?? "";
+                    disputes = loginResponse.disputes ?? "";
                     completedTransactions = loginResponse.completedTransactions ?? "";
                     accountName = loginResponse.accountName;
                     accountNumber = loginResponse.accountNumber;
@@ -812,7 +803,7 @@ public partial class LoginPage : ContentPage
         }
     }
 
-    internal class SavedCredentials
+    public class SavedCredentials
     {
         public string Email { get; set; } = "";
         public string Password { get; set; } = "";
@@ -822,13 +813,15 @@ public partial class LoginPage : ContentPage
     {
         public string email { get; set; } = "";
         public string password { get; set; } = "";
-        public bool isMobile { get; set; } = false;
-        public string model { get; set; } = "";
+        public bool rememberMe { get; set; } = false;
+        public bool isMobile { get; set; } = true;
     }
 
     internal class LoginResponse
     {
-        public string? success { get; set; }
+        public bool? success { get; set; }
+        public string? error { get; set; }
+        public bool? isAdmin { get; set; }
         public string? email { get; set; }
         public string? token { get; set; }
         public string? fullname { get; set; }
@@ -837,6 +830,8 @@ public partial class LoginPage : ContentPage
         public string? redirectTo { get; set; }
         public string? completedTransactions { get; set; }
         public string? totalTransactions { get; set; }
+        public string? pendingTransactions { get; set; }
+        public string? disputes { get; set; }
         public string? ledgerBalance { get; set; }
         public string? availableBalance { get; set; }
         public string? accountName { get; set; }

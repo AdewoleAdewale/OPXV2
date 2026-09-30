@@ -548,9 +548,7 @@ public partial class Dispute : ContentPage, INotifyPropertyChanged
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    string errorMsg = string.IsNullOrWhiteSpace(resultString)
-                        ? $"Server error: {response.StatusCode}"
-                        : resultString;
+                    string errorMsg = Opx.Services.OpxApi.ExtractError(resultString, response.StatusCode);
 
                     // Retry for specific status codes
                     if (response.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable ||
@@ -1492,4 +1490,3 @@ internal class DisputeResponse
     public string requestedAt { get; set; }
     public int? contractId { get; set; }
 }
-

@@ -3,6 +3,8 @@ using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Views;
 using Newtonsoft.Json;
+using Opx.Model;
+using Opx.Services;
 using System.Net;
 using Application = Microsoft.Maui.Controls.Application;
 
@@ -69,6 +71,8 @@ public partial class Home : ContentPage
             BalanceLabel.Text = "₦" + LoginPage.availableBalance;
             AmountLabel.Text = "₦" + LoginPage.ledgerBalance;
             QuickFundsButton.Text = "COMPLETED: " + LoginPage.completedTransactions;
+            if (!string.IsNullOrEmpty(LoginPage.pendingTransactions))
+                System.Diagnostics.Debug.WriteLine($"Pending: {LoginPage.pendingTransactions}");
             TransferButton.Text = "TOTAL: " + LoginPage.totalTransactions;
             createContract = new CreateContract();
             cardaccountNumber.Text = LoginPage.accountNumber;
@@ -650,7 +654,7 @@ public partial class Home : ContentPage
             Configurations.LoadingConfig = new LoadingConfig
             {
                 Opacity = 0.4,
-                DefaultMessage = "Loading Recent Transactions...",
+                DefaultMessage = "Loading dashboard...",
                 FontSize = 12,
             };
 
@@ -658,67 +662,95 @@ public partial class Home : ContentPage
             {
                 try
                 {
-                    for (var i = 0; i < 100; i++)
+                    for (var i = 0; i < 50; i++) { await Task.Delay(20); progress.Report((i + 1) * 0.01d); }
+
+                    // --- Dashboard summary (balances + recent orders) ---
+                    var summaryResult = await OpxApi.GetAsync<DashboardSummaryResponse>(
+                        $"/dashboard/summary?email={Uri.EscapeDataString(LoginPage.myemail ?? "")}");
+
+                    progress.Report(0.7d);
+
+                    if (summaryResult.IsHttpSuccess && summaryResult.Data?.Summary != null)
                     {
-                        await Task.Delay(30);
-                        progress.Report((i + 1) * 0.01d);
-                    }
+                        var summary = summaryResult.Data.Summary;
 
-                    string SearchStringFrom = DateTime.Today.AddDays(-30).ToString("MM/dd/yyyy");
-                    string SearchStringTo = DateTime.Today.AddDays(+1).ToString("MM/dd/yyyy");
-                    string url = "https://opxng.com/api/contractsapi/?email=" + LoginPage.myemail;
+                        // Persist fresh balances into the static login state so other pages stay current
+                        LoginPage.availableBalance = summary.AvailableBalance;
+                        LoginPage.ledgerBalance = summary.LedgerBalance;
+                        LoginPage.completedTransactions = summary.Completed.ToString();
+                        LoginPage.totalTransactions = summary.Total.ToString();
+                        LoginPage.pendingTransactions = summary.Pending.ToString();
+                        LoginPage.disputes = summary.Disputed.ToString();
 
-                    // 🧰 Fix SSL issues here:
-                    HttpClientHandler handler = new HttpClientHandler
-                    {
-                        ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
-                    };
-
-                    using (HttpClient client = new HttpClient(handler))
-                    {
-                        ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12
-                                                               | SecurityProtocolType.Tls13;
-
-                        using (HttpResponseMessage response = await client.GetAsync(url))
+                        await MainThread.InvokeOnMainThreadAsync(() =>
                         {
-                            if (response.IsSuccessStatusCode)
-                            {
-                                var json = await response.Content.ReadAsStringAsync();
-                                List<HistoryData> items = JsonConvert.DeserializeObject<List<HistoryData>>(json);
-
-                                var sortedTransactions = items
-                                    .OrderByDescending(x => x.CreatedAt)
-                                    .Take(5)
-                                    .ToList();
-
-                                _cachedTransactions = sortedTransactions;
-                                _transactionsLoaded = true;
-                                _lastLoadTime = DateTime.Now;
-
-                                listView.ItemsSource = sortedTransactions;
-                                AnimateListItems();
-                            }
-                            else
-                            {
-                                await ShowErrorSnackbar($"Server returned: {response.StatusCode}");
-                            }
-                        }
+                            BalanceLabel.Text = "₦" + summary.AvailableBalance;
+                            AmountLabel.Text = "₦" + summary.LedgerBalance;
+                            QuickFundsButton.Text = "COMPLETED: " + summary.Completed;
+                            TransferButton.Text = "TOTAL: " + summary.Total;
+                        });
                     }
-                }
-                catch (HttpRequestException httpEx)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Network error: {httpEx.Message}");
-                    await ShowErrorSnackbar($"Network error: {httpEx.Message}");
-                }
-                catch (JsonException jsonEx)
-                {
-                    System.Diagnostics.Debug.WriteLine($"JSON parsing error: {jsonEx.Message}");
-                    await ShowErrorSnackbar("Error processing transaction data");
+                    else if (!summaryResult.IsNetworkError)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Dashboard summary error: {summaryResult.ErrorMessage}");
+                    }
+
+                    // --- Recent orders from summary recentOrders ---
+                    var recentOrders = summaryResult.Data?.RecentOrders;
+                    if (recentOrders != null && recentOrders.Count > 0)
+                    {
+                        var historyItems = recentOrders
+                            .OrderByDescending(x => x.Date)
+                            .Take(5)
+                            .Select(o => new HistoryData
+                            {
+                                Id = int.TryParse(o.Id, out var id) ? id : 0,
+                                SellerId = o.SellerName ?? "",
+                                BuyerId = o.IsBuyer ? LoginPage.myemail ?? "" : "",
+                                Amount = o.Amount,
+                                Token = o.Id ?? "",
+                                IsConfirmed = o.IsConfirmed,
+                                ConfirmedAt = null,
+                                IsCancellationRequested = o.IsCancellationRequested,
+                                CancelRequestedAt = null,
+                                IsCancelled = o.IsCancelled,
+                                CancelledAt = null,
+                                CreatedAt = o.Date,
+                                Description = o.Names ?? o.SellerName ?? "",
+                                Status = o.Status ?? "",
+                                SellerName = o.SellerName ?? "",
+                                SellerPhone = "",
+                                BuyerName = "",
+                                BuyerPhone = "",
+                                Role = o.IsBuyer ? "Buyer" : "Seller"
+                            }).ToList();
+
+                        _cachedTransactions = historyItems;
+                        _transactionsLoaded = true;
+                        _lastLoadTime = DateTime.Now;
+
+                        await MainThread.InvokeOnMainThreadAsync(() =>
+                        {
+                            listView.ItemsSource = _cachedTransactions;
+                            AnimateListItems();
+                        });
+                    }
+                    else if (recentOrders != null)
+                    {
+                        // summary came back but no recent orders – fall back to contracts list
+                        await LoadContractsListAsync(progress);
+                    }
+                    else
+                    {
+                        await LoadContractsListAsync(progress);
+                    }
+
+                    progress.Report(1.0d);
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"ContractHistory loading error: {ex.Message}");
-                    await ShowErrorSnackbar($"An error occurred: {ex.Message}");
+                    System.Diagnostics.Debug.WriteLine($"Dashboard loading error: {ex.Message}");
+                    await ShowErrorSnackbar($"Error loading dashboard: {ex.Message}");
                 }
             });
         }
@@ -726,6 +758,42 @@ public partial class Home : ContentPage
         {
             System.Diagnostics.Debug.WriteLine($"Loading initialization error: {ex.Message}");
             await ShowErrorSnackbar($"Failed to initialize loading: {ex.Message}");
+        }
+    }
+
+    /// <summary>Fallback: load recent contracts directly if the dashboard summary gives no recent orders.</summary>
+    private async Task LoadContractsListAsync(IProgress<double> progress)
+    {
+        try
+        {
+            var result = await OpxApi.GetAsync<List<HistoryData>>(
+                $"/contractsapi/?email={Uri.EscapeDataString(LoginPage.myemail ?? "")}");
+
+            progress?.Report(0.9d);
+
+            if (result.IsHttpSuccess && result.Data != null)
+            {
+                var sorted = result.Data.OrderByDescending(x => x.CreatedAt).Take(5).ToList();
+                _cachedTransactions = sorted;
+                _transactionsLoaded = true;
+                _lastLoadTime = DateTime.Now;
+
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    listView.ItemsSource = _cachedTransactions;
+                    AnimateListItems();
+                });
+            }
+            else
+            {
+                await ShowErrorSnackbar(result.ErrorMessage.Length > 0
+                    ? result.ErrorMessage
+                    : $"Server returned {result.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            await ShowErrorSnackbar($"Network error: {ex.Message}");
         }
     }
 

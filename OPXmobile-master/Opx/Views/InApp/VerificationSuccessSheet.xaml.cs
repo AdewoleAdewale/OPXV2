@@ -52,9 +52,9 @@ namespace Opx.Views
                     ConfirmedAtGrid.IsVisible = true;
                 }
 
-                if (!string.IsNullOrEmpty(_response.SellerName))
+                if (!string.IsNullOrEmpty(_response.sellerName))
                 {
-                    SellerNameLabel.Text = _response.SellerName;
+                    SellerNameLabel.Text = _response.sellerName;
                     SellerGrid.IsVisible = true;
                 }
 
@@ -194,7 +194,9 @@ namespace Opx.Views
                 string details = $"Contract ID: {_response.contractId}\n" +
                                $"Status: {_response.status}\n" +
                                $"Amount: ₦{_response.amount:N2}\n" +
-                               $"Seller: {_response.SellerName}\n" +
+                               $"Processing fee: ₦{_response.processingFee ?? 0:N2}\n" +
+                               $"Reference: {_response.reference}\n" +
+                               $"Seller: {_response.sellerName}\n" +
                                $"Buyer: {_response.buyerName}\n" +
                                $"Confirmed: {_response.confirmedAt}";
 

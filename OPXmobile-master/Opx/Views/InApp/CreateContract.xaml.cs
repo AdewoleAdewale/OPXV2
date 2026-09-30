@@ -3,6 +3,8 @@ using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Views;
 using Newtonsoft.Json;
+using Opx.Model;
+using Opx.Services;
 using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
@@ -281,146 +283,95 @@ public partial class CreateContract : Popup
     {
         try
         {
-            // ✅ Validate login email before proceeding
             if (string.IsNullOrWhiteSpace(LoginPage.myemail))
             {
                 await ShowErrorSheet("USER EMAIL NOT FOUND", "Please log in again to continue.");
                 return;
             }
 
-            string url = "https://opxng.com/api/contractsapi/initiate";
-
-            // 🧾 Build the request payload
-            var requestPayload = new ContractObject
+            var request = new ContractInitiateRequest
             {
-                Amount = contractAmount,
-                Description = Description.Text?.Trim() ?? "",
-                BuyerPhone = UserPhone.Text?.Trim() ?? "",
                 SellerEmail = LoginPage.myemail,
+                BuyerPhone = UserPhone.Text?.Trim() ?? "",
+                Amount = contractAmount,
+                Description = Description.Text?.Trim() ?? ""
             };
 
-            // Serialize payload to JSON
-            string jsonPayload = JsonConvert.SerializeObject(requestPayload, Formatting.None);
+            var result = await OpxApi.PostAsync<ContractInitiateResponse>("/ContractsApi/initiate", request);
 
-            // ⚠️ Bypass SSL (DEV/TEST ONLY)
-            HttpClientHandler handler = new HttpClientHandler
+            if (result.IsNetworkError)
             {
-                ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
-            };
-
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-
-            using (var client = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(30) })
-            {
-                try
-                {
-                    var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
-
-                    // 🌐 Send POST request
-                    HttpResponseMessage response = await client.PostAsync(url, content);
-
-                    // Read response content
-                    string resultString = await response.Content.ReadAsStringAsync();
-
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        string errorMsg = string.IsNullOrWhiteSpace(resultString)
-                            ? $"Server returned status: {response.StatusCode}"
-                            : resultString;
-
-                        await ShowErrorSheet($"Server Error ({response.StatusCode})", errorMsg);
-                        return;
-                    }
-
-                    if (string.IsNullOrWhiteSpace(resultString))
-                    {
-                        await ShowErrorSheet("Empty Response", "The server returned an empty response. Please try again.");
-                        return;
-                    }
-
-                    // 🧠 Deserialize server response
-                    var contractResponse = JsonConvert.DeserializeObject<ContractResponse>(resultString);
-
-
-
-                    if (contractResponse == null)
-                    {
-                        await ShowErrorSheet("Invalid Response", "Failed to parse server response. Please try again.");
-                        return;
-                    }
-
-                    if (contractResponse.requiresSetup)
-                    {
-
-
-                        var snackbar = Snackbar.Make(contractResponse.message, null, "OK", TimeSpan.FromSeconds(3), new SnackbarOptions
-                        {
-                            BackgroundColor = Color.FromArgb("#4CAF50"),
-                            TextColor = Colors.White,
-                            ActionButtonTextColor = Colors.White,
-                            CornerRadius = new CornerRadius(10),
-                            Font = Microsoft.Maui.Font.SystemFontOfSize(14)
-                        });
-                        await snackbar.Show();
-
-
-
-
-                        // 2. Small delay before navigation
-                        await Task.Delay(2500);
-
-                        // 3. Navigate to the BVN Verification page
-                        await MainThread.InvokeOnMainThreadAsync(async () =>
-                        {
-                            var verifyPage = new Kycform();
-                            await Application.Current.MainPage.Navigation.PushModalAsync(verifyPage);
-
-                        });
-
-                        return;
-                    }
-
-                    if (!string.IsNullOrEmpty(contractResponse.success))
-                    {
-                        // SHOW SUCCESS SHEET
-                        await ShowSuccessSheet(contractResponse);
-
-                        // Close the main popup after showing success
-                        await Task.Delay(500);
-                        await AnimateSheetOut();
-                        await ClosePopupAsync();
-                    }
-                    else
-                    {
-                        // SHOW ERROR SHEET with message from response
-                        string errorMessage = contractResponse.message ?? "Unknown contract error";
-                        await ShowErrorSheet(
-                            "Contract Creation Failed",
-                            errorMessage
-                        );
-                    }
-                }
-                catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
-                {
-                    await ShowErrorSheet("Request Timeout", "The request took too long. Please check your internet connection and try again.");
-                }
-                catch (TaskCanceledException)
-                {
-                    await ShowErrorSheet("Request Cancelled", "The request was cancelled. Please try again.");
-                }
-                catch (HttpRequestException ex)
-                {
-                    await ShowErrorSheet("Network Error", $"Could not connect to server: {ex.Message}");
-                }
-                catch (JsonException ex)
-                {
-                    await ShowErrorSheet("Data Format Error", $"Invalid data format received: {ex.Message}");
-                }
-                catch (Exception ex)
-                {
-                    await ShowErrorSheet("Unexpected Error", $"An unexpected error occurred: {ex.Message}");
-                }
+                await ShowErrorSheet("Network Error", result.ErrorMessage);
+                return;
             }
+
+            var r = result.Data;
+
+            // 400 / 401 / 500 – the API still returns a JSON body for the business errors
+            if (!result.IsHttpSuccess)
+            {
+                if (r != null && r.AvailableBalance.HasValue)
+                {
+                    // "Buyer has insufficient available balance." – show the numbers the API gives us
+                    var detail = $"{r.Message}\n\nAvailable balance: ₦{r.AvailableBalance:N2}" +
+                                 (r.RequiredAmount.HasValue ? $"\nRequired: ₦{r.RequiredAmount:N2}" : "") +
+                                 (r.ProcessingFee.HasValue ? $"\nProcessing fee: ₦{r.ProcessingFee:N2}" : "");
+                    await ShowErrorSheet("Insufficient Balance", detail);
+                }
+                else
+                {
+                    await ShowErrorSheet($"Contract Failed ({(int)result.StatusCode})",
+                        r?.Message ?? result.ErrorMessage);
+                }
+                return;
+            }
+
+            if (r == null)
+            {
+                await ShowErrorSheet("Invalid Response", "Failed to parse server response. Please try again.");
+                return;
+            }
+
+            // 200 – seller has not set up a wallet yet
+            if (r.RequiresSetup)
+            {
+                await Snackbar.Make(r.Message ?? "Please complete your account setup first.", null, "OK",
+                    TimeSpan.FromSeconds(3), new SnackbarOptions
+                    {
+                        BackgroundColor = Color.FromArgb("#4CAF50"),
+                        TextColor = Colors.White,
+                        ActionButtonTextColor = Colors.White,
+                        CornerRadius = new CornerRadius(10),
+                        Font = Microsoft.Maui.Font.SystemFontOfSize(14)
+                    }).Show();
+
+                await Task.Delay(2500);
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.Navigation.PushModalAsync(new Kycform()));
+                return;
+            }
+
+            // 200 – contract created
+            if (r.Success)
+            {
+                await ShowSuccessSheet(r);
+                await Task.Delay(500);
+                await AnimateSheetOut();
+                await ClosePopupAsync();
+                return;
+            }
+
+            // 200 – buyer phone is not registered on OPX
+            if (r.Exists == false)
+            {
+                var msg = r.Message ?? "This buyer is not registered on OPX.";
+                if (!string.IsNullOrWhiteSpace(r.RegistrationLink))
+                    msg += $"\n\nAsk the buyer to register here:\n{r.RegistrationLink}";
+                await ShowErrorSheet("Buyer Not Registered", msg);
+                return;
+            }
+
+            await ShowErrorSheet("Contract Creation Failed", r.Message ?? "Unknown contract error");
         }
         catch (Exception ex)
         {
@@ -430,7 +381,7 @@ public partial class CreateContract : Popup
     }
 
 
-    private async Task ShowSuccessSheet(ContractResponse response)
+    private async Task ShowSuccessSheet(ContractInitiateResponse response)
     {
         try
         {
@@ -444,7 +395,7 @@ public partial class CreateContract : Popup
         {
             System.Diagnostics.Debug.WriteLine($"Error showing success sheet: {ex.Message}");
             // Fallback to old method
-            await ShowSuccessMessage($"Contract created! Token: {response.token}");
+            await ShowSuccessMessage($"Contract created! Token: {response.Token}");
         }
     }
 
@@ -653,58 +604,46 @@ public partial class CreateContract : Popup
             ResponseLabel.TextColor = Colors.Orange;
             await ResponseLabel.FadeTo(0.5, 200);
 
-            // ⚡ Bypass SSL validation (DEV / TEST ONLY)
-            HttpClientHandler handler = new HttpClientHandler
+            var result = await OpxApi.GetAsync<CheckBuyerResponse>(
+                "/ContractsApi/check-buyer?phoneNumber=" + Uri.EscapeDataString(UserPhone.Text.Trim()));
+
+            if (result.IsNetworkError)
             {
-                ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
-            };
+                CREATECONTRACT.IsVisible = false;
+                CREATECONTRACT.IsEnabled = false;
+                await HandlePhoneVerificationError(result.ErrorMessage);
+                return;
+            }
 
-            string url = "https://opxng.com/api/ContractsApi/check-buyer?phoneNumber=" + Uri.EscapeDataString(UserPhone.Text);
+            var buyer = result.Data;
 
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-
-            using (HttpClient client = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(20) })
+            if (result.IsHttpSuccess && buyer is { Success: true, Exists: true })
             {
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-                using (HttpResponseMessage response = await client.GetAsync(url))
+                await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
-                    if (response.IsSuccessStatusCode)
-                    {
-                        var json = await response.Content.ReadAsStringAsync();
-                        UserphoneResponse result = JsonConvert.DeserializeObject<UserphoneResponse>(json);
+                    ResponseLabel.Text = $"✓ Name: {buyer.BuyerName ?? "N/A"}\n{buyer.Message ?? "Buyer found"}";
+                    ResponseLabel.TextColor = Colors.ForestGreen;
+                    ResponseLabel.IsVisible = true;
+                    await ResponseLabel.FadeTo(1, 200);
 
-                        if (result?.message == "Buyer found")
-                        {
-                            await MainThread.InvokeOnMainThreadAsync(async () =>
-                            {
-                                ResponseLabel.Text = $"✓ Name: {result.buyerName ?? "N/A"}\n{result.message ?? "Verified"}";
-                                ResponseLabel.TextColor = Colors.ForestGreen;
-                                ResponseLabel.IsVisible = true;
-                                await ResponseLabel.FadeTo(1, 200);
+                    CREATECONTRACT.IsVisible = true;
+                    CREATECONTRACT.IsEnabled = true;
+                    CREATECONTRACT.Opacity = 0;
+                    await CREATECONTRACT.FadeTo(1, 300);
+                });
+            }
+            else
+            {
+                CREATECONTRACT.IsVisible = false;
+                CREATECONTRACT.IsEnabled = false;
 
-                                CREATECONTRACT.IsVisible = true;
-                                CREATECONTRACT.IsEnabled = true;
-
-                                // Animate button appearance
-                                CREATECONTRACT.Opacity = 0;
-                                await CREATECONTRACT.FadeTo(1, 300);
-                            });
-                        }
-                        else
-                        {
-                            CREATECONTRACT.IsVisible = false;
-                            CREATECONTRACT.IsEnabled = false;
-                            await HandlePhoneVerificationError("Failed to process phone number verification");
-                        }
-                    }
-                    else
-                    {
-                        CREATECONTRACT.IsVisible = false;
-                        CREATECONTRACT.IsEnabled = false;
-                        await HandlePhoneVerificationError($"Server error: {response.StatusCode}");
-                    }
-                }
+                // 200 + exists:false → buyer isn't on OPX; the API supplies message + registrationLink
+                var msg = result.IsHttpSuccess
+                    ? (buyer?.Message ?? "Buyer not registered on OPX")
+                    : result.ErrorMessage;
+                if (result.IsHttpSuccess && !string.IsNullOrWhiteSpace(buyer?.RegistrationLink))
+                    msg += $"\nRegister: {buyer!.RegistrationLink}";
+                await HandlePhoneVerificationError(msg);
             }
         }
         catch (TaskCanceledException)
@@ -915,15 +854,6 @@ public partial class CreateContract : Popup
     }
 }
 
-// Data classes remain the same
-internal class ContractObject
-{
-    public string BuyerPhone { get; set; } = "";
-    public string SellerEmail { get; set; } = "";
-    public decimal Amount { get; set; }
-    public string Description { get; set; } = "";
-}
-
 public class ContractSuccessSheet : Popup
 {
     private Frame mainFrame;
@@ -933,7 +863,7 @@ public class ContractSuccessSheet : Popup
     private Label detailsLabel;
     private Button closeButton;
 
-    public ContractSuccessSheet(ContractResponse response)
+    public ContractSuccessSheet(ContractInitiateResponse response)
     {
         Size = new Size(360, 450);
         Color = Colors.Transparent;
@@ -951,7 +881,7 @@ public class ContractSuccessSheet : Popup
         AnimateIn();
     }
 
-    private VerticalStackLayout CreateSuccessContent(ContractResponse response)
+    private VerticalStackLayout CreateSuccessContent(ContractInitiateResponse response)
     {
         // Success Icon
         var iconLabel = new Label
@@ -978,7 +908,7 @@ public class ContractSuccessSheet : Popup
         // Message
         messageLabel = new Label
         {
-            Text = response.message ?? "Your contract has been created successfully.",
+            Text = response.Message ?? "Your contract has been created successfully.",
             FontSize = 14,
             TextColor = Colors.Gray,
             HorizontalOptions = LayoutOptions.Center,
@@ -989,7 +919,7 @@ public class ContractSuccessSheet : Popup
         // Token Display
         tokenLabel = new Label
         {
-            Text = $"Token: {response.token ?? "N/A"}",
+            Text = $"Token: {response.Token ?? "N/A"}",
             FontSize = 16,
             FontAttributes = FontAttributes.Bold,
             TextColor = Color.FromArgb("#6B46C1"),
@@ -999,10 +929,11 @@ public class ContractSuccessSheet : Popup
         };
 
         // Contract Details
-        var detailsText = $"Amount: ₦{response.amount:N2}\n" +
-                         $"Status: {response.status ?? "Pending"}\n" +
-                         $"Buyer: {response.buyerName ?? "N/A"}\n" +
-                         $"Phone: {response.buyerPhone ?? "N/A"}";
+        var detailsText = $"Amount: ₦{response.Amount:N2}\n" +
+                         $"Processing fee: ₦{response.ProcessingFee ?? 0:N2}\n" +
+                         $"Status: {response.Status ?? "Pending"}\n" +
+                         $"Buyer: {response.BuyerName ?? "N/A"}\n" +
+                         $"Email: {response.BuyerEmail ?? "N/A"}";
 
         detailsLabel = new Label
         {
@@ -1239,38 +1170,4 @@ public class ContractErrorSheet : Popup
         await CloseSheet();
         onRetry?.Invoke();
     }
-}
-
-public class ContractResponse
-{
-    public string success { get; set; }
-    public string message { get; set; }
-
-    public bool requiresSetup { get; set; }
-    public string redirectTo { get; set; }
-
-    public decimal? amount { get; set; }
-    public string token { get; set; }
-    public string createdAt { get; set; }
-    public string description { get; set; }
-    public string status { get; set; }
-    public string buyerName { get; set; }
-    public string buyerPhone { get; set; }
-    public string sellerName { get; set; }
-    public string sellerEmail { get; set; }
-    public int? contractId { get; set; }
-}
-
-internal class UserphoneResponse
-{
-    public string success { get; set; }
-    public string message { get; set; }
-    public string buyerName { get; set; }
-    public string buyerEmail { get; set; }
-    public string buyerPhone { get; set; }
-
-
-
-
-
 }

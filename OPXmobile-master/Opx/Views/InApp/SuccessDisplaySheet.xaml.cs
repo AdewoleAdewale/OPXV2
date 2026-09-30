@@ -21,21 +21,21 @@ public partial class SuccessDisplaySheet : Popup
         UsernameLabel.Text = username;
         MessageLabel.Text = _response.Message ?? "Your BVN has been verified successfully!";
 
-        if (!string.IsNullOrEmpty(_response.bankName))
+        if (!string.IsNullOrEmpty(_response.BankName))
         {
             BankInfoFrame.IsVisible = true;
-            BankNameLabel.Text = _response.bankName;
-            AccountNumberLabel.Text = _response.accountNumber ?? "N/A";
+            BankNameLabel.Text = _response.BankName;
+            AccountNumberLabel.Text = _response.AccountNumber ?? "N/A";
         }
         else
         {
             BankInfoFrame.IsVisible = false;
         }
 
-        if (!string.IsNullOrEmpty(_response.AgencyToken))
+        if (!string.IsNullOrEmpty(_response.Token))
         {
             TokenFrame.IsVisible = true;
-            TokenLabel.Text = $"Token: {_response.AgencyToken.Substring(0, Math.Min(20, _response.AgencyToken.Length))}...";
+            TokenLabel.Text = $"Token: {_response.Token.Substring(0, Math.Min(20, _response.Token.Length))}...";
         }
         else
         {
