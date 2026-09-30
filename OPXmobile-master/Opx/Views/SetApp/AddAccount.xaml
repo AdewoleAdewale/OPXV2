@@ -119,7 +119,7 @@
                      FontAttributes="Bold" />
 
                     <Button Text="Cancel"
-                     Clicked="Cancel_Clicked"
+                     Clicked="Button_Clicked"
                      BackgroundColor="Transparent"
                      TextColor="Purple"
                      BorderWidth="2"

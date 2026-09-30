@@ -305,4 +305,17 @@ public partial class AddAccount : Popup
             catch { }
         }
     }
+
+    private void Button_Clicked(object sender, EventArgs e)
+    {
+
+        try
+        {
+            Close();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Cancel error: {ex.Message}");
+        }
+    }
 }
