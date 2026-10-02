@@ -19,9 +19,12 @@ public partial class Kycform : ContentPage, INotifyPropertyChanged
     private bool _isDisposed = false;
     private bool _isProcessing = false;
     private CancellationTokenSource _cancellationTokenSource;
-    private readonly HttpClient _httpClient;
     public static string mymail { get; set; }
     private const int MAX_RETRY_ATTEMPTS = 3;
+
+    // TODO: set to the VAPlatform value given in the updated OPX endpoint doc. Until then the field is omitted
+    // and the API will keep answering "The VAPlatform field is required."
+    private const string? VaPlatform = "POUCHII";
     private const int REQUEST_TIMEOUT_SECONDS = 30;
     private const string BVN_PATTERN = @"^\d{11}$";
     #endregion
@@ -70,20 +73,6 @@ public partial class Kycform : ContentPage, INotifyPropertyChanged
     {
         InitializeComponent();
         BindingContext = this;
-
-        var handler = new HttpClientHandler
-        {
-            AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
-            ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true
-        };
-
-        _httpClient = new HttpClient(handler)
-        {
-            Timeout = TimeSpan.FromSeconds(REQUEST_TIMEOUT_SECONDS)
-        };
-
-        _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
-        _httpClient.DefaultRequestHeaders.Add("User-Agent", "OpxMobileApp/1.0");
 
         InitializeComponents();
     }
@@ -460,6 +449,7 @@ public partial class Kycform : ContentPage, INotifyPropertyChanged
         {
             var message = exception switch
             {
+                OpxApiException apiEx => apiEx.Message,
                 TaskCanceledException when exception.InnerException is TimeoutException =>
                     "Request timed out. Please check your internet connection.",
                 HttpRequestException httpEx =>
@@ -727,14 +717,14 @@ public partial class Kycform : ContentPage, INotifyPropertyChanged
 
         var result = await OpxApi.PostAsync<BvnApiResponse>(
             "/agencies/create",
-            new BvnRequest { bvn = bvn, Email = LoginPage.myemail },
+            new BvnRequest { bvn = bvn, Email = LoginPage.myemail, VAPlatform = VaPlatform },
             cancellationToken);
 
         if (result.IsNetworkError)
             throw new HttpRequestException(result.ErrorMessage);
 
         if (!result.IsHttpSuccess || result.Data == null)
-            throw new HttpRequestException($"API Error ({(int)result.StatusCode}): {result.ErrorMessage}");
+            throw new OpxApiException(result.StatusCode, result.ErrorMessage);
 
         System.Diagnostics.Debug.WriteLine($"[PARSED RESPONSE] Success: {result.Data.Success}, NextStep: {result.Data.NextStep}");
         return result.Data;
@@ -773,6 +763,17 @@ public partial class Kycform : ContentPage, INotifyPropertyChanged
 
         [JsonProperty("email")]
         public string Email { get; set; } = string.Empty;
+
+        // Required by the updated /agencies/create endpoint ("The VAPlatform field is required.")
+        [JsonProperty("vaPlatform", NullValueHandling = NullValueHandling.Ignore)]
+        public string? VAPlatform { get; set; }
+    }
+
+    /// <summary>The API answered, but with an error (as opposed to a network failure). Message is already user-readable.</summary>
+    internal class OpxApiException : Exception
+    {
+        public HttpStatusCode StatusCode { get; }
+        public OpxApiException(HttpStatusCode statusCode, string message) : base(message) => StatusCode = statusCode;
     }
 
     public class BvnApiResponse
@@ -836,7 +837,6 @@ public partial class Kycform : ContentPage, INotifyPropertyChanged
             _isDisposed = true;
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource?.Dispose();
-            _httpClient?.Dispose();
         }
     }
     #endregion

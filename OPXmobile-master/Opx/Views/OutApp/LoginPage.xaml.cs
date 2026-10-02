@@ -12,7 +12,6 @@ public partial class LoginPage : ContentPage
     private ForgetPassword _forgetPasswordPopup;
     private bool _isPasswordVisible = false;
     private const string CREDENTIALS_KEY = "saved_credentials";
-    private readonly IBiometricAuthenticationService? _biometricService;
 
     public static string? myemail { get; set; }
     public static string? myfullname { get; set; }
@@ -34,9 +33,6 @@ public partial class LoginPage : ContentPage
             InitializeComponent();
             _forgetPasswordPopup = new ForgetPassword();
 
-            // Get biometric service from dependency injection
-            _biometricService = Handler?.MauiContext?.Services.GetService<IBiometricAuthenticationService>();
-
             // Start entrance animations after the page loads
             Loaded += OnPageLoaded;
 
@@ -46,32 +42,12 @@ public partial class LoginPage : ContentPage
             password.Focused += OnEntryFocused;
             password.Unfocused += OnEntryUnfocused;
 
-            // Load saved credentials and check biometric availability
+            // Pre-fill the saved email
             LoadSavedCredentials();
-            CheckBiometricAvailability();
         }
         catch (Exception ex)
         {
             DisplayAlert("Initialization Error", $"Failed to initialize login page: {ex.Message}", "OK");
-        }
-    }
-
-    private async void CheckBiometricAvailability()
-    {
-        try
-        {
-            // Check if we have saved credentials
-            bool hasCredentials = await HasSavedCredentialsAsync();
-
-            // Show biometric buttons only if credentials exist
-            await MainThread.InvokeOnMainThreadAsync(() =>
-            {
-                BiometricButtonsContainer.IsVisible = hasCredentials;
-            });
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Biometric check error: {ex.Message}");
         }
     }
 
@@ -89,19 +65,6 @@ public partial class LoginPage : ContentPage
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Load credentials error: {ex.Message}");
-        }
-    }
-
-    private async Task<bool> HasSavedCredentialsAsync()
-    {
-        try
-        {
-            var creds = await GetSavedCredentialsAsync();
-            return creds != null && !string.IsNullOrEmpty(creds.Email) && !string.IsNullOrEmpty(creds.Password);
-        }
-        catch
-        {
-            return false;
         }
     }
 
@@ -129,7 +92,7 @@ public partial class LoginPage : ContentPage
             var credentials = new SavedCredentials
             {
                 Email = email,
-                Password = password
+                Password = string.Empty // password is no longer stored
             };
 
             var credentialsJson = JsonConvert.SerializeObject(credentials);
@@ -139,87 +102,6 @@ public partial class LoginPage : ContentPage
         {
             System.Diagnostics.Debug.WriteLine($"Save credentials error: {ex.Message}");
         }
-    }
-
-    private async Task<bool> AuthenticateWithBiometricsAsync()
-    {
-        try
-        {
-            // Check if biometric authentication is available
-            var authResult = await SecureStorage.GetAsync("biometric_check");
-
-            // For actual implementation, you would use platform-specific biometric APIs
-            // For now, we'll simulate the authentication
-            bool isAuthenticated = await DisplayAlert(
-                "Biometric Authentication",
-                "Use your fingerprint or face to login",
-                "Authenticate",
-                "Cancel"
-            );
-
-            return isAuthenticated;
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Biometric auth error: {ex.Message}");
-            return false;
-        }
-    }
-
-    private async void BiometricLoginButton_Clicked(object sender, EventArgs e)
-    {
-        try
-        {
-            // Determine which button was clicked (Face ID or Fingerprint)
-            var button = sender as Button;
-            string authType = button?.Text.Contains("👤") == true ? "Face ID" : "Fingerprint";
-
-            await AnimateButtonPress(button);
-
-            // Check if credentials are saved
-            var savedCreds = await GetSavedCredentialsAsync();
-            if (savedCreds == null || string.IsNullOrEmpty(savedCreds.Email) || string.IsNullOrEmpty(savedCreds.Password))
-            {
-                await ShowErrorSnackbar("No saved credentials found. Please login with email and password first.");
-                return;
-            }
-
-            await ShowLoadingOverlay($"Authenticating with {authType}...");
-
-            // Authenticate with biometrics
-            bool isAuthenticated = await AuthenticateWithBiometricsAsync();
-
-            if (isAuthenticated)
-            {
-                // Use saved credentials to login
-                await DoSomeDataAccessAsync(savedCreds.Email, savedCreds.Password, true);
-            }
-            else
-            {
-                await HideLoadingOverlay();
-                await ShowErrorSnackbar($"{authType} authentication failed or cancelled");
-            }
-        }
-        catch (Exception ex)
-        {
-            await HideLoadingOverlay();
-            await ShowErrorSnackbar($"Biometric login error: {ex.Message}");
-        }
-    }
-
-    private async void EnableBiometricSwitch_Toggled(object sender, ToggledEventArgs e)
-    {
-        // This method has been removed - no longer using toggle switch
-    }
-
-    private void FaceIdButton_Clicked(object sender, EventArgs e)
-    {
-        BiometricLoginButton_Clicked(sender, e);
-    }
-
-    private void FingerprintButton_Clicked(object sender, EventArgs e)
-    {
-        BiometricLoginButton_Clicked(sender, e);
     }
 
     private async void OnPageLoaded(object? sender, EventArgs e)
@@ -464,7 +346,7 @@ public partial class LoginPage : ContentPage
                 string MyPassword = password.Text;
                 bool rememberMeToggle = RememberMeSwitch?.IsToggled ?? false;
 
-                // Save credentials securely for future biometric login
+                // Remember the email only (used to pre-fill the login field)
                 await SaveCredentialsAsync(MyEmail, MyPassword);
 
                 await DoSomeDataAccessAsync(MyEmail, MyPassword, rememberMeToggle);
@@ -741,8 +623,6 @@ public partial class LoginPage : ContentPage
 
                     await MainThread.InvokeOnMainThreadAsync(async () =>
                     {
-                        // Show biometric icons after successful first login
-                        BiometricButtonsContainer.IsVisible = true;
 
                         await ShowSuccessSnackbar($"Welcome back, {loginResponse.fullname}!");
                         await Task.Delay(500);
