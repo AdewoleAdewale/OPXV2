@@ -35,8 +35,8 @@ public partial class ContractListDetail : ContentPage
         else
         {
             // Handle case when there's nowhere to go back to
-            // Navigate to the dashboard (TabPage)
-            Application.Current.MainPage = new Home();
+            // Home is already underneath – close back onto it instead of rebuilding it
+            _ = MainThread.InvokeOnMainThreadAsync(() => DashBoard.GoHomeAsync());
         }
 
         return true; // Indicates we handled the back button press
@@ -47,7 +47,7 @@ public partial class ContractListDetail : ContentPage
     {
         try
         {
-            await Navigation.PushModalAsync(new Views.Home());
+            await DashBoard.GoHomeAsync();
         }
         catch (Exception ex)
         {
@@ -60,7 +60,7 @@ public partial class ContractListDetail : ContentPage
     {
         try
         {
-            await Navigation.PushModalAsync(new Views.Home());
+            await DashBoard.GoHomeAsync();
         }
         catch (Exception ex)
         {

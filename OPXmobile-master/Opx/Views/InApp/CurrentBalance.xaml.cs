@@ -88,7 +88,7 @@ public partial class CurrentBalance : ContentPage
     {
         try
         {
-            Application.Current.MainPage = new Home();
+            await DashBoard.GoHomeAsync();   // Home is already underneath – don't rebuild it
         }
         catch (Exception ex)
         {

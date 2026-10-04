@@ -10,7 +10,7 @@ using Application = Microsoft.Maui.Controls.Application;
 
 namespace Opx.Views;
 
-public partial class Home: ContentPage
+public partial class Home : ContentPage
 {
     private CreateContract createContract;
     private bool _isAnimating = false;
@@ -65,6 +65,7 @@ public partial class Home: ContentPage
         try
         {
             InitializeComponent();
+            _current = new WeakReference<Home>(this);
             DashBoard.Attach(this, DashTab.Home);   // curved gradient tab bar
 
             dashbaordusername.Text = "Hello," + " " + LoginPage.myfullname.Substring(0, Math.Min(15, LoginPage.myfullname.Length)) + " " + "";
@@ -238,8 +239,7 @@ public partial class Home: ContentPage
         {
             if (_cachedTransactions.Any())
             {
-                listView.ItemsSource = _cachedTransactions;
-                AnimateListItems();
+                SetRecent(_cachedTransactions);
             }
         }
         catch (Exception ex)
@@ -688,6 +688,174 @@ public partial class Home: ContentPage
         return true;
     }
 
+    // ═════════ Return-to-Home refresh ═════════
+    // Pages close back onto the Home instance that is already underneath (see DashBoard.GoHomeAsync) –
+    // Home is never rebuilt. On return only the virtual card and the recent-transactions list refresh,
+    // silently (no full-screen loading overlay, so no black flash).
+    private static WeakReference<Home>? _current;
+    private bool _hasAppearedOnce;
+    private bool _returnRefreshRunning;
+    private DateTime _lastReturnRefreshUtc = DateTime.MinValue;
+    private string _recentSignature = "";
+
+    /// <summary>Called by DashBoard.GoHomeAsync after it has closed the pages above Home.</summary>
+    public static Task NotifyReturnedAsync() =>
+        _current != null && _current.TryGetTarget(out var home) ? home.RefreshOnReturnAsync() : Task.CompletedTask;
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        if (!_hasAppearedOnce) { _hasAppearedOnce = true; return; }   // first show: the constructor already loaded everything
+        _ = RefreshOnReturnAsync();
+    }
+
+    public async Task RefreshOnReturnAsync()
+    {
+        // OnAppearing and GoHomeAsync can both fire for one return – run once.
+        if (_returnRefreshRunning || (DateTime.UtcNow - _lastReturnRefreshUtc).TotalMilliseconds < 1500) return;
+        _returnRefreshRunning = true;
+        _lastReturnRefreshUtc = DateTime.UtcNow;
+        try
+        {
+            await MainThread.InvokeOnMainThreadAsync(ApplyCardState);   // instant: latest in-memory account/balance state
+            await FetchSummaryAndRecentAsync();                          // then quietly pull fresh balances + recent list
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Return refresh error: {ex.Message}");
+        }
+        finally
+        {
+            _returnRefreshRunning = false;
+        }
+    }
+
+    private void ApplyCardState()
+    {
+        BalanceLabel.Text = "₦" + LoginPage.availableBalance;
+        AmountLabel.Text = "₦" + LoginPage.ledgerBalance;
+        QuickFundsButton.Text = "COMPLETED: " + LoginPage.completedTransactions;
+        TransferButton.Text = "TOTAL: " + LoginPage.totalTransactions;
+        cardaccountNumber.Text = LoginPage.accountNumber;
+        cardAccountname.Text = LoginPage.myfullname;
+        cardExiprydate.Text = LoginPage.bankName;
+    }
+
+    private async Task FetchSummaryAndRecentAsync()
+    {
+        var result = await OpxApi.GetAsync<DashboardSummaryResponse>(
+            $"/dashboard/summary?email={Uri.EscapeDataString(LoginPage.myemail ?? "")}");
+
+        // Offline / server error: keep what is already on screen, no error spam on a background refresh.
+        if (!result.IsHttpSuccess || result.Data == null) return;
+
+        if (result.Data.Summary != null) ApplySummary(result.Data.Summary);
+
+        var recent = result.Data.RecentOrders;
+        if (recent != null && recent.Count > 0)
+        {
+            var items = MapRecentOrders(recent);
+            _cachedTransactions = items;
+            _transactionsLoaded = true;
+            _lastLoadTime = DateTime.Now;
+            await MainThread.InvokeOnMainThreadAsync(() => SetRecent(items, animate: false));
+        }
+    }
+
+    /// <summary>Persist fresh balances into the static login state (other pages read it) and update the card.</summary>
+    private void ApplySummary(DashboardSummary summary)
+    {
+        LoginPage.availableBalance = summary.AvailableBalance;
+        LoginPage.ledgerBalance = summary.LedgerBalance;
+        LoginPage.completedTransactions = summary.Completed.ToString();
+        LoginPage.totalTransactions = summary.Total.ToString();
+        LoginPage.pendingTransactions = summary.Pending.ToString();
+        LoginPage.disputes = summary.Disputed.ToString();
+
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            BalanceLabel.Text = "₦" + summary.AvailableBalance;
+            AmountLabel.Text = "₦" + summary.LedgerBalance;
+            QuickFundsButton.Text = "COMPLETED: " + summary.Completed;
+            TransferButton.Text = "TOTAL: " + summary.Total;
+        });
+    }
+
+    private List<HistoryData> MapRecentOrders(IEnumerable<DashboardRecentOrder> orders) =>
+        orders
+            .OrderByDescending(x => x.Date)
+            .Take(5)
+            .Select(o => new HistoryData
+            {
+                Id = int.TryParse(o.Id, out var id) ? id : 0,
+                SellerId = o.SellerName ?? "",
+                BuyerId = o.IsBuyer ? LoginPage.myemail ?? "" : "",
+                Amount = o.Amount,
+                Token = o.Id ?? "",
+                IsConfirmed = o.IsConfirmed,
+                ConfirmedAt = null,
+                IsCancellationRequested = o.IsCancellationRequested,
+                CancelRequestedAt = null,
+                IsCancelled = o.IsCancelled,
+                CancelledAt = null,
+                CreatedAt = o.Date,
+                Description = o.Names ?? o.SellerName ?? "",
+                Status = o.Status ?? "",
+                SellerName = o.SellerName ?? "",
+                SellerPhone = "",
+                BuyerName = "",
+                BuyerPhone = "",
+                Role = o.IsBuyer ? "Buyer" : "Seller"
+            }).ToList();
+
+    /// <summary>Shows the recent list. Skips the rebuild when nothing changed so a silent refresh never flickers.</summary>
+    private void SetRecent(IEnumerable<HistoryData>? items, bool animate = true)
+    {
+        var list = items?.ToList() ?? new List<HistoryData>();
+        var signature = string.Join("|", list.Select(x => $"{x.Token}:{x.Status}:{x.Amount}"));
+        if (!animate && signature == _recentSignature) return;
+        _recentSignature = signature;
+
+        BindableLayout.SetItemsSource(listView, list);
+        RecentEmptyLabel.IsVisible = list.Count == 0;
+        if (animate && list.Count > 0) AnimateListItems();
+    }
+
+    // ═════════ Responsive layout (all Android widths / heights) ═════════
+    private double _lastW, _lastH;
+
+    protected override void OnSizeAllocated(double width, double height)
+    {
+        base.OnSizeAllocated(width, height);
+        if (width <= 0 || height <= 0) return;
+        if (Math.Abs(width - _lastW) < 1 && Math.Abs(height - _lastH) < 1) return;
+        _lastW = width; _lastH = height;
+
+        bool veryNarrow = width < 330;   // small phones / large font scale
+        bool narrow = width < 360;
+        bool tiny = height < 580;        // split-screen, very short displays
+        bool shortScreen = height < 680;
+        bool compact = narrow || shortScreen;
+
+        var r = Resources;
+        r["HeroFont"] = veryNarrow ? 24d : narrow ? 26d : 30d;
+        r["AcctFont"] = veryNarrow ? 17d : narrow ? 19d : 22d;
+        r["ValueFont"] = narrow ? 13d : 14d;
+        r["TileBox"] = narrow ? 38d : 44d;
+        r["TileImg"] = narrow ? 20d : 22d;
+        r["TilePad"] = new Thickness(0, shortScreen ? 10 : 14);
+        r["BlockGap"] = tiny ? 10d : shortScreen ? 14d : 18d;
+        r["CardGap"] = shortScreen ? 10d : 16d;
+        r["BannerImg"] = narrow ? 48d : 64d;
+        r["CardPad"] = compact ? new Thickness(18, 16, 18, 18) : new Thickness(22, 20, 22, 22);
+        r["HeaderPad"] = shortScreen ? new Thickness(20, 18, 20, 48) : new Thickness(20, 28, 20, 56);
+
+        // Tablets / foldables / landscape: keep the content column readable instead of stretching edge to edge.
+        bool wide = width > 620;
+        MainContent.WidthRequest = wide ? 600 : -1;
+        MainContent.HorizontalOptions = wide ? LayoutOptions.Center : LayoutOptions.Fill;
+    }
+
     async Task LoadingRecentTransactions()
     {
         if (_isRefreshing) return;
@@ -715,23 +883,7 @@ public partial class Home: ContentPage
 
                     if (summaryResult.IsHttpSuccess && summaryResult.Data?.Summary != null)
                     {
-                        var summary = summaryResult.Data.Summary;
-
-                        // Persist fresh balances into the static login state so other pages stay current
-                        LoginPage.availableBalance = summary.AvailableBalance;
-                        LoginPage.ledgerBalance = summary.LedgerBalance;
-                        LoginPage.completedTransactions = summary.Completed.ToString();
-                        LoginPage.totalTransactions = summary.Total.ToString();
-                        LoginPage.pendingTransactions = summary.Pending.ToString();
-                        LoginPage.disputes = summary.Disputed.ToString();
-
-                        await MainThread.InvokeOnMainThreadAsync(() =>
-                        {
-                            BalanceLabel.Text = "₦" + summary.AvailableBalance;
-                            AmountLabel.Text = "₦" + summary.LedgerBalance;
-                            QuickFundsButton.Text = "COMPLETED: " + summary.Completed;
-                            TransferButton.Text = "TOTAL: " + summary.Total;
-                        });
+                        ApplySummary(summaryResult.Data.Summary);
                     }
                     else if (!summaryResult.IsNetworkError)
                     {
@@ -742,31 +894,7 @@ public partial class Home: ContentPage
                     var recentOrders = summaryResult.Data?.RecentOrders;
                     if (recentOrders != null && recentOrders.Count > 0)
                     {
-                        var historyItems = recentOrders
-                            .OrderByDescending(x => x.Date)
-                            .Take(5)
-                            .Select(o => new HistoryData
-                            {
-                                Id = int.TryParse(o.Id, out var id) ? id : 0,
-                                SellerId = o.SellerName ?? "",
-                                BuyerId = o.IsBuyer ? LoginPage.myemail ?? "" : "",
-                                Amount = o.Amount,
-                                Token = o.Id ?? "",
-                                IsConfirmed = o.IsConfirmed,
-                                ConfirmedAt = null,
-                                IsCancellationRequested = o.IsCancellationRequested,
-                                CancelRequestedAt = null,
-                                IsCancelled = o.IsCancelled,
-                                CancelledAt = null,
-                                CreatedAt = o.Date,
-                                Description = o.Names ?? o.SellerName ?? "",
-                                Status = o.Status ?? "",
-                                SellerName = o.SellerName ?? "",
-                                SellerPhone = "",
-                                BuyerName = "",
-                                BuyerPhone = "",
-                                Role = o.IsBuyer ? "Buyer" : "Seller"
-                            }).ToList();
+                        var historyItems = MapRecentOrders(recentOrders);
 
                         _cachedTransactions = historyItems;
                         _transactionsLoaded = true;
@@ -774,8 +902,7 @@ public partial class Home: ContentPage
 
                         await MainThread.InvokeOnMainThreadAsync(() =>
                         {
-                            listView.ItemsSource = _cachedTransactions;
-                            AnimateListItems();
+                            SetRecent(_cachedTransactions);
                         });
                     }
                     else if (recentOrders != null)
@@ -823,8 +950,7 @@ public partial class Home: ContentPage
 
                 await MainThread.InvokeOnMainThreadAsync(() =>
                 {
-                    listView.ItemsSource = _cachedTransactions;
-                    AnimateListItems();
+                    SetRecent(_cachedTransactions);
                 });
             }
             else
@@ -860,16 +986,12 @@ public partial class Home: ContentPage
     {
         try
         {
-            if (listView.ItemsSource is System.Collections.IEnumerable items)
+            var rows = listView.Children.OfType<VisualElement>().Take(10).ToList();
+            foreach (var row in rows) row.Opacity = 0;
+            foreach (var row in rows)
             {
-                var itemList = items.Cast<object>().ToList();
-
-                for (int i = 0; i < itemList.Count && i < 10; i++)
-                {
-                    await Task.Delay(i * 150);
-                    await listView.FadeTo(0.7, 50);
-                    await listView.FadeTo(1, 100);
-                }
+                _ = row.FadeTo(1, 250, Easing.CubicOut);
+                await Task.Delay(60);
             }
         }
         catch (Exception ex)

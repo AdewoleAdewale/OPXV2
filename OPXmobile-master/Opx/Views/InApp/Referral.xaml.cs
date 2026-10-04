@@ -338,7 +338,7 @@ public partial class Referral : ContentPage, IDisposable
                 if (sender is Label label)
                 {
                     var originalColor = label.TextColor;
-                    label.TextColor = Colors.Red;
+                    label.TextColor = Color.FromArgb("#1FA971");
                     await Task.Delay(500);
                     label.TextColor = originalColor;
                 }
@@ -945,17 +945,13 @@ public partial class Referral : ContentPage, IDisposable
                     }
                     else
                     {
-                        Application.Current.MainPage = new Home();
+                        // Home is already underneath: close back onto it (no rebuild, no black screen).
+                        await DashBoard.GoHomeAsync();
                     }
                 }
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine($"Navigation error: {ex.Message}");
-                    try
-                    {
-                        Application.Current.MainPage = new Home();
-                    }
-                    catch { }
                 }
             });
 

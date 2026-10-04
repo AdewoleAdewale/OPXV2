@@ -55,7 +55,7 @@ public partial class TransactionPage : ContentPage
     private async void TapGestureRecognizer_Tapped5(object sender, TappedEventArgs e)
     {
 
-        await Navigation.PushModalAsync(new Views.Home());
+        await DashBoard.GoHomeAsync();
     }
 
     protected override bool OnBackButtonPressed()
@@ -69,8 +69,8 @@ public partial class TransactionPage : ContentPage
         else
         {
             // Handle case when there's nowhere to go back to
-            // Navigate to the dashboard (TabPage)
-            Application.Current.MainPage = new Home();
+            // Home is already underneath – close back onto it instead of rebuilding it
+            _ = MainThread.InvokeOnMainThreadAsync(() => DashBoard.GoHomeAsync());
         }
 
         return true; // Indicates we handled the back button press

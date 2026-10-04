@@ -7,7 +7,7 @@ namespace Opx.Views;
 
 public enum DashTab { Home, Escrow, Create, Wallet, Profile }
 
-public partial class DashBoard :ContentView
+public partial class DashBoard : ContentView
 {
     private readonly DashTab _active;
     private bool _busy;
@@ -101,18 +101,30 @@ public partial class DashBoard :ContentView
         return e as Page;
     }
 
-    /// <summary>Close every page opened on top of the dashboard.</summary>
-    public static async Task GoHomeAsync()
+    /// <summary>
+    /// Close every page opened on top of Home. Home itself is never rebuilt: it is already underneath, so
+    /// it only refreshes its virtual card and recent-transactions list (silently) when something was closed.
+    /// Every page's back action should come through here instead of doing "MainPage = new Home()".
+    /// </summary>
+    public static async Task GoHomeAsync(bool refreshHome = true)
     {
         var nav = Application.Current?.MainPage?.Navigation;
         if (nav == null) return;
+
+        bool closedAny = false;
         while (nav.ModalStack.Count > 0 && nav.ModalStack[^1] is not Home)
+        {
             await nav.PopModalAsync(false);
+            closedAny = true;
+        }
+
+        if (closedAny && refreshHome)
+            _ = Home.NotifyReturnedAsync();
     }
 
     private static async Task OpenAsync(Page page)
     {
-        await GoHomeAsync();
+        await GoHomeAsync(refreshHome: false);   // about to open another tab page, no need to refresh Home yet
         var nav = Application.Current?.MainPage?.Navigation;
         if (nav != null) await nav.PushModalAsync(page, false);
     }
