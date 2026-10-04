@@ -42,34 +42,27 @@
                 <VerticalStackLayout Spacing="0">
 
                     <!-- ═════════ Header with avatar ═════════ -->
-                    <Border StrokeThickness="0" Padding="20,26,20,76" StrokeShape="RoundRectangle 0,0,32,32">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#2B1B7A" Offset="0.0"/>
-                                <GradientStop Color="#5B3FD6" Offset="0.6"/>
-                                <GradientStop Color="#8E5CE0" Offset="1.0"/>
-                            </LinearGradientBrush>
-                        </Border.Background>
+                    <Border StrokeThickness="0" Padding="20,26,20,16" StrokeShape="RoundRectangle 0,0,12,12"  BackgroundColor="#8E44AD">
+                   
                         <Grid ColumnDefinitions="Auto,*,Auto">
                             <Button x:Name="BackButton" ImageSource="back.png"
                                     BackgroundColor="#33FFFFFF" WidthRequest="44" HeightRequest="44"
-                                    CornerRadius="22" Padding="0" Clicked="BackButton_Clicked"/>
+                                    CornerRadius="12" Padding="0" Clicked="BackButton_Clicked"/>
                             <Label Grid.Column="1" Text="My profile" FontSize="18" FontAttributes="Bold"
                                    TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"/>
-                            <BoxView Grid.Column="2" WidthRequest="44" HeightRequest="44" Color="Transparent"/>
                         </Grid>
                     </Border>
 
                     <VerticalStackLayout Padding="16,0,16,28" Spacing="16">
 
                         <!-- ═════════ Identity card (overlaps header) ═════════ -->
-                        <Border Margin="0,-58,0,0" StrokeThickness="0" BackgroundColor="White"
+                        <Border Margin="0,8,0,0" StrokeThickness="0" BackgroundColor="White"
                                 Padding="20,0,20,20" StrokeShape="RoundRectangle 26">
                             <Border.Shadow>
                                 <Shadow Brush="#2B1B7A" Opacity="0.14" Radius="20" Offset="0,8"/>
                             </Border.Shadow>
                             <VerticalStackLayout Spacing="14">
-                                <Grid HorizontalOptions="Center" Margin="0,-48,0,0">
+                                <Grid HorizontalOptions="Center" Margin="0,8,0,0">
                                     <Frame x:Name="ProfileImageFrame" BackgroundColor="White" BorderColor="White"
                                            CornerRadius="48" HeightRequest="96" WidthRequest="96"
                                            HasShadow="True" Padding="0">
@@ -187,7 +180,7 @@
 
                         <!-- ═════════ Logout ═════════ -->
                         <Border x:Name="LogoutButton" StrokeThickness="1" Stroke="#FFD3DA" BackgroundColor="#FFF3F5"
-                                Padding="16,14" StrokeShape="RoundRectangle 22">
+                                Padding="16,14" StrokeShape="RoundRectangle 12">
                             <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
                                 <Image Source="image9.png" HeightRequest="20" WidthRequest="20"/>
                                 <Label Text="Log out" FontSize="15" FontAttributes="Bold" TextColor="#D8344F"

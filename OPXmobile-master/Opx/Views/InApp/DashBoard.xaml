@@ -4,14 +4,15 @@
              x:Class="Opx.Views.DashBoard"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
                 xmlns:renderers="clr-namespace:Opx.Renderers"
+             BackgroundColor="White"
                 xmlns:views="clr-namespace:Opx.Views">
 
     <Grid Padding="14,4,14,12" BackgroundColor="Transparent">
-        <Border StrokeThickness="0" HeightRequest="72" StrokeShape="RoundRectangle 28">
+        <Border StrokeThickness="0" HeightRequest="72" StrokeShape="RoundRectangle 15">
             <Border.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                    <GradientStop Color="#5B3FD6" Offset="0.0"/>
-                    <GradientStop Color="#8E5CE0" Offset="1.0"/>
+                    <GradientStop Color="#8E44AD" Offset="0.0"/>
+                    <GradientStop Color="#8E44AD" Offset="1.0"/>
                 </LinearGradientBrush>
             </Border.Background>
             <Border.Shadow>
@@ -39,7 +40,7 @@
                             <toolkit:IconTintColorBehavior TintColor="White"/>
                         </Image.Behaviors>
                     </Image>
-                    <Label x:Name="LabelEscrow" Text="Escrow" FontSize="10" TextColor="White" HorizontalTextAlignment="Center"/>
+                    <Label x:Name="LabelEscrow" Text="History" FontSize="10" TextColor="White" HorizontalTextAlignment="Center"/>
                     <BoxView x:Name="DotEscrow" HeightRequest="4" WidthRequest="4" CornerRadius="2" Color="White" HorizontalOptions="Center" Opacity="0"/>
                     <VerticalStackLayout.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnTabTapped"/>
@@ -49,7 +50,7 @@
                 <!-- Centre action: new contract -->
                 <VerticalStackLayout Grid.Column="2" ClassId="create" Spacing="3" HorizontalOptions="Center" VerticalOptions="Center">
                     <Border StrokeThickness="2" Stroke="White" BackgroundColor="#33FFFFFF"
-                         HeightRequest="46" WidthRequest="46" StrokeShape="RoundRectangle 23">
+                         HeightRequest="46" WidthRequest="46" StrokeShape="RoundRectangle 13">
                         <Image Source="add.png" HeightRequest="22" WidthRequest="22" HorizontalOptions="Center" VerticalOptions="Center">
                             <Image.Behaviors>
                                 <toolkit:IconTintColorBehavior TintColor="White"/>

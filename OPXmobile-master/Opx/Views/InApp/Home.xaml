@@ -58,7 +58,7 @@
                     <!-- ═════════ Header ═════════ -->
                     <Border x:Name="HeaderGrid"
                         StrokeThickness="0"             BackgroundColor="#8E44AD"
-                        Padding="20,28,20,64"
+                        Padding="20,28,20,24"
                         StrokeShape="RoundRectangle 0,0,22,22">
                     
                         <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="10">
@@ -96,10 +96,10 @@
                         </Grid>
                     </Border>
 
-                    <VerticalStackLayout x:Name="MainContent" Padding="16,0,16,28" Spacing="18" HorizontalOptions="Fill" >
+                    <VerticalStackLayout x:Name="MainContent" Padding="16,-40,16,28" Spacing="18" HorizontalOptions="Fill" >
 
                         <!-- ═════════ Balance hero card (overlaps header) ═════════ -->
-                        <Border x:Name="EscrowCard" Margin="-30,-66,-50,10"     HorizontalOptions="FillAndExpand"
+                        <Border x:Name="EscrowCard" Margin="0,0,-100,-10"     HorizontalOptions="FillAndExpand"  VerticalOptions="Fill"
                             StrokeThickness="0" Padding="0"
                             StrokeShape="RoundRectangle 10">
                             <Border.Background>
@@ -230,7 +230,7 @@
                                 </HorizontalStackLayout>
                             </Border>
                             <Border Grid.Column="1" StrokeThickness="1" Stroke="#ECEEF6" BackgroundColor="White"
-                                Padding="16,14" StrokeShape="RoundRectangle 18">
+                                Padding="16,14" StrokeShape="RoundRectangle 10">
                                 <HorizontalStackLayout Spacing="10">
                                     <BoxView WidthRequest="4" HeightRequest="28" CornerRadius="2" Color="#1FA971" VerticalOptions="Center"/>
                                     <VerticalStackLayout Spacing="1" VerticalOptions="Center">
@@ -283,7 +283,7 @@
                               ItemsSource="{Binding HD}"
                               HasUnevenRows="True"
                               SeparatorVisibility="None"
-                              HeightRequest="430">
+                              HeightRequest="100">
                             <ListView.ItemTemplate>
                                 <DataTemplate>
                                     <ViewCell>

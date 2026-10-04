@@ -5,6 +5,7 @@
              xmlns:extensions="clr-namespace:Microsoft.Maui.Controls;assembly=Microsoft.Maui.Controls"  
              xmlns:renderers="clr-namespace:Opx.Renderers"
              xmlns:views="clr-namespace:Opx.Views"
+             BackgroundColor="White"
               NavigationPage.HasNavigationBar="False"
              Padding="0,-30,0,0">
 
