@@ -1,5 +1,6 @@
 using CommunityToolkit.Maui.Views;
 using System.Collections.Concurrent;
+using static Android.App.ActivityManager;
 
 namespace Opx.Views;
 
@@ -29,6 +30,7 @@ public partial class ProfilePage : ContentPage
         try
         {
             InitializeComponent();
+            DashBoard.Attach(this, DashTab.Profile);   // curved gradient tab bar
             _cancellationTokenSource = new CancellationTokenSource();
             InitializeProfileAsync();
         }
@@ -469,6 +471,18 @@ public partial class ProfilePage : ContentPage
         }
     }
 
+    private async void Referral_Tapped(object sender, TappedEventArgs e)
+    {
+        try
+        {
+            await Navigation.PushModalAsync(new Views.Referral());
+        }
+        catch (Exception ex)
+        {
+            await HandleError("Navigation Error", ex, "Unable to open the referral page.");
+        }
+    }
+
     private async void RecipientAccount_Tapped(object sender, TappedEventArgs e)
     {
         if (!await PreventMultipleClicks("recipient_account")) return;
@@ -573,7 +587,7 @@ public partial class ProfilePage : ContentPage
             _cancellationTokenSource?.Cancel();
 
             // Clear the shared HttpClient session cookie so /ChangePassword can't be replayed.
-            Opx.Services.OpxApi.ClearSession();
+            Opx.Services.SessionStore.Clear();   // removes the saved session (and the auth cookie)
 
             // Clear authentication data
             SecureStorage.Remove("auth_token");
@@ -640,19 +654,13 @@ public partial class ProfilePage : ContentPage
 
 
             // Navigate to the dashboard
-            MainThread.BeginInvokeOnMainThread(() =>
-            {
-                Application.Current.MainPage = new DashBoard();
-            });
+            await MainThread.InvokeOnMainThreadAsync(() => DashBoard.GoHomeAsync());
 
         }
         catch (InvalidOperationException)
         {
             // Fallback navigation
-            MainThread.BeginInvokeOnMainThread(() =>
-            {
-                Application.Current.MainPage = new DashBoard();
-            });
+            await MainThread.InvokeOnMainThreadAsync(() => DashBoard.GoHomeAsync());
         }
         finally
         {

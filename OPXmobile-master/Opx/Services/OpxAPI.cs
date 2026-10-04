@@ -57,6 +57,61 @@ public static class OpxApi
             c.Expired = true;
     }
 
+    /// <summary>A cookie in a form that can be saved as JSON (used to keep the user signed in across launches).</summary>
+    public class StoredCookie
+    {
+        public string Name { get; set; } = "";
+        public string Value { get; set; } = "";
+        public string Domain { get; set; } = "";
+        public string Path { get; set; } = "/";
+        public DateTime Expires { get; set; }
+        public bool Secure { get; set; }
+        public bool HttpOnly { get; set; }
+    }
+
+    /// <summary>Snapshot of the live cookies for the OPX API (auth cookie included).</summary>
+    public static List<StoredCookie> ExportCookies()
+    {
+        var list = new List<StoredCookie>();
+        foreach (Cookie c in Cookies.GetCookies(new Uri(BaseUrl)))
+        {
+            if (c.Expired) continue;
+            list.Add(new StoredCookie
+            {
+                Name = c.Name,
+                Value = c.Value,
+                Domain = c.Domain,
+                Path = c.Path,
+                Expires = c.Expires,
+                Secure = c.Secure,
+                HttpOnly = c.HttpOnly
+            });
+        }
+        return list;
+    }
+
+    /// <summary>Put previously saved cookies back so the server still recognises the signed-in user.</summary>
+    public static void ImportCookies(IEnumerable<StoredCookie>? saved)
+    {
+        if (saved == null) return;
+        foreach (var s in saved)
+        {
+            try
+            {
+                if (s.Expires != default && s.Expires < DateTime.Now) continue;   // already expired
+                var c = new Cookie(s.Name, s.Value, string.IsNullOrEmpty(s.Path) ? "/" : s.Path,
+                                   string.IsNullOrEmpty(s.Domain) ? new Uri(BaseUrl).Host : s.Domain)
+                { Secure = s.Secure, HttpOnly = s.HttpOnly };
+                if (s.Expires != default) c.Expires = s.Expires;
+                Cookies.Add(c);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"ImportCookies skipped '{s.Name}': {ex.Message}");
+            }
+        }
+    }
+
     public static Task<OpxResult<T>> GetAsync<T>(string path, CancellationToken ct = default) where T : class
         => SendAsync<T>(new HttpRequestMessage(HttpMethod.Get, BaseUrl + path), ct);
 

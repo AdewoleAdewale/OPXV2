@@ -10,14 +10,14 @@ using Application = Microsoft.Maui.Controls.Application;
 
 namespace Opx.Views;
 
-public partial class Home : ContentPage
+public partial class Home: ContentPage
 {
     private CreateContract createContract;
     private bool _isAnimating = false;
     private bool _hasShownAccountPopup = false;
-    private bool _transactionsLoaded = false; // Track if transactions are already loaded
-    private List<HistoryData> _cachedTransactions = new List<HistoryData>(); // Cache transactions
-    private DateTime _lastLoadTime = DateTime.MinValue; // Track when last loaded
+    private static bool _transactionsLoaded = false; // Track if transactions are already loaded
+    private static List<HistoryData> _cachedTransactions = new List<HistoryData>(); // Cache transactions
+    private static DateTime _lastLoadTime = DateTime.MinValue; // Track when last loaded
     private bool _isRefreshing = false; // Track if currently refreshing
 
     private bool _isCheckingAccountSetup = false;
@@ -65,6 +65,7 @@ public partial class Home : ContentPage
         try
         {
             InitializeComponent();
+            DashBoard.Attach(this, DashTab.Home);   // curved gradient tab bar
 
             dashbaordusername.Text = "Hello," + " " + LoginPage.myfullname.Substring(0, Math.Min(15, LoginPage.myfullname.Length)) + " " + "";
             //StartEllipseAnimation();
@@ -78,7 +79,7 @@ public partial class Home : ContentPage
             cardaccountNumber.Text = LoginPage.accountNumber;
             cardAccountname.Text = LoginPage.myfullname;
             cardExiprydate.Text = LoginPage.bankName;
-            if (!_transactionsLoaded || DateTime.Now - _lastLoadTime > TimeSpan.FromMinutes(5))
+            if (!_transactionsLoaded)
             {
                 LoadingRecentTransactions();
             }
@@ -92,6 +93,7 @@ public partial class Home : ContentPage
             // Check if we need to show the account setup popup
             _ = Task.Run(async () => await CheckAndShowAccountSetup());
             AddPullToRefresh();
+            _ = CheckAndShowKycFormAsync();
         }
         catch (Exception ex)
         {
@@ -211,6 +213,25 @@ public partial class Home : ContentPage
     }
 
 
+    private static bool _kycPromptedThisRun = false;
+
+    private async Task CheckAndShowKycFormAsync()
+    {
+        try
+        {
+            await Task.Delay(2000);   // let the page settle first
+            if (!string.IsNullOrEmpty(LoginPage.accountNumber) || _kycPromptedThisRun) return;
+
+            _kycPromptedThisRun = true;
+            await MainThread.InvokeOnMainThreadAsync(async () =>
+                await Navigation.PushModalAsync(new Kycform(), true));
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"KYC check error: {ex.Message}");
+        }
+    }
+
     private void LoadCachedTransactions()
     {
         try
@@ -245,14 +266,34 @@ public partial class Home : ContentPage
     }
 
     // Public method to manually refresh transactions
+    private bool _manualRefreshRunning = false;
+
     public async Task RefreshTransactions()
     {
-        if (_isRefreshing) return;
+        if (_manualRefreshRunning) return;
+        _manualRefreshRunning = true;
+        try
+        {
+            _transactionsLoaded = false;   // force a reload
+            await LoadingRecentTransactions();
+        }
+        finally
+        {
+            _manualRefreshRunning = false;
+        }
+    }
 
-        _isRefreshing = true;
-        _transactionsLoaded = false; // Force reload
-        await LoadingRecentTransactions();
-        _isRefreshing = false;
+    // Pull down, or tap the refresh button in the header. These are the only ways the dashboard reloads.
+    private async void OnPullRefresh(object? sender, EventArgs e)
+    {
+        try { await RefreshTransactions(); }
+        finally { PullRefresh.IsRefreshing = false; }
+    }
+
+    private async void OnRefreshTapped(object? sender, TappedEventArgs e)
+    {
+        await AnimateButtonPress(RefreshButton);
+        await RefreshTransactions();
     }
 
     private void ResetButton_Clicked(object sender, EventArgs e)
@@ -494,6 +535,8 @@ public partial class Home : ContentPage
         try
         {
             Preferences.Clear();
+            SessionStore.Clear();   // saved session is removed only on logout
+            _kycPromptedThisRun = false;
             dashbaordusername.Text = string.Empty;
 
             // Clear cached transactions on logout
@@ -516,7 +559,7 @@ public partial class Home : ContentPage
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Navigation error: {ex.Message}");
-            Application.Current.MainPage = new DashBoard();
+            Application.Current.MainPage = new Home();
         }
     }
 
@@ -639,7 +682,7 @@ public partial class Home : ContentPage
             bool result = await DisplayAlert("NOTIFICATION", "Are you sure you want to exit the application?", "Yes", "No");
             if (result)
             {
-                await PerformLogout();
+                Application.Current?.Quit();   // the session stays saved; only the Logout button signs out
             }
         });
         return true;

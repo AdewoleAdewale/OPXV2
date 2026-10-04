@@ -24,7 +24,7 @@ public partial class Kycform : ContentPage, INotifyPropertyChanged
 
     // TODO: set to the VAPlatform value given in the updated OPX endpoint doc. Until then the field is omitted
     // and the API will keep answering "The VAPlatform field is required."
-    private const string? VaPlatform = "POUCHII";
+    private const string? VaPlatform = null;
     private const int REQUEST_TIMEOUT_SECONDS = 30;
     private const string BVN_PATTERN = @"^\d{11}$";
     #endregion
@@ -128,7 +128,7 @@ public partial class Kycform : ContentPage, INotifyPropertyChanged
 
     private async void OnBackButtonTapped(object sender, TappedEventArgs e)
     {
-        await Navigation.PushModalAsync(new Views.DashBoard());
+        await Navigation.PushModalAsync(new Views.Home());
     }
 
     private void OnBvnTextChanged(object sender, TextChangedEventArgs e)
@@ -489,7 +489,7 @@ public partial class Kycform : ContentPage, INotifyPropertyChanged
                 System.Diagnostics.Debug.WriteLine("Navigating to DashBoard...");
 
                 // Clear navigation stack and set DashBoard as main page
-                Application.Current.MainPage = new NavigationPage(new DashBoard())
+                Application.Current.MainPage = new NavigationPage(new Home())
                 {
                     BarBackgroundColor = Color.FromArgb("#A25AC4"),
                     BarTextColor = Colors.White

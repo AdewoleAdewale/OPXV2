@@ -18,6 +18,6 @@ public partial class Congratulations : ContentPage
         await Task.Delay(3000);
 
         // Navigate to the main page
-        Application.Current.MainPage = new DashBoard();
+        Application.Current.MainPage = new Home();
     }
 }

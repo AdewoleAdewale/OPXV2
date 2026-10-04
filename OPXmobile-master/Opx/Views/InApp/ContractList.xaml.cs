@@ -5,8 +5,10 @@ using Newtonsoft.Json;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using static Android.App.ActivityManager;
 
 namespace Opx.Views;
+
 public partial class ContractList : ContentPage, IDisposable
 {
     private VerifyToken _verifytokenPopup;
@@ -372,6 +374,7 @@ public partial class ContractList : ContentPage, IDisposable
         try
         {
             InitializeComponent();
+            DashBoard.Attach(this, DashTab.Escrow);   // curved gradient tab bar
             InitializeViewModel();
             InitializeCancellationToken();
             InitializeUIElements();
@@ -1164,24 +1167,9 @@ public partial class ContractList : ContentPage, IDisposable
 
     private bool NavigateToHomePage()
     {
-
-
-        var navStack = Navigation.NavigationStack;
-        if (navStack.Count > 1)
-        {
-            // Properly handle async operation
-            Task.Run(async () => await Navigation.PopAsync());
-        }
-        else
-        {
-            // Handle case when there's nowhere to go back to
-            // Navigate to the dashboard (TabPage)
-            Application.Current.MainPage = new DashBoard();
-        }
-
-        return true; // Indicates we handled the back button press
-
-
+        // The dashboard is already open underneath: just close this page (no rebuild, no reload).
+        _ = MainThread.InvokeOnMainThreadAsync(() => DashBoard.GoHomeAsync());
+        return true;
     }
     #endregion
 

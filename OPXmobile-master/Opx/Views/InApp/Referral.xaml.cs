@@ -945,7 +945,7 @@ public partial class Referral : ContentPage, IDisposable
                     }
                     else
                     {
-                        Application.Current.MainPage = new DashBoard();
+                        Application.Current.MainPage = new Home();
                     }
                 }
                 catch (Exception ex)
@@ -953,7 +953,7 @@ public partial class Referral : ContentPage, IDisposable
                     System.Diagnostics.Debug.WriteLine($"Navigation error: {ex.Message}");
                     try
                     {
-                        Application.Current.MainPage = new DashBoard();
+                        Application.Current.MainPage = new Home();
                     }
                     catch { }
                 }

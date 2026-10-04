@@ -88,7 +88,7 @@ public partial class CurrentBalance : ContentPage
     {
         try
         {
-            Application.Current.MainPage = new DashBoard();
+            Application.Current.MainPage = new Home();
         }
         catch (Exception ex)
         {

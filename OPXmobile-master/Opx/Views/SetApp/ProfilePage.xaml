@@ -3,519 +3,202 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Opx.Views.ProfilePage"
              NavigationPage.HasNavigationBar="False"
-             BackgroundColor="#F8F9FA">
-
-    <ContentPage.Background>
-        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Color="White" Offset="0.0" />
-            <GradientStop Color="White" Offset="0.4" />
-            <GradientStop Color="WhiteSmoke" Offset="0.7" />
-            <GradientStop Color="WhiteSmoke" Offset="1.0" />
-        </LinearGradientBrush>
-    </ContentPage.Background>
+             BackgroundColor="#F4F5FB">
 
     <ContentPage.Resources>
         <ResourceDictionary>
-            <!-- Enhanced Styles -->
-            <Style x:Key="ProfileCardStyle" TargetType="Frame">
-                <Setter Property="BackgroundColor" Value="White"/>
-                <Setter Property="CornerRadius" Value="20"/>
-                <Setter Property="HasShadow" Value="True"/>
-                <Setter Property="Padding" Value="25"/>
-                <Setter Property="Margin" Value="0,15"/>
-                <Setter Property="BorderColor" Value="#E0E0E0"/>
-            </Style>
+            <Color x:Key="Ink">#161A2E</Color>
+            <Color x:Key="Muted">#7A8099</Color>
+            <Color x:Key="Brand">#6B4CE6</Color>
 
-            <Style x:Key="ActionButtonStyle" TargetType="Frame">
-                <Setter Property="BackgroundColor" Value="#A25AC4"/>
-                <Setter Property="CornerRadius" Value="15"/>
-                <Setter Property="HasShadow" Value="True"/>
-                <Setter Property="Padding" Value="18"/>
-                <Setter Property="Margin" Value="0,10"/>
-                <Setter Property="BorderColor" Value="#9347B8"/>
-            </Style>
-
-            <Style x:Key="SecondaryButtonStyle" TargetType="Frame">
-                <Setter Property="BackgroundColor" Value="White"/>
-                <Setter Property="BorderColor" Value="#A25AC4"/>
-                <Setter Property="CornerRadius" Value="15"/>
-                <Setter Property="HasShadow" Value="True"/>
-                <Setter Property="Padding" Value="18"/>
-                <Setter Property="Margin" Value="0,10"/>
-            </Style>
-
-            <Style x:Key="HeaderLabelStyle" TargetType="Label">
-                <Setter Property="FontSize" Value="20"/>
-                <Setter Property="FontAttributes" Value="Bold"/>
-                <Setter Property="TextColor" Value="#2C3E50"/>
-            </Style>
-
-            <Style x:Key="ProfileNameStyle" TargetType="Label">
-                <Setter Property="FontSize" Value="26"/>
-                <Setter Property="FontAttributes" Value="Bold"/>
-                <Setter Property="TextColor" Value="#2C3E50"/>
-                <Setter Property="HorizontalTextAlignment" Value="Center"/>
-                <Setter Property="LineBreakMode" Value="TailTruncation"/>
-            </Style>
-
-            <Style x:Key="ProfileEmailStyle" TargetType="Label">
+            <Style x:Key="RowTitle" TargetType="Label">
                 <Setter Property="FontSize" Value="15"/>
-                <Setter Property="TextColor" Value="#7F8C8D"/>
-                <Setter Property="HorizontalTextAlignment" Value="Center"/>
-                <Setter Property="LineBreakMode" Value="MiddleTruncation"/>
-            </Style>
-
-            <Style x:Key="ButtonTextStyle" TargetType="Label">
                 <Setter Property="FontAttributes" Value="Bold"/>
-                <Setter Property="FontSize" Value="16"/>
-                <Setter Property="VerticalOptions" Value="Center"/>
+                <Setter Property="TextColor" Value="{StaticResource Ink}"/>
             </Style>
-
-            <!-- Animation Styles -->
-            <Style x:Key="PulseAnimation" TargetType="Frame">
-                <Setter Property="BackgroundColor" Value="#A25AC4"/>
-                <Setter Property="Opacity" Value="0.8"/>
+            <Style x:Key="RowSubtitle" TargetType="Label">
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="TextColor" Value="{StaticResource Muted}"/>
             </Style>
         </ResourceDictionary>
     </ContentPage.Resources>
 
     <Grid>
-        <!-- Loading Overlay -->
-        <Frame x:Name="LoadingOverlay" 
-               BackgroundColor="#80000000" 
-               IsVisible="False"
-               ZIndex="1000"
-               CornerRadius="0"
-               HasShadow="False"
-               Padding="0">
+        <!-- Loading overlay (used by code-behind) -->
+        <Frame x:Name="LoadingOverlay" BackgroundColor="#80000000" IsVisible="False" ZIndex="1000"
+               CornerRadius="0" HasShadow="False" Padding="0">
             <StackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="20">
-                <ActivityIndicator x:Name="LoadingIndicator" 
-                                  IsVisible="True" 
-                                  IsRunning="True" 
-                                  Color="#A25AC4" 
-                                  Scale="1.5"/>
-                <Label x:Name="LoadingText" 
-                       Text="Loading..." 
-                       TextColor="White" 
-                       FontSize="16" 
-                       FontAttributes="Bold"
-                       HorizontalTextAlignment="Center"/>
+                <ActivityIndicator x:Name="LoadingIndicator" IsVisible="True" IsRunning="True"
+                                   Color="#A25AC4" Scale="1.5"/>
+                <Label x:Name="LoadingText" Text="Loading..." TextColor="White" FontSize="16"
+                       FontAttributes="Bold" HorizontalTextAlignment="Center"/>
             </StackLayout>
         </Frame>
 
-        <!-- Main Content -->
-        <RefreshView x:Name="RefreshView" 
-                     RefreshColor="#A25AC4"
+        <RefreshView x:Name="RefreshView" RefreshColor="#6B4CE6"
                      IsRefreshing="{Binding IsRefreshing}"
                      Refreshing="RefreshView_Refreshing">
-            <ScrollView x:Name="MainScrollView">
-                <StackLayout Padding="20" Spacing="0">
+            <ScrollView x:Name="MainScrollView" VerticalScrollBarVisibility="Never">
+                <VerticalStackLayout Spacing="0">
 
-                    <!-- Enhanced Header with Back Button -->
-                    <Frame BackgroundColor="White" 
-                           CornerRadius="20" 
-                           HasShadow="True" 
-                        
-                           BorderColor="Transparent">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-
-                            <Button x:Name="BackButton" 
-                                    ImageSource="back.png"
-                                    BackgroundColor="#F0F0F0" 
-                                    TextColor="#A25AC4" 
-                                    FontSize="26" 
-                                    FontAttributes="Bold"
-                                    WidthRequest="45" 
-                                    HeightRequest="45"
-                                    CornerRadius="15"
-                                    BorderWidth="1"
-                                    Clicked="BackButton_Clicked"/>
-
-                            <Label Text="MY PROFILE" 
-                                   TextColor="#A25AC4" 
-                                   Grid.Column="1" 
-                                   Style="{StaticResource HeaderLabelStyle}"
-                                   VerticalOptions="Center" 
-                                   HorizontalOptions="Center"/>
-
-                            <!-- Notification Badge -->
-                            <Frame Grid.Column="2"
-                                   BackgroundColor="#FF6B6B"
-                                   CornerRadius="12"
-                                   HeightRequest="24"
-                                   WidthRequest="24"
-                                   Padding="0"
-                                   HasShadow="False"
-                                   VerticalOptions="Center">
-                                <Label Text="+" 
-                                       TextColor="White" 
-                                       FontSize="14" 
-                                       FontAttributes="Bold"
-                                       HorizontalTextAlignment="Center"
-                                       VerticalTextAlignment="Center"/>
-                            </Frame>
+                    <!-- ═════════ Header with avatar ═════════ -->
+                    <Border StrokeThickness="0" Padding="20,26,20,76" StrokeShape="RoundRectangle 0,0,32,32">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#2B1B7A" Offset="0.0"/>
+                                <GradientStop Color="#5B3FD6" Offset="0.6"/>
+                                <GradientStop Color="#8E5CE0" Offset="1.0"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Grid ColumnDefinitions="Auto,*,Auto">
+                            <Button x:Name="BackButton" ImageSource="back.png"
+                                    BackgroundColor="#33FFFFFF" WidthRequest="44" HeightRequest="44"
+                                    CornerRadius="22" Padding="0" Clicked="BackButton_Clicked"/>
+                            <Label Grid.Column="1" Text="My profile" FontSize="18" FontAttributes="Bold"
+                                   TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"/>
+                            <BoxView Grid.Column="2" WidthRequest="44" HeightRequest="44" Color="Transparent"/>
                         </Grid>
-                    </Frame>
+                    </Border>
 
-                    <!-- Enhanced Profile Card -->
-                    <Frame Style="{StaticResource ProfileCardStyle}" Margin="0,0,0,5" BackgroundColor="Transparent"  BorderColor="Transparent" >
-                        <StackLayout Spacing="20">
-                            <!-- Profile Image with Enhanced Upload -->
-                            <Grid HorizontalOptions="Center">
-                                <!-- Outer Ring -->
-                                <Frame BackgroundColor="Transparent" 
-                                       BorderColor="#A25AC4"
-                                       CornerRadius="25" 
-                                       HeightRequest="170" 
-                                       WidthRequest="170" 
-                                     
-                                       HasShadow="False"
-                                       Padding="0">
-                                </Frame>
+                    <VerticalStackLayout Padding="16,0,16,28" Spacing="16">
 
-                                <!-- Inner Profile Frame -->
-                                <Frame x:Name="ProfileImageFrame"
-                                       BackgroundColor="#F8F9FA" 
-                                       CornerRadius="20" 
-                                       HeightRequest="160" 
-                                       WidthRequest="160" 
-                                       HasShadow="True"
-                                       Padding="0"
-                                       BorderColor="#E0E0E0"
-                                       >
-                                    <Grid>
-                                        <Image x:Name="ProfileImage" 
-                                               Source="logo.png" 
-                                               BackgroundColor="Transparent"
-                                               Aspect="AspectFill"
-                                               HeightRequest="80"
-                                               WidthRequest="160"/>
-
-                                        <!-- Enhanced Upload Button Overlay -->
-                                        <Frame x:Name="UploadButton"
-                                               BackgroundColor="#A25AC4" 
-                                               CornerRadius="22" 
-                                               HeightRequest="44" 
-                                               WidthRequest="44"
-                                               VerticalOptions="End" 
-                                               HorizontalOptions="End"
-                                               Margin="0,0,8,8"
-                                               HasShadow="True"
-                                               BorderColor="White"
-                                               
-                                               Padding="0">
-                                            <Image Source="camera.png" 
-                                                   HeightRequest="22" 
-                                                   WidthRequest="22" 
-                                                   VerticalOptions="Center" 
-                                                   HorizontalOptions="Center"/>
-                                            <Frame.GestureRecognizers>
-                                                <TapGestureRecognizer Tapped="UploadProfileImage_Tapped"/>
-                                            </Frame.GestureRecognizers>
-                                        </Frame>
-                                    </Grid>
-                                </Frame>
-                            </Grid>
-
-                            <!-- Enhanced User Information -->
-                            <StackLayout Spacing="8">
-                                <Label x:Name="Fullname" 
-                                       Style="{StaticResource ProfileNameStyle}"
-                                       Text="Loading..."/>
-                                <Label x:Name="loggedemail" 
-                                       Style="{StaticResource ProfileEmailStyle}"
-                                       Text="Loading..."/>
-
-                                <!-- Enhanced Status Badge -->
-                                <Frame BackgroundColor="#E8F5E8" 
-                                       BorderColor="#4CAF50" 
-                                       CornerRadius="18" 
-                                       Padding="12,8"
-                                       HorizontalOptions="Center"
-                                       Margin="0,15,0,0"
-                                       HasShadow="False">
-                                    <StackLayout Orientation="Horizontal" Spacing="8">
-                                        <Label Text="✓" 
-                                               TextColor="#4CAF50" 
-                                               FontSize="16" 
-                                               FontAttributes="Bold"
-                                               VerticalOptions="Center"/>
-                                        <Label Text="Verified Account" 
-                                               TextColor="#4CAF50" 
-                                               FontSize="14" 
-                                               FontAttributes="Bold"
-                                               VerticalOptions="Center"/>
-                                    </StackLayout>
-                                </Frame>
-
-                                <!-- Profile Completion Progress -->
-                                <StackLayout Margin="0,15,0,0" Spacing="8">
-                                    <Label Text="Profile Completion" 
-                                           FontSize="14" 
-                                           TextColor="#7F8C8D"
-                                           HorizontalTextAlignment="Center"/>
-                                    <Frame BackgroundColor="#E0E0E0" 
-                                           CornerRadius="10" 
-                                           HeightRequest="6" 
-                                           HasShadow="False"
-                                           Padding="0">
-                                        <Frame x:Name="ProgressBar"
-                                               BackgroundColor="#A25AC4" 
-                                               CornerRadius="10" 
-                                               HeightRequest="6"
-                                               WidthRequest="200"
-                                               HorizontalOptions="Start"
-                                               HasShadow="False"
-                                               Padding="0"/>
+                        <!-- ═════════ Identity card (overlaps header) ═════════ -->
+                        <Border Margin="0,-58,0,0" StrokeThickness="0" BackgroundColor="White"
+                                Padding="20,0,20,20" StrokeShape="RoundRectangle 26">
+                            <Border.Shadow>
+                                <Shadow Brush="#2B1B7A" Opacity="0.14" Radius="20" Offset="0,8"/>
+                            </Border.Shadow>
+                            <VerticalStackLayout Spacing="14">
+                                <Grid HorizontalOptions="Center" Margin="0,-48,0,0">
+                                    <Frame x:Name="ProfileImageFrame" BackgroundColor="White" BorderColor="White"
+                                           CornerRadius="48" HeightRequest="96" WidthRequest="96"
+                                           HasShadow="True" Padding="0">
+                                        <Image x:Name="ProfileImage" Source="logo.png" Aspect="AspectFill"
+                                               HeightRequest="96" WidthRequest="96"/>
                                     </Frame>
-                                    <Label x:Name="ProgressText"
-                                           Text="85% Complete" 
-                                           FontSize="12" 
-                                           TextColor="#A25AC4"
-                                           FontAttributes="Bold"
-                                           HorizontalTextAlignment="Center"/>
-                                </StackLayout>
-                            </StackLayout>
-                        </StackLayout>
-                    </Frame>
+                                    <Frame x:Name="UploadButton" BackgroundColor="#6B4CE6" BorderColor="White"
+                                           CornerRadius="16" HeightRequest="32" WidthRequest="32" Padding="0"
+                                           HasShadow="True" HorizontalOptions="End" VerticalOptions="End"
+                                           Margin="0,0,-4,-4">
+                                        <Image Source="camera.png" HeightRequest="16" WidthRequest="16"
+                                               HorizontalOptions="Center" VerticalOptions="Center"/>
+                                        <Frame.GestureRecognizers>
+                                            <TapGestureRecognizer Tapped="UploadProfileImage_Tapped"/>
+                                        </Frame.GestureRecognizers>
+                                    </Frame>
+                                </Grid>
 
-                    <!-- Enhanced Action Buttons -->
-                    <StackLayout Spacing="0">
-                        <!-- Update Profile Button -->
-                        <Frame x:Name="UpdateProfileButton" Style="{StaticResource ActionButtonStyle}">
-                            <Frame.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="Purple" Offset="0.5" />
-                                    <GradientStop Color="Black" Offset="1.0" />
-                                </LinearGradientBrush>
-                            </Frame.Background>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
+                                <VerticalStackLayout Spacing="4">
+                                    <Label x:Name="Fullname" Text="Loading..." FontSize="22" FontAttributes="Bold"
+                                           TextColor="{StaticResource Ink}" HorizontalTextAlignment="Center"
+                                           LineBreakMode="WordWrap"/>
+                                    <Label x:Name="loggedemail" Text="Loading..." FontSize="13"
+                                           TextColor="{StaticResource Muted}" HorizontalTextAlignment="Center"
+                                           LineBreakMode="WordWrap"/>
+                                </VerticalStackLayout>
 
-                                <Frame BackgroundColor="White" 
-                                       CornerRadius="22" 
-                                       HeightRequest="40" 
-                                       WidthRequest="40"
-                                       Padding="0"
-                                       VerticalOptions="Center"
-                                       HasShadow="False">
-                                    <Image Source="mail.png" 
-                                           HeightRequest="20" 
-                                           WidthRequest="20" 
-                                           VerticalOptions="Center" 
-                                           HorizontalOptions="Center"/>
-                                </Frame>
+                                <Border StrokeThickness="0" BackgroundColor="#E3F6EC" Padding="12,6"
+                                        HorizontalOptions="Center" StrokeShape="RoundRectangle 14">
+                                    <HorizontalStackLayout Spacing="6">
+                                        <Label Text="✓" TextColor="#1FA971" FontAttributes="Bold" FontSize="13"/>
+                                        <Label Text="Verified account" TextColor="#1FA971" FontAttributes="Bold" FontSize="12"/>
+                                    </HorizontalStackLayout>
+                                </Border>
 
-                                <Label Text="UPDATE PROFILE" 
-                                       Grid.Column="1"
-                                       Style="{StaticResource ButtonTextStyle}"
-                                       TextColor="White" 
-                                       Margin="20,0,0,0"/>
+                                <!-- Profile completion -->
+                                <VerticalStackLayout Spacing="6" Margin="0,4,0,0">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label Text="Profile completion" FontSize="12" TextColor="{StaticResource Muted}"/>
+                                        <Label x:Name="ProgressText" Grid.Column="1" Text="85% Complete"
+                                               FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Brand}"/>
+                                    </Grid>
+                                    <!-- the code sets ProgressBar.WidthRequest as a share of 200 -->
+                                    <Border StrokeThickness="0" BackgroundColor="#E9EAF4" HeightRequest="8"
+                                            WidthRequest="200" HorizontalOptions="Start" StrokeShape="RoundRectangle 4">
+                                        <Border x:Name="ProgressBar" StrokeThickness="0" BackgroundColor="#6B4CE6"
+                                                HeightRequest="8" WidthRequest="170" HorizontalOptions="Start"
+                                                StrokeShape="RoundRectangle 4"/>
+                                    </Border>
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
 
-                                <Label Text="›" 
-                                       Grid.Column="2"
-                                       TextColor="White" 
-                                       FontSize="22" 
+                        <!-- ═════════ Account settings ═════════ -->
+                        <Label Text="Account" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource Muted}"
+                               Margin="6,4,0,-6"/>
+
+                        <Border StrokeThickness="1" Stroke="#ECEEF6" BackgroundColor="White" Padding="0"
+                                StrokeShape="RoundRectangle 22">
+                            <VerticalStackLayout Spacing="0">
+
+                                <Grid x:Name="UpdatePasswordButton" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14" Padding="16,14">
+                                    <Border StrokeThickness="0" BackgroundColor="#EEE9FF" HeightRequest="42" WidthRequest="42"
+                                            StrokeShape="RoundRectangle 14">
+                                        <Image Source="icons8eyes.png" HeightRequest="20" WidthRequest="20"/>
+                                    </Border>
+                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                        <Label Text="Update password" Style="{StaticResource RowTitle}"/>
+                                        <Label Text="Change your sign-in password" Style="{StaticResource RowSubtitle}"/>
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="2" Text="›" FontSize="24" TextColor="#B6BACD" VerticalOptions="Center"/>
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="UpdatePassword_Tapped"/>
+                                    </Grid.GestureRecognizers>
+                                </Grid>
+
+                                <BoxView HeightRequest="1" Color="#F0F1F8" Margin="72,0,0,0"/>
+
+                                <Grid x:Name="RecipientButton" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14" Padding="16,14">
+                                    <Border StrokeThickness="0" BackgroundColor="#E3F6EC" HeightRequest="42" WidthRequest="42"
+                                            StrokeShape="RoundRectangle 14">
+                                        <Image Source="bluebag.png" HeightRequest="20" WidthRequest="20"/>
+                                    </Border>
+                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                        <Label Text="Recipient account" Style="{StaticResource RowTitle}"/>
+                                        <Label Text="Where your payouts are sent" Style="{StaticResource RowSubtitle}"/>
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="2" Text="›" FontSize="24" TextColor="#B6BACD" VerticalOptions="Center"/>
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="RecipientAccount_Tapped"/>
+                                    </Grid.GestureRecognizers>
+                                </Grid>
+
+                                <BoxView HeightRequest="1" Color="#F0F1F8" Margin="72,0,0,0"/>
+
+                                <Grid x:Name="ReferalButton" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14" Padding="16,14">
+                                    <Border StrokeThickness="0" BackgroundColor="#FFE4EC" HeightRequest="42" WidthRequest="42"
+                                            StrokeShape="RoundRectangle 14">
+                                        <Image Source="upward.png" HeightRequest="20" WidthRequest="20"/>
+                                    </Border>
+                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                        <Label Text="Referrals" Style="{StaticResource RowTitle}"/>
+                                        <Label Text="Invite friends and earn bonuses" Style="{StaticResource RowSubtitle}"/>
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="2" Text="›" FontSize="24" TextColor="#B6BACD" VerticalOptions="Center"/>
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="Referral_Tapped"/>
+                                    </Grid.GestureRecognizers>
+                                </Grid>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- Not wired to anything in the old page either; kept so the code-behind name still exists -->
+                        <Frame x:Name="UpdateProfileButton" IsVisible="False" HeightRequest="1" Padding="0" HasShadow="False"/>
+
+                        <!-- ═════════ Logout ═════════ -->
+                        <Border x:Name="LogoutButton" StrokeThickness="1" Stroke="#FFD3DA" BackgroundColor="#FFF3F5"
+                                Padding="16,14" StrokeShape="RoundRectangle 22">
+                            <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                                <Image Source="image9.png" HeightRequest="20" WidthRequest="20"/>
+                                <Label Text="Log out" FontSize="15" FontAttributes="Bold" TextColor="#D8344F"
                                        VerticalOptions="Center"/>
-                            </Grid>
-                           
-                        </Frame>
-
-                        <!-- Update Password Button -->
-                        <Frame x:Name="UpdatePasswordButton" Style="{StaticResource ActionButtonStyle}">
-                            <Frame.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="Purple" Offset="0.5" />
-                                    <GradientStop Color="Black" Offset="1.0" />
-                                </LinearGradientBrush>
-                            </Frame.Background>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <Frame BackgroundColor="White" 
-                                       CornerRadius="22" 
-                                       HeightRequest="40" 
-                                       WidthRequest="40"
-                                       Padding="0"
-                                       VerticalOptions="Center"
-                                       HasShadow="False">
-                                    <Image Source="icons8eyes.png" 
-                                           HeightRequest="20" 
-                                           WidthRequest="20" 
-                                           VerticalOptions="Center" 
-                                           HorizontalOptions="Center"/>
-                                </Frame>
-
-                                <Label Text="UPDATE PASSWORD" 
-                                       Grid.Column="1"
-                                       Style="{StaticResource ButtonTextStyle}"
-                                       TextColor="White" 
-                                       Margin="20,0,0,0"/>
-
-                                <Label Text="›" 
-                                       Grid.Column="2"
-                                       TextColor="White" 
-                                       FontSize="22" 
-                                       VerticalOptions="Center"/>
-                            </Grid>
-                            <Frame.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="UpdatePassword_Tapped"/>
-                            </Frame.GestureRecognizers>
-                        </Frame>
-
-                        <Frame x:Name="RecipientButton" Style="{StaticResource ActionButtonStyle}">
-                            <Frame.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="Purple" Offset="0.5" />
-                                    <GradientStop Color="Black" Offset="1.0" />
-                                </LinearGradientBrush>
-                            </Frame.Background>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <Frame BackgroundColor="White" 
-                 CornerRadius="22" 
-                 HeightRequest="40" 
-                 WidthRequest="40"
-                 Padding="0"
-                 VerticalOptions="Center"
-                 HasShadow="False">
-                                    <Image Source="facescan.png" 
-                     HeightRequest="20" 
-                     WidthRequest="20" 
-                     VerticalOptions="Center" 
-                     HorizontalOptions="Center"/>
-                                </Frame>
-
-                                <Label Text="RECIPIENT ACCOUNT" 
-                 Grid.Column="1"
-                 Style="{StaticResource ButtonTextStyle}"
-                 TextColor="White" 
-                 Margin="20,0,0,0"/>
-
-                                <Label Text="›" 
-                 Grid.Column="2"
-                 TextColor="White" 
-                 FontSize="22" 
-                 VerticalOptions="Center"/>
-                            </Grid>
-                            <Frame.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="RecipientAccount_Tapped"/>
-                            </Frame.GestureRecognizers>
-                        </Frame>
-
-                        <Frame x:Name="ReferalButton" Style="{StaticResource ActionButtonStyle}">
-                            <Frame.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="Purple" Offset="0.5" />
-                                    <GradientStop Color="Black" Offset="1.0" />
-                                </LinearGradientBrush>
-                            </Frame.Background>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <Frame BackgroundColor="White" 
-CornerRadius="22" 
-HeightRequest="40" 
-WidthRequest="40"
-Padding="0"
-VerticalOptions="Center"
-HasShadow="False">
-                                    <Image Source="upward.png" 
-    HeightRequest="20" 
-    WidthRequest="20" 
-    VerticalOptions="Center" 
-    HorizontalOptions="Center"/>
-                                </Frame>
-
-                                <Label Text="REFERRAL PAGE" 
-Grid.Column="1"
-Style="{StaticResource ButtonTextStyle}"
-TextColor="White" 
-Margin="20,0,0,0"/>
-
-                                <Label Text="›" 
-Grid.Column="2"
-TextColor="White" 
-FontSize="22" 
-VerticalOptions="Center"/>
-                            </Grid>
-                            <Frame.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="RecipientAccount_Tapped"/>
-                            </Frame.GestureRecognizers>
-                        </Frame>
-
-                        <Frame x:Name="LogoutButton" Style="{StaticResource ActionButtonStyle}">
-                            <Frame.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="Purple" Offset="0.5" />
-                                    <GradientStop Color="Black" Offset="1.0" />
-                                </LinearGradientBrush>
-                            </Frame.Background>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <Frame BackgroundColor="White" 
-CornerRadius="22" 
-HeightRequest="40" 
-WidthRequest="40"
-Padding="0"
-VerticalOptions="Center"
-HasShadow="False">
-                                    <Image Source="image9.png" 
-    HeightRequest="20" 
-    WidthRequest="20" 
-    VerticalOptions="Center" 
-    HorizontalOptions="Center"/>
-                                </Frame>
-
-                                <Label Text="LOGOUT" 
-Grid.Column="1"
-Style="{StaticResource ButtonTextStyle}"
-TextColor="White" 
-Margin="20,0,0,0"/>
-
-                                <Label Text="›" 
-Grid.Column="2"
-TextColor="White" 
-FontSize="22" 
-VerticalOptions="Center"/>
-                            </Grid>
-                            <Frame.GestureRecognizers>
+                            </HorizontalStackLayout>
+                            <Border.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="Logout_Tapped"/>
-                            </Frame.GestureRecognizers>
-                        </Frame>
-
-                    </StackLayout>
-
-                    <!-- Footer Space -->
-                    <BoxView HeightRequest="30" BackgroundColor="Transparent"/>
-                </StackLayout>
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
             </ScrollView>
         </RefreshView>
     </Grid>

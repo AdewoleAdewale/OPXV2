@@ -55,7 +55,7 @@ public partial class FailureDisplaySheet : Popup
                 System.Diagnostics.Debug.WriteLine("Navigating to DashBoard...");
 
                 // Clear navigation stack and set DashBoard as main page
-                Application.Current.MainPage = new NavigationPage(new DashBoard())
+                Application.Current.MainPage = new NavigationPage(new Home())
                 {
                     BarBackgroundColor = Color.FromArgb("#A25AC4"),
                     BarTextColor = Colors.White

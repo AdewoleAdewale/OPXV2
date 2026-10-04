@@ -1,31 +1,93 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<TabbedPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Opx.Views.DashBoard"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
                 xmlns:renderers="clr-namespace:Opx.Renderers"
-                xmlns:views="clr-namespace:Opx.Views"
-             NavigationPage.HasNavigationBar="False"
-            
-            SelectedTabColor="White"
-            UnselectedTabColor="LightGray">
-    <TabbedPage.BarBackground>
-        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-            <GradientStop Color="#A25AC4" Offset="0.0" />
-            <GradientStop Color="Purple" Offset="0.5" />
-            <GradientStop Color="Black" Offset="1.0" />
-        </LinearGradientBrush>
-    </TabbedPage.BarBackground>
-    <TabbedPage.Effects>
-        <renderers:NoShiftEffect />
-    </TabbedPage.Effects>
+                xmlns:views="clr-namespace:Opx.Views">
 
+    <Grid Padding="14,4,14,12" BackgroundColor="Transparent">
+        <Border StrokeThickness="0" HeightRequest="72" StrokeShape="RoundRectangle 28">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="#5B3FD6" Offset="0.0"/>
+                    <GradientStop Color="#8E5CE0" Offset="1.0"/>
+                </LinearGradientBrush>
+            </Border.Background>
+            <Border.Shadow>
+                <Shadow Brush="#2B1B7A" Opacity="0.35" Radius="10" Offset="0,8"/>
+            </Border.Shadow>
 
-    <views:Home Title="HOME"  IconImageSource="home.png"  />
+            <Grid ColumnDefinitions="*,*,*,*,*" Padding="6,0" VerticalOptions="Center">
 
-    <views:ContractList Title="ESCROW" IconImageSource="historyicon.png" />
+                <VerticalStackLayout x:Name="TabHome" Grid.Column="0" ClassId="home" Spacing="3" HorizontalOptions="Center">
+                    <Image x:Name="IconHome" Source="home.png" HeightRequest="22" WidthRequest="22">
+                        <Image.Behaviors>
+                            <toolkit:IconTintColorBehavior TintColor="White"/>
+                        </Image.Behaviors>
+                    </Image>
+                    <Label x:Name="LabelHome" Text="Home" FontSize="10" TextColor="White" HorizontalTextAlignment="Center"/>
+                    <BoxView x:Name="DotHome" HeightRequest="4" WidthRequest="4" CornerRadius="2" Color="White" HorizontalOptions="Center" Opacity="0"/>
+                    <VerticalStackLayout.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnTabTapped"/>
+                    </VerticalStackLayout.GestureRecognizers>
+                </VerticalStackLayout>
 
-    
-    <views:ProfilePage Title="PROFILE" IconImageSource="facescan.png" />
+                <VerticalStackLayout x:Name="TabEscrow" Grid.Column="1" ClassId="escrow" Spacing="3" HorizontalOptions="Center">
+                    <Image x:Name="IconEscrow" Source="historyicon.png" HeightRequest="22" WidthRequest="22">
+                        <Image.Behaviors>
+                            <toolkit:IconTintColorBehavior TintColor="White"/>
+                        </Image.Behaviors>
+                    </Image>
+                    <Label x:Name="LabelEscrow" Text="Escrow" FontSize="10" TextColor="White" HorizontalTextAlignment="Center"/>
+                    <BoxView x:Name="DotEscrow" HeightRequest="4" WidthRequest="4" CornerRadius="2" Color="White" HorizontalOptions="Center" Opacity="0"/>
+                    <VerticalStackLayout.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnTabTapped"/>
+                    </VerticalStackLayout.GestureRecognizers>
+                </VerticalStackLayout>
 
+                <!-- Centre action: new contract -->
+                <VerticalStackLayout Grid.Column="2" ClassId="create" Spacing="3" HorizontalOptions="Center" VerticalOptions="Center">
+                    <Border StrokeThickness="2" Stroke="White" BackgroundColor="#33FFFFFF"
+                         HeightRequest="46" WidthRequest="46" StrokeShape="RoundRectangle 23">
+                        <Image Source="add.png" HeightRequest="22" WidthRequest="22" HorizontalOptions="Center" VerticalOptions="Center">
+                            <Image.Behaviors>
+                                <toolkit:IconTintColorBehavior TintColor="White"/>
+                            </Image.Behaviors>
+                        </Image>
+                    </Border>
+                    <Label Text="New" FontSize="10" TextColor="White" HorizontalTextAlignment="Center"/>
+                    <VerticalStackLayout.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnTabTapped"/>
+                    </VerticalStackLayout.GestureRecognizers>
+                </VerticalStackLayout>
 
-</TabbedPage>
+                <VerticalStackLayout x:Name="TabWallet" Grid.Column="3" ClassId="wallet" Spacing="3" HorizontalOptions="Center">
+                    <Image x:Name="IconWallet" Source="bluebag.png" HeightRequest="22" WidthRequest="22">
+                        <Image.Behaviors>
+                            <toolkit:IconTintColorBehavior TintColor="White"/>
+                        </Image.Behaviors>
+                    </Image>
+                    <Label x:Name="LabelWallet" Text="Wallet" FontSize="10" TextColor="White" HorizontalTextAlignment="Center"/>
+                    <BoxView x:Name="DotWallet" HeightRequest="4" WidthRequest="4" CornerRadius="2" Color="White" HorizontalOptions="Center" Opacity="0"/>
+                    <VerticalStackLayout.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnTabTapped"/>
+                    </VerticalStackLayout.GestureRecognizers>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout x:Name="TabProfile" Grid.Column="4" ClassId="profile" Spacing="3" HorizontalOptions="Center">
+                    <Image x:Name="IconProfile" Source="facescan.png" HeightRequest="22" WidthRequest="22">
+                        <Image.Behaviors>
+                            <toolkit:IconTintColorBehavior TintColor="White"/>
+                        </Image.Behaviors>
+                    </Image>
+                    <Label x:Name="LabelProfile" Text="Profile" FontSize="10" TextColor="White" HorizontalTextAlignment="Center"/>
+                    <BoxView x:Name="DotProfile" HeightRequest="4" WidthRequest="4" CornerRadius="2" Color="White" HorizontalOptions="Center" Opacity="0"/>
+                    <VerticalStackLayout.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnTabTapped"/>
+                    </VerticalStackLayout.GestureRecognizers>
+                </VerticalStackLayout>
+            </Grid>
+        </Border>
+    </Grid>
+</ContentView>

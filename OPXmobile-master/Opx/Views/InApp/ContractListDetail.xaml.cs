@@ -36,7 +36,7 @@ public partial class ContractListDetail : ContentPage
         {
             // Handle case when there's nowhere to go back to
             // Navigate to the dashboard (TabPage)
-            Application.Current.MainPage = new DashBoard();
+            Application.Current.MainPage = new Home();
         }
 
         return true; // Indicates we handled the back button press
@@ -47,7 +47,7 @@ public partial class ContractListDetail : ContentPage
     {
         try
         {
-            await Navigation.PushModalAsync(new Views.DashBoard());
+            await Navigation.PushModalAsync(new Views.Home());
         }
         catch (Exception ex)
         {
@@ -60,7 +60,7 @@ public partial class ContractListDetail : ContentPage
     {
         try
         {
-            await Navigation.PushModalAsync(new Views.DashBoard());
+            await Navigation.PushModalAsync(new Views.Home());
         }
         catch (Exception ex)
         {

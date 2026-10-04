@@ -1,168 +1,119 @@
 using Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific;
 using Application = Microsoft.Maui.Controls.Application;
 using Plat = Microsoft.Maui.Controls.PlatformConfiguration;
+using CommunityToolkit.Maui.Views;
 
 namespace Opx.Views;
 
+public enum DashTab { Home, Escrow, Create, Wallet, Profile }
 
-public partial class DashBoard : Microsoft.Maui.Controls.TabbedPage
+public partial class DashBoard :ContentView
 {
+    private readonly DashTab _active;
+    private bool _busy;
 
-    public DashBoard()
+    public DashBoard(DashTab active)
     {
         InitializeComponent();
-        On<Plat.Android>().SetToolbarPlacement(ToolbarPlacement.Bottom);
-
-        // Set initial state for entrance animation
-        this.Opacity = 0;
-        this.Scale = 0.9;
-
-        // Subscribe to page events
-        this.Appearing += OnDashBoardAppearing;
-        this.CurrentPageChanged += OnCurrentPageChanged;
+        _active = active;
+        Highlight(IconHome, LabelHome, DotHome, active == DashTab.Home);
+        Highlight(IconEscrow, LabelEscrow, DotEscrow, active == DashTab.Escrow);
+        Highlight(IconWallet, LabelWallet, DotWallet, active == DashTab.Wallet);
+        Highlight(IconProfile, LabelProfile, DotProfile, active == DashTab.Profile);
     }
 
-    protected override bool OnBackButtonPressed()
+    /// <summary>Adds the bar under the page's existing content (one line per page).</summary>
+    public static void Attach(ContentPage page, DashTab active)
     {
-        var navStack = Navigation.NavigationStack;
-        if (navStack.Count > 1)
+        var content = page.Content;
+        var host = new Grid
         {
-            // Properly handle async operation
-            Task.Run(async () => await Navigation.PopAsync());
-        }
-        else
+            RowDefinitions =
+            {
+                new RowDefinition(GridLength.Star),
+                new RowDefinition(GridLength.Auto)
+            },
+            BackgroundColor = page.BackgroundColor ?? Colors.White
+        };
+
+        page.Content = null;
+        if (content != null)
         {
-            // Handle case when there's nowhere to go back to
-            // Navigate to the dashboard (TabPage)
-            Application.Current.MainPage = new DashBoard();
+            Grid.SetRow(content, 0);
+            host.Children.Add(content);
         }
 
-        return true; // Indicates we handled the back button press
+        var bar = new DashBoard(active);
+        Grid.SetRow(bar, 1);
+        host.Children.Add(bar);
+        page.Content = host;
     }
-    private void ResetButton_Clicked(object sender, EventArgs e)
-    {
-        Preferences.Remove("temp_page_shown");
-        // Restart the app or notify the user to restart
-    }
-    private async void OnDashBoardAppearing(object sender, EventArgs e)
-    {
-        // Entrance animation for the entire tabbed page
-        await Task.WhenAll(
-            this.FadeTo(1, 500, Easing.CubicOut),
-            this.ScaleTo(1, 500, Easing.CubicOut)
-        );
 
-        // Check if KYC verification is needed
-        await CheckAndShowKycForm();
-    }
-    private bool _kycModalAlreadyShown = false; // prevent multiple triggers in same session
-
-    private async Task CheckAndShowKycForm()
+    private static void Highlight(Image icon, Label label, BoxView dot, bool on)
     {
+        icon.Opacity = on ? 1 : 0.65;
+        icon.Scale = on ? 1.12 : 1;
+        label.Opacity = on ? 1 : 0.7;
+        label.FontAttributes = on ? FontAttributes.Bold : FontAttributes.None;
+        dot.Opacity = on ? 1 : 0;
+    }
+
+    private async void OnTabTapped(object? sender, TappedEventArgs e)
+    {
+        if (_busy || sender is not Element tab) return;
+        _busy = true;
         try
         {
-            // ✅ Delay execution to let UI stabilize fully
-            await Task.Delay(2000);
-
-            // ✅ ONLY show KYC form if accountNumber is null or empty
-            bool needsKycVerification = string.IsNullOrEmpty(LoginPage.accountNumber);
-
-            // If account number exists, do NOT show KYC form at all
-            if (!needsKycVerification)
+            switch (tab.ClassId)
             {
-                System.Diagnostics.Debug.WriteLine("Account number exists, skipping KYC form");
-                return;
-            }
-
-            // Only check session flag if KYC is actually needed
-            bool hasShownKycInSession = Preferences.Get("kyc_shown_this_session", false);
-
-            // ✅ Show KYC form only once per session when account number is null
-            if (!hasShownKycInSession && !_kycModalAlreadyShown)
-            {
-                _kycModalAlreadyShown = true;
-                Preferences.Set("kyc_shown_this_session", true);
-
-                // ✅ Use Dispatcher to avoid blocking Appearing thread
-                MainThread.BeginInvokeOnMainThread(async () =>
-                {
-                    try
-                    {
-                        await Navigation.PushModalAsync(new Kycform(), true);
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"KYC Modal Error: {ex.Message}");
-                    }
-                });
+                case "home":
+                    if (_active != DashTab.Home) await GoHomeAsync();
+                    break;
+                case "escrow":
+                    if (_active != DashTab.Escrow) await OpenAsync(new ContractList());
+                    break;
+                case "wallet":
+                    if (_active != DashTab.Wallet) await OpenAsync(new CurrentBalance());
+                    break;
+                case "profile":
+                    if (_active != DashTab.Profile) await OpenAsync(new ProfilePage());
+                    break;
+                case "create":
+                    var page = FindPage();
+                    if (page != null) await page.ShowPopupAsync(new CreateContract());
+                    break;
             }
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"KYC check error: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"Tab navigation error: {ex.Message}");
         }
-    }
-    private async void OnCurrentPageChanged(object sender, EventArgs e)
-    {
-        if (CurrentPage != null)
+        finally
         {
-            // Reset page state
-            CurrentPage.Opacity = 0;
-            CurrentPage.Scale = 0.95;
-            CurrentPage.TranslationY = 20;
-
-            // Animate page transition
-            await Task.WhenAll(
-                CurrentPage.FadeTo(1, 300, Easing.CubicOut),
-                CurrentPage.ScaleTo(1, 300, Easing.CubicOut),
-                CurrentPage.TranslateTo(0, 0, 300, Easing.CubicOut)
-            );
-
-            // Add a subtle bounce effect for tab icons
-            await AnimateTabSelection();
+            _busy = false;
         }
     }
 
-    private async Task AnimateTabSelection()
+    private Page? FindPage()
     {
-        // This creates a subtle bounce effect
-        await Task.WhenAll(
-            this.ScaleTo(1.02, 100, Easing.CubicOut),
-            this.ScaleTo(1, 100, Easing.CubicIn)
-        );
+        Element? e = this;
+        while (e != null && e is not Page) e = e.Parent;
+        return e as Page;
     }
 
-    // Optional: Add method to animate individual elements within pages
-    public async Task AnimateContent(View content)
+    /// <summary>Close every page opened on top of the dashboard.</summary>
+    public static async Task GoHomeAsync()
     {
-        if (content != null)
-        {
-            content.Opacity = 0;
-            content.TranslationY = 30;
-
-            await Task.WhenAll(
-                content.FadeTo(1, 400, Easing.CubicOut),
-                content.TranslateTo(0, 0, 400, Easing.CubicOut)
-            );
-        }
+        var nav = Application.Current?.MainPage?.Navigation;
+        if (nav == null) return;
+        while (nav.ModalStack.Count > 0 && nav.ModalStack[^1] is not Home)
+            await nav.PopModalAsync(false);
     }
 
-    // Add this method to animate multiple elements in sequence
-    public async Task AnimateContentSequentially(params View[] views)
+    private static async Task OpenAsync(Page page)
     {
-        foreach (var view in views)
-        {
-            if (view != null)
-            {
-                view.Opacity = 0;
-                view.TranslationY = 20;
-
-                var fadeTask = view.FadeTo(1, 250, Easing.CubicOut);
-                var slideTask = view.TranslateTo(0, 0, 250, Easing.CubicOut);
-
-                await Task.WhenAll(fadeTask, slideTask);
-                await Task.Delay(50); // Small delay between animations
-            }
-        }
+        await GoHomeAsync();
+        var nav = Application.Current?.MainPage?.Navigation;
+        if (nav != null) await nav.PushModalAsync(page, false);
     }
 }

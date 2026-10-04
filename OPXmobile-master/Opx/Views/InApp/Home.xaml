@@ -51,279 +51,295 @@
     </ContentPage.Resources>
 
     <Grid BackgroundColor="#F4F5FB">
-        <ScrollView VerticalScrollBarVisibility="Never">
-            <VerticalStackLayout Spacing="0">
+        <RefreshView x:Name="PullRefresh" RefreshColor="#6B4CE6" Refreshing="OnPullRefresh">
+            <ScrollView VerticalScrollBarVisibility="Never">
+                <VerticalStackLayout Spacing="0">
 
-                <!-- ═════════ Header ═════════ -->
-                <Border x:Name="HeaderGrid"  BackgroundColor="#8E44AD"
-                        StrokeThickness="0"        
+                    <!-- ═════════ Header ═════════ -->
+                    <Border x:Name="HeaderGrid"
+                        StrokeThickness="0"             BackgroundColor="#8E44AD"
                         Padding="20,28,20,64"
-                        StrokeShape="RoundRectangle 0,0,20,20">
-             
-                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                        <Frame Grid.Column="0" CornerRadius="22" HeightRequest="44" WidthRequest="44"
-                               Padding="8" BackgroundColor="#33FFFFFF" BorderColor="Transparent"
+                        StrokeShape="RoundRectangle 0,0,22,22">
+                    
+                        <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="10">
+                            <Frame Grid.Column="0" CornerRadius="22" HeightRequest="44" WidthRequest="44"
+                               Padding="8" BackgroundColor="WhiteSmoke" BorderColor="Transparent"
                                HasShadow="False" x:Name="ProfileFrame">
-                            <Image Source="logo.png" Aspect="AspectFit"/>
-                        </Frame>
+                                <Image Source="logo.png" Aspect="AspectFit"/>
+                            </Frame>
 
-                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="1">
-                            <Label Text="Welcome back" FontSize="12" TextColor="#CCFFFFFF"/>
-                            <Label x:Name="dashbaordusername" FontSize="18" FontAttributes="Bold"
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="1">
+                                <Label Text="Welcome back" FontSize="12" TextColor="#CCFFFFFF"/>
+                                <Label x:Name="dashbaordusername" FontSize="18" FontAttributes="Bold"
                                    TextColor="White" LineBreakMode="TailTruncation"/>
-                        </VerticalStackLayout>
+                            </VerticalStackLayout>
 
-                        <Frame Grid.Column="2" CornerRadius="22" HeightRequest="44" WidthRequest="44"
+                            <Frame Grid.Column="2" CornerRadius="22" HeightRequest="44" WidthRequest="44"
+                               Padding="0" BackgroundColor="#33FFFFFF" BorderColor="Transparent"
+                               HasShadow="False" x:Name="RefreshButton">
+                                <Label Text="&#x21BB;" FontSize="22" FontAttributes="Bold" TextColor="White"
+                                   HorizontalOptions="Center" VerticalOptions="Center"/>
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnRefreshTapped"/>
+                                </Frame.GestureRecognizers>
+                            </Frame>
+
+                            <Frame Grid.Column="3" CornerRadius="22" HeightRequest="44" WidthRequest="44"
                                Padding="0" BackgroundColor="#33FFFFFF" BorderColor="Transparent"
                                HasShadow="False" x:Name="LogoutButton">
-                            <Image Source="image8.png" HeightRequest="22" WidthRequest="22" Aspect="AspectFit"
+                                <Image Source="image8.png" HeightRequest="22" WidthRequest="22" Aspect="AspectFit"
                                    HorizontalOptions="Center" VerticalOptions="Center"/>
-                            <Frame.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnLogoutClicked"/>
-                            </Frame.GestureRecognizers>
-                        </Frame>
-                    </Grid>
-                </Border>
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnLogoutClicked"/>
+                                </Frame.GestureRecognizers>
+                            </Frame>
+                        </Grid>
+                    </Border>
 
-                <VerticalStackLayout x:Name="MainContent" Padding="16,0,16,28" Spacing="18">
+                    <VerticalStackLayout x:Name="MainContent" Padding="16,0,16,28" Spacing="18" HorizontalOptions="Fill" >
 
-                    <!-- ═════════ Balance hero card (overlaps header) ═════════ -->
-                    <Border x:Name="EscrowCard" Margin="0,-46,0,0"
+                        <!-- ═════════ Balance hero card (overlaps header) ═════════ -->
+                        <Border x:Name="EscrowCard" Margin="-30,-66,-50,10"     HorizontalOptions="FillAndExpand"
                             StrokeThickness="0" Padding="0"
-                            StrokeShape="RoundRectangle 26">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#FFFFFF" Offset="0.0"/>
-                                <GradientStop Color="#F1ECFF" Offset="1.0"/>
-                            </LinearGradientBrush>
-                        </Border.Background>
-                        <Border.Shadow>
-                            <Shadow Brush="#2B1B7A" Opacity="0.18" Radius="22" Offset="0,10"/>
-                        </Border.Shadow>
+                            StrokeShape="RoundRectangle 10">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#FFFFFF" Offset="2.0"/>
+                                    <GradientStop Color="#F1ECFF" Offset="2.0"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Border.Shadow>
+                                <Shadow Brush="#2B1B7A" Opacity="0.18" Radius="22" Offset="0,10"/>
+                            </Border.Shadow>
 
-                        <Grid RowDefinitions="Auto,Auto,Auto" Padding="22,20,22,20" RowSpacing="14">
-                            <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
-                                <VerticalStackLayout Spacing="4">
-                                    <Label Text="Available balance" FontSize="13" TextColor="{StaticResource Muted}"/>
-                                    <Label x:Name="BalanceLabel" FontSize="32" FontAttributes="Bold"
-                                           TextColor="{StaticResource Ink}"/>
-                                </VerticalStackLayout>
-                                <Border Grid.Column="1" VerticalOptions="Start" StrokeThickness="0"
+                            <VerticalStackLayout Padding="22,20,22,22" Spacing="16">
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                                    <VerticalStackLayout Spacing="4">
+                                        <Label Text="Available balance" FontSize="13" TextColor="{StaticResource Muted}"/>
+                                        <Label x:Name="BalanceLabel" FontSize="30" FontAttributes="Bold"
+                                           LineBreakMode="WordWrap" TextColor="{StaticResource Ink}"/>
+                                    </VerticalStackLayout>
+                                    <Border Grid.Column="1" VerticalOptions="Start" StrokeThickness="0"
                                         BackgroundColor="#E4DCFF" Padding="10,5" StrokeShape="RoundRectangle 12">
-                                    <Label Text="VIRTUAL ACCOUNT" FontSize="9" FontAttributes="Bold"
+                                        <Label Text="VIRTUAL ACCOUNT" FontSize="9" FontAttributes="Bold"
                                            TextColor="{StaticResource Brand}"/>
-                                </Border>
-                            </Grid>
+                                    </Border>
+                                </Grid>
 
-                            <BoxView Grid.Row="1" HeightRequest="1" Color="#E4E6F2"/>
+                                <BoxView HeightRequest="1" Color="#E4E6F2"/>
 
-                            <Grid Grid.Row="2" ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="2">
-                                <Label Grid.Row="0" Grid.Column="0" Text="Account number" FontSize="11" TextColor="{StaticResource Muted}"/>
-                                <Label Grid.Row="1" Grid.Column="0" x:Name="cardaccountNumber"
-                                       FontSize="20" FontAttributes="Bold" CharacterSpacing="1.5"
+                                <VerticalStackLayout Spacing="3">
+                                    <Label Text="Account number" FontSize="11" TextColor="{StaticResource Muted}"/>
+                                    <Label x:Name="cardaccountNumber" FontSize="22" FontAttributes="Bold"
+                                       CharacterSpacing="1.5" LineBreakMode="WordWrap"
                                        TextColor="{StaticResource Ink}">
-                                    <Label.GestureRecognizers>
-                                        <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped_5"/>
-                                    </Label.GestureRecognizers>
-                                </Label>
-                                <Label Grid.Row="2" Grid.Column="0" x:Name="cardExiprydate"
-                                       FontSize="12" TextColor="{StaticResource Muted}"/>
-
-                                <VerticalStackLayout Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" Spacing="2"
-                                                     HorizontalOptions="End" VerticalOptions="End">
-                                    <Label Text="Ledger balance" FontSize="11" TextColor="{StaticResource Muted}"
-                                           HorizontalTextAlignment="End"/>
-                                    <Label x:Name="AmountLabel" FontSize="15" FontAttributes="Bold"
-                                           TextColor="{StaticResource Ink}" HorizontalTextAlignment="End"/>
-                                    <Label Text="Tap number to copy" FontSize="9" TextColor="#A0A5BA"
-                                           HorizontalTextAlignment="End" Margin="0,6,0,0"/>
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped_5"/>
+                                        </Label.GestureRecognizers>
+                                    </Label>
+                                    <Label Text="Tap the number to copy" FontSize="10" TextColor="#A0A5BA"/>
                                 </VerticalStackLayout>
-                            </Grid>
+
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                                    <VerticalStackLayout Grid.Column="0" Spacing="3">
+                                        <Label Text="Bank" FontSize="11" TextColor="{StaticResource Muted}"/>
+                                        <Label x:Name="cardExiprydate" FontSize="14" FontAttributes="Bold"
+                                           LineBreakMode="WordWrap" TextColor="{StaticResource Ink}"/>
+                                    </VerticalStackLayout>
+                                    <VerticalStackLayout Grid.Column="1" Spacing="3">
+                                        <Label Text="Ledger balance" FontSize="11" TextColor="{StaticResource Muted}"/>
+                                        <Label x:Name="AmountLabel" FontSize="14" FontAttributes="Bold"
+                                           LineBreakMode="WordWrap" TextColor="{StaticResource Ink}"/>
+                                    </VerticalStackLayout>
+                                </Grid>
+
+                                <VerticalStackLayout Spacing="3">
+                                    <Label Text="Account name" FontSize="11" TextColor="{StaticResource Muted}"/>
+                                    <Label x:Name="cardAccountname" FontSize="14" FontAttributes="Bold"
+                                       LineBreakMode="WordWrap" TextColor="{StaticResource Ink}"/>
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- ═════════ Quick actions ═════════ -->
+                        <Grid x:Name="TransactionLogStack" ColumnDefinitions="*,*,*,*" ColumnSpacing="10">
+                            <Frame Grid.Column="0" Style="{StaticResource ActionTileStyle}">
+                                <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                                    <Border StrokeThickness="0" BackgroundColor="#EEE9FF" HeightRequest="44" WidthRequest="44"
+                                        StrokeShape="RoundRectangle 14">
+                                        <Image Source="add.png" HeightRequest="22" WidthRequest="22" Aspect="AspectFit"/>
+                                    </Border>
+                                    <Label Text="Contract" Style="{StaticResource ActionLabelStyle}"/>
+                                </VerticalStackLayout>
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnNewContractTapped"/>
+                                </Frame.GestureRecognizers>
+                            </Frame>
+
+                            <Frame Grid.Column="1" Style="{StaticResource ActionTileStyle}">
+                                <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                                    <Border StrokeThickness="0" BackgroundColor="#E3F6EC" HeightRequest="44" WidthRequest="44"
+                                        StrokeShape="RoundRectangle 14">
+                                        <Image Source="bluebag.png" HeightRequest="22" WidthRequest="22" Aspect="AspectFit"/>
+                                    </Border>
+                                    <Label Text="Withdraw" Style="{StaticResource ActionLabelStyle}"/>
+                                </VerticalStackLayout>
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnWithdrawalTapped"/>
+                                </Frame.GestureRecognizers>
+                            </Frame>
+
+                            <Frame Grid.Column="2" Style="{StaticResource ActionTileStyle}">
+                                <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                                    <Border StrokeThickness="0" BackgroundColor="#FFF0DC" HeightRequest="44" WidthRequest="44"
+                                        StrokeShape="RoundRectangle 14">
+                                        <Image Source="image2.png" HeightRequest="22" WidthRequest="22" Aspect="AspectFit"/>
+                                    </Border>
+                                    <Label Text="History" Style="{StaticResource ActionLabelStyle}"/>
+                                </VerticalStackLayout>
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnRecentEscrowTapped"/>
+                                </Frame.GestureRecognizers>
+                            </Frame>
+
+                            <Frame Grid.Column="3" Style="{StaticResource ActionTileStyle}">
+                                <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                                    <Border StrokeThickness="0" BackgroundColor="#FFE4EC" HeightRequest="44" WidthRequest="44"
+                                        StrokeShape="RoundRectangle 14">
+                                        <Image Source="image8.png" HeightRequest="22" WidthRequest="22" Aspect="AspectFit"/>
+                                    </Border>
+                                    <Label Text="Referral" Style="{StaticResource ActionLabelStyle}"/>
+                                </VerticalStackLayout>
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
+                                </Frame.GestureRecognizers>
+                            </Frame>
                         </Grid>
-                    </Border>
 
-                    <!-- Account name (used by code-behind) -->
-                    <Label x:Name="cardAccountname" FontSize="12" TextColor="{StaticResource Muted}"
-                           Margin="6,-12,0,-6"/>
-
-                    <!-- ═════════ Quick actions ═════════ -->
-                    <Grid x:Name="TransactionLogStack" ColumnDefinitions="*,*,*,*" ColumnSpacing="10">
-                        <Frame Grid.Column="0" Style="{StaticResource ActionTileStyle}">
-                            <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
-                                <Border StrokeThickness="0" BackgroundColor="#EEE9FF" HeightRequest="44" WidthRequest="44"
-                                        StrokeShape="RoundRectangle 14">
-                                    <Image Source="add.png" HeightRequest="22" WidthRequest="22" Aspect="AspectFit"/>
-                                </Border>
-                                <Label Text="Contract" Style="{StaticResource ActionLabelStyle}"/>
-                            </VerticalStackLayout>
-                            <Frame.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnNewContractTapped"/>
-                            </Frame.GestureRecognizers>
-                        </Frame>
-
-                        <Frame Grid.Column="1" Style="{StaticResource ActionTileStyle}">
-                            <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
-                                <Border StrokeThickness="0" BackgroundColor="#E3F6EC" HeightRequest="44" WidthRequest="44"
-                                        StrokeShape="RoundRectangle 14">
-                                    <Image Source="bluebag.png" HeightRequest="22" WidthRequest="22" Aspect="AspectFit"/>
-                                </Border>
-                                <Label Text="Withdraw" Style="{StaticResource ActionLabelStyle}"/>
-                            </VerticalStackLayout>
-                            <Frame.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnWithdrawalTapped"/>
-                            </Frame.GestureRecognizers>
-                        </Frame>
-
-                        <Frame Grid.Column="2" Style="{StaticResource ActionTileStyle}">
-                            <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
-                                <Border StrokeThickness="0" BackgroundColor="#FFF0DC" HeightRequest="44" WidthRequest="44"
-                                        StrokeShape="RoundRectangle 14">
-                                    <Image Source="image2.png" HeightRequest="22" WidthRequest="22" Aspect="AspectFit"/>
-                                </Border>
-                                <Label Text="History" Style="{StaticResource ActionLabelStyle}"/>
-                            </VerticalStackLayout>
-                            <Frame.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnRecentEscrowTapped"/>
-                            </Frame.GestureRecognizers>
-                        </Frame>
-
-                        <Frame Grid.Column="3" Style="{StaticResource ActionTileStyle}">
-                            <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
-                                <Border StrokeThickness="0" BackgroundColor="#FFE4EC" HeightRequest="44" WidthRequest="44"
-                                        StrokeShape="RoundRectangle 14">
-                                    <Image Source="image8.png" HeightRequest="22" WidthRequest="22" Aspect="AspectFit"/>
-                                </Border>
-                                <Label Text="Referral" Style="{StaticResource ActionLabelStyle}"/>
-                            </VerticalStackLayout>
-                            <Frame.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
-                            </Frame.GestureRecognizers>
-                        </Frame>
-                    </Grid>
-
-                    <!-- ═════════ Activity summary ═════════ -->
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                        <Border Grid.Column="0" StrokeThickness="1" Stroke="#ECEEF6" BackgroundColor="White"
-                                Padding="16,14" StrokeShape="RoundRectangle 18">
-                            <HorizontalStackLayout Spacing="10">
-                                <BoxView WidthRequest="4" HeightRequest="28" CornerRadius="2" Color="#6B4CE6" VerticalOptions="Center"/>
-                                <VerticalStackLayout Spacing="1" VerticalOptions="Center">
-                                    <Label Text="Contracts" FontSize="10" TextColor="{StaticResource Muted}"/>
-                                    <Label x:Name="TransferButton" FontSize="14" FontAttributes="Bold"
+                        <!-- ═════════ Activity summary ═════════ -->
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                            <Border Grid.Column="0" StrokeThickness="1" Stroke="#ECEEF6" BackgroundColor="White"
+                                Padding="16,14" StrokeShape="RoundRectangle 10">
+                                <HorizontalStackLayout Spacing="10">
+                                    <BoxView WidthRequest="4" HeightRequest="28" CornerRadius="2" Color="#6B4CE6" VerticalOptions="Center"/>
+                                    <VerticalStackLayout Spacing="1" VerticalOptions="Center">
+                                        <Label Text="Contracts" FontSize="10" TextColor="{StaticResource Muted}"/>
+                                        <Label x:Name="TransferButton" FontSize="14" FontAttributes="Bold"
                                            TextColor="{StaticResource Ink}"/>
-                                </VerticalStackLayout>
-                            </HorizontalStackLayout>
-                        </Border>
-                        <Border Grid.Column="1" StrokeThickness="1" Stroke="#ECEEF6" BackgroundColor="White"
+                                    </VerticalStackLayout>
+                                </HorizontalStackLayout>
+                            </Border>
+                            <Border Grid.Column="1" StrokeThickness="1" Stroke="#ECEEF6" BackgroundColor="White"
                                 Padding="16,14" StrokeShape="RoundRectangle 18">
-                            <HorizontalStackLayout Spacing="10">
-                                <BoxView WidthRequest="4" HeightRequest="28" CornerRadius="2" Color="#1FA971" VerticalOptions="Center"/>
-                                <VerticalStackLayout Spacing="1" VerticalOptions="Center">
-                                    <Label Text="Closed" FontSize="10" TextColor="{StaticResource Muted}"/>
-                                    <Label x:Name="QuickFundsButton" FontSize="14" FontAttributes="Bold"
+                                <HorizontalStackLayout Spacing="10">
+                                    <BoxView WidthRequest="4" HeightRequest="28" CornerRadius="2" Color="#1FA971" VerticalOptions="Center"/>
+                                    <VerticalStackLayout Spacing="1" VerticalOptions="Center">
+                                        <Label Text="Closed" FontSize="10" TextColor="{StaticResource Muted}"/>
+                                        <Label x:Name="QuickFundsButton" FontSize="14" FontAttributes="Bold"
                                            TextColor="{StaticResource Ink}"/>
-                                </VerticalStackLayout>
-                            </HorizontalStackLayout>
-                        </Border>
-                    </Grid>
+                                    </VerticalStackLayout>
+                                </HorizontalStackLayout>
+                            </Border>
+                        </Grid>
 
-                    <!-- ═════════ Referral banner ═════════ -->
-                    <Border x:Name="QuickMenuStack" StrokeThickness="0" Padding="20,18"
+                        <!-- ═════════ Referral banner ═════════ -->
+                        <Border x:Name="QuickMenuStack" StrokeThickness="0" Padding="20,18"
                             StrokeShape="RoundRectangle 12">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#A25AC4" Offset="0.0"/>
-                                <GradientStop Color="#6B4CE6" Offset="1.0"/>
-                            </LinearGradientBrush>
-                        </Border.Background>
-                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                            <VerticalStackLayout Spacing="6" VerticalOptions="Center">
-                                <Label Text="Invite &amp; earn" FontSize="18" FontAttributes="Bold" TextColor="White"/>
-                                <Label Text="Bring friends onto OPX and unlock referral bonuses."
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#A25AC4" Offset="0.0"/>
+                                    <GradientStop Color="#6B4CE6" Offset="1.0"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                <VerticalStackLayout Spacing="6" VerticalOptions="Center">
+                                    <Label Text="Invite &amp; earn" FontSize="18" FontAttributes="Bold" TextColor="White"/>
+                                    <Label Text="Bring friends onto OPX and unlock referral bonuses."
                                        FontSize="12" TextColor="#E6FFFFFF"/>
-                                <Label Text="View my referral score  →" FontSize="12" FontAttributes="Bold"
+                                    <Label Text="View my referral score  →" FontSize="12" FontAttributes="Bold"
                                        TextColor="White" Margin="0,4,0,0"/>
-                            </VerticalStackLayout>
-                            <Image Grid.Column="1" Source="logo.png" HeightRequest="64" WidthRequest="64"
+                                </VerticalStackLayout>
+                                <Image Grid.Column="1" Source="logo.png" HeightRequest="64" WidthRequest="64"
                                    Aspect="AspectFit" Opacity="0.9" VerticalOptions="Center"/>
-                        </Grid>
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped_12"/>
-                        </Border.GestureRecognizers>
-                    </Border>
+                            </Grid>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped_12"/>
+                            </Border.GestureRecognizers>
+                        </Border>
 
-                    <!-- ═════════ Recent transactions ═════════ -->
-                    <Grid ColumnDefinitions="*,Auto" Margin="2,2,2,-6">
-                        <Label Text="Recent transactions" Style="{StaticResource SectionTitleStyle}"/>
-                        <Label Grid.Column="1" Text="See all" FontSize="13" FontAttributes="Bold"
+                        <!-- ═════════ Recent transactions ═════════ -->
+                        <Grid ColumnDefinitions="*,Auto" Margin="2,2,2,-6">
+                            <Label Text="Recent transactions" Style="{StaticResource SectionTitleStyle}"/>
+                            <Label Grid.Column="1" Text="See all" FontSize="13" FontAttributes="Bold"
                                TextColor="{StaticResource Brand}" VerticalOptions="Center">
-                            <Label.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnRecentEscrowTapped"/>
-                            </Label.GestureRecognizers>
-                        </Label>
-                    </Grid>
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnRecentEscrowTapped"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </Grid>
 
-                    <ListView x:Name="listView"
+                        <ListView x:Name="listView"
                               BackgroundColor="Transparent"
                               ItemsSource="{Binding HD}"
                               HasUnevenRows="True"
                               SeparatorVisibility="None"
                               HeightRequest="430">
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <ViewCell>
-                                    <Border StrokeThickness="1" Stroke="#ECEEF6" BackgroundColor="White"
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <ViewCell>
+                                        <Border StrokeThickness="1" Stroke="#ECEEF6" BackgroundColor="White"
                                             Padding="14" Margin="0,0,0,10" StrokeShape="RoundRectangle 18">
-                                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                                            <Border Grid.Column="0" StrokeThickness="0" BackgroundColor="#F1EEFF"
+                                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                                <Border Grid.Column="0" StrokeThickness="0" BackgroundColor="#F1EEFF"
                                                     HeightRequest="48" WidthRequest="48" StrokeShape="RoundRectangle 14">
-                                                <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center">
-                                                    <Label Text="{Binding CreatedAt, StringFormat='{0:dd}'}"
+                                                    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center">
+                                                        <Label Text="{Binding CreatedAt, StringFormat='{0:dd}'}"
                                                            FontAttributes="Bold" FontSize="17" TextColor="{StaticResource Brand}"
                                                            HorizontalOptions="Center"/>
-                                                    <Label Text="{Binding CreatedAt, StringFormat='{0:MMM}'}"
+                                                        <Label Text="{Binding CreatedAt, StringFormat='{0:MMM}'}"
                                                            FontSize="10" TextColor="{StaticResource Muted}"
                                                            HorizontalOptions="Center"/>
-                                                </VerticalStackLayout>
-                                            </Border>
+                                                    </VerticalStackLayout>
+                                                </Border>
 
-                                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="3">
-                                                <Label Text="{Binding Description}" FontAttributes="Bold" FontSize="14"
+                                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="3">
+                                                    <Label Text="{Binding Description}" FontAttributes="Bold" FontSize="14"
                                                        TextColor="{StaticResource Ink}" LineBreakMode="TailTruncation"/>
-                                                <Label FontSize="11" TextColor="{StaticResource Muted}">
-                                                    <Label.FormattedText>
-                                                        <FormattedString>
-                                                            <Span Text="{Binding Role}"/>
-                                                            <Span Text="  •  "/>
-                                                            <Span Text="{Binding CreatedAt, StringFormat='{0:HH:mm}'}"/>
-                                                        </FormattedString>
-                                                    </Label.FormattedText>
-                                                </Label>
-                                            </VerticalStackLayout>
+                                                    <Label FontSize="11" TextColor="{StaticResource Muted}">
+                                                        <Label.FormattedText>
+                                                            <FormattedString>
+                                                                <Span Text="{Binding Role}"/>
+                                                                <Span Text="  •  "/>
+                                                                <Span Text="{Binding CreatedAt, StringFormat='{0:HH:mm}'}"/>
+                                                            </FormattedString>
+                                                        </Label.FormattedText>
+                                                    </Label>
+                                                </VerticalStackLayout>
 
-                                            <VerticalStackLayout Grid.Column="2" VerticalOptions="Center"
+                                                <VerticalStackLayout Grid.Column="2" VerticalOptions="Center"
                                                                  HorizontalOptions="End" Spacing="3">
-                                                <Label Text="{Binding Amount, StringFormat='₦{0:N2}'}" FontAttributes="Bold"
+                                                    <Label Text="{Binding Amount, StringFormat='₦{0:N2}'}" FontAttributes="Bold"
                                                        FontSize="15" TextColor="{StaticResource Ink}" HorizontalOptions="End"/>
-                                                <Label Text="{Binding Status}" FontSize="11" FontAttributes="Bold"
+                                                    <Label Text="{Binding Status}" FontSize="11" FontAttributes="Bold"
                                                        TextColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}"
                                                        HorizontalOptions="End"/>
-                                            </VerticalStackLayout>
-                                        </Grid>
-                                    </Border>
-                                </ViewCell>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                                                </VerticalStackLayout>
+                                            </Grid>
+                                        </Border>
+                                    </ViewCell>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
 
-                    <!-- Hidden placeholders referenced by existing code-behind -->
-                    <Frame x:Name="PlusFrame" IsVisible="False"/>
-                    <Frame x:Name="EscrowBorder" IsVisible="False"/>
-                    <Grid x:Name="EscrowContent" IsVisible="False"/>
-                    <Label x:Name="cardNumberDisplay" IsVisible="False"/>
-                    <ScrollView x:Name="TransactionScrollView" IsVisible="False" HeightRequest="1"/>
+                        <!-- Hidden placeholders referenced by existing code-behind -->
+                        <Frame x:Name="PlusFrame" IsVisible="False"/>
+                        <Frame x:Name="EscrowBorder" IsVisible="False"/>
+                        <Grid x:Name="EscrowContent" IsVisible="False"/>
+                        <Label x:Name="cardNumberDisplay" IsVisible="False"/>
+                        <ScrollView x:Name="TransactionScrollView" IsVisible="False" HeightRequest="1"/>
+                    </VerticalStackLayout>
                 </VerticalStackLayout>
-            </VerticalStackLayout>
-        </ScrollView>
+            </ScrollView>
+        </RefreshView>
     </Grid>
 </ContentPage>

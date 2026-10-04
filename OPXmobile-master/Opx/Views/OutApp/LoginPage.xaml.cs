@@ -104,10 +104,42 @@ public partial class LoginPage : ContentPage
         }
     }
 
+    private async Task<bool> TryAutoLoginAsync()
+    {
+        bool restored = false;
+        try
+        {
+            await ShowLoadingOverlay("Restoring your session...");
+            var result = await SessionStore.TryRestoreAsync();
+
+            if (result == SessionRestoreResult.Restored)
+            {
+                restored = true;
+                Microsoft.Maui.Controls.Application.Current!.MainPage = new Views.Home();
+            }
+            else if (result == SessionRestoreResult.Expired)
+            {
+                await ShowErrorSnackbar("Your session has expired. Please log in again.");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Auto-login error: {ex.Message}");
+        }
+        finally
+        {
+            if (!restored) await HideLoadingOverlay();
+        }
+        return restored;
+    }
+
     private async void OnPageLoaded(object? sender, EventArgs e)
     {
         try
         {
+            // Already signed in from a previous launch? Go straight to the dashboard.
+            if (await TryAutoLoginAsync()) return;
+
             // Animate floating background elements
             _ = Task.Run(async () =>
             {
@@ -534,7 +566,7 @@ public partial class LoginPage : ContentPage
             {
                 email = MyEmail,
                 password = MyPassword,
-                rememberMe = rememberme,
+                rememberMe = true, // persistent cookie so the saved session survives app restarts
                 isMobile = true,
             };
 
@@ -621,12 +653,14 @@ public partial class LoginPage : ContentPage
                     accountNumber = loginResponse.accountNumber;
                     bankName = loginResponse.bankName;
 
+                    await SessionStore.SaveAsync();
+
                     await MainThread.InvokeOnMainThreadAsync(async () =>
                     {
 
                         await ShowSuccessSnackbar($"Welcome back, {loginResponse.fullname}!");
                         await Task.Delay(500);
-                        await Navigation.PushModalAsync(new Views.DashBoard());
+                        Microsoft.Maui.Controls.Application.Current!.MainPage = new Views.Home();
                     });
                 }
                 else if (loginResponse.redirectTo == "Setup")
@@ -634,11 +668,13 @@ public partial class LoginPage : ContentPage
                     myemail = loginResponse.email ?? email;
                     myfullname = loginResponse.fullname ?? "";
 
+                    await SessionStore.SaveAsync();
+
                     await MainThread.InvokeOnMainThreadAsync(async () =>
                     {
                         await ShowSuccessSnackbar("Please complete your profile setup");
                         await Task.Delay(500);
-                        await Navigation.PushModalAsync(new Views.DashBoard());
+                        Microsoft.Maui.Controls.Application.Current!.MainPage = new Views.Home();
                     });
                 }
                 else
@@ -657,7 +693,7 @@ public partial class LoginPage : ContentPage
                     string message = loginResponse.message ?? "Email verification required";
                     await ShowErrorSnackbar(message);
                     await Task.Delay(500);
-                    await Navigation.PushModalAsync(new Views.DashBoard());
+                    await Navigation.PushModalAsync(new Views.Home());
                 });
             }
             else
