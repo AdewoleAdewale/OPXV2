@@ -157,6 +157,12 @@ public static class OpxApi
         {
             return NetworkFailure<T>($"Could not reach the server: {ex.Message}");
         }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            // Anything else (socket/IO/TLS/etc.) must never crash the app – report it like a network failure.
+            System.Diagnostics.Debug.WriteLine($"OpxApi unexpected error: {ex}");
+            return NetworkFailure<T>("Something went wrong while contacting the server. Please try again.");
+        }
     }
 
     private static OpxResult<T> NetworkFailure<T>(string msg) where T : class

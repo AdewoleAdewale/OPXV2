@@ -4,6 +4,7 @@ using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Views;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Opx.Services;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -16,7 +17,6 @@ public partial class BvnToken : Popup, IDisposable, INotifyPropertyChanged
     private readonly ILogger<BvnToken>? _logger;
     private readonly SemaphoreSlim _processingLock = new(1, 1);
     private CancellationTokenSource _cancellationTokenSource = new();
-    private readonly HttpClient _httpClient;
     private bool _isProcessing = false;
     private bool _isDisposed = false;
     private string _tokenText = string.Empty;
@@ -105,21 +105,6 @@ public partial class BvnToken : Popup, IDisposable, INotifyPropertyChanged
     public BvnToken(ILogger<BvnToken>? logger = null)
     {
         _logger = logger;
-
-        // Configure HttpClient with better defaults
-        _httpClient = new HttpClient(new HttpClientHandler
-        {
-            ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true // For dev only
-        })
-        {
-            Timeout = TimeSpan.FromSeconds(45),
-            DefaultRequestHeaders =
-            {
-                { "User-Agent", "OpxMobileApp/1.0" },
-                { "Accept", "application/json" },
-                { "Cache-Control", "no-cache" }
-            }
-        };
 
         try
         {
@@ -412,137 +397,52 @@ public partial class BvnToken : Popup, IDisposable, INotifyPropertyChanged
 
     private async Task<ValidationResult> CallBvnValidationAPI()
     {
-        HttpClient client = null;
-        const int maxRetries = 3;
-        const string apiUrl = "https://opxng.com/api/agencies/link-virtual-account";
-
-        for (int attempt = 1; attempt <= maxRetries; attempt++)
+        try
         {
-            try
+            var email = LoginPage.myemail;
+            if (string.IsNullOrWhiteSpace(email))
+                return ValidationResult.Failure("Email not found. Please log in again.");
+
+            var body = new BvnValidationRequest
             {
-                if (_cancellationTokenSource.Token.IsCancellationRequested)
-                    return ValidationResult.Cancelled();
+                token = TokenText.Trim(),
+                accountRef = ReferenceText.Trim(),
+                email = email
+            };
 
-                // Validate URL
-                if (!Uri.IsWellFormedUriString(apiUrl, UriKind.Absolute))
-                {
-                    LogError("Invalid API endpoint URL");
-                    return ValidationResult.Failure("Invalid API configuration. Please contact support.");
-                }
+            LogInfo("Sending link-virtual-account request");
+            var result = await SessionStore.WithAuthRetryAsync(() =>
+                OpxApi.PostAsync<BvnValidationResponse>("/agencies/link-virtual-account", body, _cancellationTokenSource.Token));
 
-                var requestPayload = new BvnValidationRequest
-                {
-                    token = TokenText.Trim(),
-                    accountRef = ReferenceText.Trim(),
-                    email = Kycform.mymail,
-
-                };
-
-                var jsonPayload = JsonConvert.SerializeObject(requestPayload, Formatting.None);
-                LogInfo($"Sending BVN validation request (attempt {attempt}/{maxRetries})");
-                client = new HttpClient(new HttpClientHandler
-                {
-                    ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true,
-                    AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate
-                })
-                {
-                    Timeout = TimeSpan.FromSeconds(90)
-                };
-
-                // Add headers
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(
-                    new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-                using var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
-
-                var response = await _httpClient.PostAsync(apiUrl, content, _cancellationTokenSource.Token);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var responseContent = await response.Content.ReadAsStringAsync();
-
-                    if (string.IsNullOrWhiteSpace(responseContent))
-                    {
-                        LogWarning("Received empty response from server");
-                        return ValidationResult.Failure("Invalid response from server");
-                    }
-
-                    var validationResponse = JsonConvert.DeserializeObject<BvnValidationResponse>(responseContent);
-
-                    if (validationResponse == null)
-                    {
-                        LogWarning("Failed to parse server response");
-                        return ValidationResult.Failure("Invalid response format from server");
-                    }
-
-                    if (validationResponse.success || validationResponse.alreadyLinked)
-                    {
-                        LogInfo($"BVN link successful. NextStep: {validationResponse.nextStep}, AlreadyLinked: {validationResponse.alreadyLinked}");
-                        return ValidationResult.Success(validationResponse);
-                    }
-                    else
-                    {
-                        var errorMsg = validationResponse.message ?? "Virtual account link failed";
-                        LogWarning($"BVN link failed: {errorMsg}");
-                        return ValidationResult.Failure(errorMsg);
-                    }
-                }
-                else
-                {
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    var errorMessage = GetFriendlyErrorMessage(response.StatusCode, errorContent);
-
-                    LogWarning($"API call failed with status {response.StatusCode}: {errorMessage}");
-
-                    // Don't retry on client errors (4xx)
-                    if ((int)response.StatusCode >= 400 && (int)response.StatusCode < 500)
-                    {
-                        return ValidationResult.Failure(errorMessage);
-                    }
-
-                    // Continue retrying on server errors (5xx)
-                    if (attempt == maxRetries)
-                    {
-                        return ValidationResult.Failure(errorMessage);
-                    }
-                }
-            }
-            catch (OperationCanceledException)
+            if (result.IsNetworkError || !result.IsHttpSuccess)
             {
-                LogInfo("BVN validation API call was cancelled");
-                return ValidationResult.Cancelled();
+                LogWarning($"link-virtual-account failed ({(int)result.StatusCode}): {result.ErrorMessage}");
+                return ValidationResult.Failure(string.IsNullOrWhiteSpace(result.ErrorMessage)
+                    ? "Could not link the virtual account. Please try again."
+                    : result.ErrorMessage);
             }
-            catch (HttpRequestException ex)
+
+            var data = result.Data;
+            if (data == null)
+                return ValidationResult.Failure("Invalid response from server");
+
+            if (data.success || data.alreadyLinked)
             {
-                LogError(ex, $"Network error during BVN validation (attempt {attempt}/{maxRetries})");
-
-                if (attempt == maxRetries)
-                {
-                    return ValidationResult.Failure("Network error. Please check your internet connection and try again.");
-                }
-
-                // Exponential backoff
-                await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)), _cancellationTokenSource.Token);
+                AccountOnboarding.ApplyVirtualAccount(data.bankName, data.accountNumber);
+                return ValidationResult.Success(data);
             }
-            catch (JsonException ex)
-            {
-                LogError(ex, "JSON parsing error during BVN validation");
-                return ValidationResult.Failure("Invalid data format received from server");
-            }
-            catch (Exception ex)
-            {
-                LogError(ex, $"Unexpected error during BVN validation (attempt {attempt}/{maxRetries})");
 
-                if (attempt == maxRetries)
-                {
-                    return ValidationResult.Failure("An unexpected error occurred. Please try again.");
-                }
-
-                await Task.Delay(TimeSpan.FromSeconds(attempt * 2), _cancellationTokenSource.Token);
-            }
+            return ValidationResult.Failure(data.message ?? "Virtual account link failed");
         }
-
-        return ValidationResult.Failure("Maximum retry attempts exceeded");
+        catch (OperationCanceledException)
+        {
+            return ValidationResult.Cancelled();
+        }
+        catch (Exception ex)
+        {
+            LogError(ex, "Unexpected error while linking the virtual account");
+            return ValidationResult.Failure("An unexpected error occurred. Please try again.");
+        }
     }
 
     private static string GetFriendlyErrorMessage(System.Net.HttpStatusCode statusCode, string errorContent)
@@ -567,27 +467,14 @@ public partial class BvnToken : Popup, IDisposable, INotifyPropertyChanged
     {
         try
         {
-            await ShowSuccessMessage("BVN validation completed successfully!");
-
-            // Brief pause to show success message
-            await Task.Delay(2000, _cancellationTokenSource.Token);
+            await ShowSuccessMessage("Virtual account linked successfully!");
+            await Task.Delay(1200, _cancellationTokenSource.Token);
 
             if (_cancellationTokenSource.Token.IsCancellationRequested)
                 return;
 
-            await ShowInfoMessage("Redirecting to login page...");
-
-            // Another brief pause
-            await Task.Delay(1500, _cancellationTokenSource.Token);
-
-            if (_cancellationTokenSource.Token.IsCancellationRequested)
-                return;
-
-            // Close popup first
-            await MainThread.InvokeOnMainThreadAsync(() => Close());
-
-            // Navigate to login page
-            await NavigateToLoginPage();
+            // Hand control back to the KYC flow, which continues with the payout (recipient) account.
+            await MainThread.InvokeOnMainThreadAsync(() => Close("linked"));
         }
         catch (OperationCanceledException)
         {
@@ -596,7 +483,7 @@ public partial class BvnToken : Popup, IDisposable, INotifyPropertyChanged
         catch (Exception ex)
         {
             LogError(ex, "Error handling successful validation");
-            await ShowErrorMessage("Validation succeeded but navigation failed. Please login manually.");
+            await ShowErrorMessage("Linked, but the next step could not open. You can continue from the dashboard.");
         }
     }
 
@@ -784,7 +671,6 @@ public partial class BvnToken : Popup, IDisposable, INotifyPropertyChanged
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource?.Dispose();
             _processingLock?.Dispose();
-            _httpClient?.Dispose();
 
             LogInfo("BvnToken popup disposed successfully");
         }

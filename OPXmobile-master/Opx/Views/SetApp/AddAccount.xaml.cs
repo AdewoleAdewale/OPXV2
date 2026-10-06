@@ -3,6 +3,9 @@ using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Views;
 using Newtonsoft.Json;
+using Opx.Model;
+using Opx.Renderers;
+using Opx.Services;
 using Opx.Views;
 using System.Net;
 using System.Text;
@@ -13,39 +16,14 @@ namespace Opx.Views;
 public partial class AddAccount : Popup
 {
     private List<BankResponse> bankList = new();
-    private HttpClient _httpClient;
     private bool _isLoading = false;
 
     public AddAccount()
     {
         InitializeComponent();
-        InitializeHttpClient();
         _ = LoadBankList();
-    }
-
-    private void InitializeHttpClient()
-    {
-        try
-        {
-            var handler = new HttpClientHandler
-            {
-                ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true,
-                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
-            };
-
-            _httpClient = new HttpClient(handler)
-            {
-                Timeout = TimeSpan.FromSeconds(90)
-            };
-
-            _httpClient.DefaultRequestHeaders.Accept.Clear();
-            _httpClient.DefaultRequestHeaders.Accept.Add(
-                new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"HttpClient initialization error: {ex.Message}");
-        }
+        accountnumber.TextChanged += (_, _) => _ = LookupAccountNameAsync();
+        Addbankname.SelectedIndexChanged += (_, _) => _ = LookupAccountNameAsync();
     }
 
     private async Task<bool> CheckInternetConnectionAsync()
@@ -153,6 +131,46 @@ public partial class AddAccount : Popup
         }
     }
 
+    private string _lookupKey = "";
+
+    private async Task LookupAccountNameAsync()
+    {
+        try
+        {
+            var bank = Addbankname.SelectedItem as BankResponse;
+            var number = accountnumber.Text?.Trim() ?? "";
+            if (bank == null || number.Length != 10 || !number.All(char.IsDigit))
+            {
+                _lookupKey = "";
+                accountHolderName.Text = "";
+                return;
+            }
+
+            var key = bank.bankCode + "|" + number;
+            _lookupKey = key;
+
+            var result = await OpxApi.GetAsync<ValidateAccountResponse>(
+                $"/agencies/validate-account?bankCode={Uri.EscapeDataString(bank.bankCode)}&accountNumber={Uri.EscapeDataString(number)}");
+
+            if (_lookupKey != key) return;   // the user already changed the bank / number
+
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                if (result.IsHttpSuccess && result.Data is { IsValid: true })
+                    accountHolderName.Text = result.Data.AccountName ?? "";
+                else
+                {
+                    accountHolderName.Text = "";
+                    if (!result.IsNetworkError) ShowError(result.ErrorMessage);
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Account lookup error: {ex.Message}");
+        }
+    }
+
     private async void setrecipient_Clicked(object sender, EventArgs e)
     {
         if (_isLoading)
@@ -166,41 +184,43 @@ public partial class AddAccount : Popup
             if (!await CheckInternetConnectionAsync())
                 return;
 
-            ShowLoading(true);
-            HideError();
-
-            var selectedBank = Addbankname.SelectedItem as BankResponse;
-            var accountNumber = accountnumber.Text?.Trim();
-
-            System.Diagnostics.Debug.WriteLine($"Setting recipient - Bank: {selectedBank?.name}, Account: {accountNumber}");
-
-            var requestData = new BankDataObject
+            var email = LoginPage.myemail;
+            if (string.IsNullOrWhiteSpace(email))
             {
-                BankCode = selectedBank?.bankCode,
-                AccountNumber = accountNumber,
-                Email = "" // populate as needed, original code truncated so kept blank
-            };
-
-            // Attempt to post the recipient (adjust endpoint as needed)
-            var postResult = await Opx.Services.OpxApi.PostAsync<object>("/recipients", requestData);
-
-            if (postResult.IsNetworkError)
-            {
-                ShowError(postResult.ErrorMessage ?? "Network error while creating recipient.");
+                ShowError("Email not found. Please log in again.");
                 return;
             }
 
-            if (postResult.IsHttpSuccess)
+            ShowLoading(true);
+            HideError();
+
+            var selectedBank = (BankResponse)Addbankname.SelectedItem!;
+            var request = new RecipientAccountRequest
             {
-                await MainThread.InvokeOnMainThreadAsync(async () =>
-                {
-                    await ShowErrorSnackbarAsync("Recipient added successfully.");
-                });
-            }
-            else
+                Email = email,
+                BankCode = selectedBank.bankCode,
+                AccountNumber = accountnumber.Text!.Trim()
+            };
+
+            // POST /api/agencies/recipient-account – the server validates the bank and account number itself.
+            var result = await SessionStore.WithAuthRetryAsync(() =>
+                OpxApi.PostAsync<RecipientAccountResponse>("/agencies/recipient-account", request));
+
+            if (!result.IsHttpSuccess || result.Data == null || !result.Data.Success)
             {
-                ShowError("Failed to add recipient. Please try again.");
+                ShowError(string.IsNullOrWhiteSpace(result.ErrorMessage)
+                    ? (result.Data?.Message ?? "Could not save the payout account. Please try again.")
+                    : result.ErrorMessage);
+                return;
             }
+
+            AccountSetupManager.MarkAccountSetupComplete();
+            await MainThread.InvokeOnMainThreadAsync(async () =>
+            {
+                accountHolderName.Text = result.Data.AccountName ?? accountHolderName.Text;
+                await ShowSuccessSnackbarAsync("Payout account saved successfully.");
+                Close("saved");
+            });
         }
         catch (Exception ex)
         {
@@ -230,7 +250,12 @@ public partial class AddAccount : Popup
             return false;
         }
 
-        // Additional basic validation can be added here (length, digits, etc.)
+        if (acct.Length != 10 || !acct.All(char.IsDigit))
+        {
+            ShowError("Account number must be 10 digits.");
+            return false;
+        }
+
         return true;
     }
 
@@ -303,6 +328,24 @@ public partial class AddAccount : Popup
                 await toast.Show();
             }
             catch { }
+        }
+    }
+
+    private async Task ShowSuccessSnackbarAsync(string message)
+    {
+        try
+        {
+            var snackbar = Snackbar.Make(message, null, "OK", TimeSpan.FromSeconds(3), new SnackbarOptions
+            {
+                BackgroundColor = Color.FromArgb("#1FA971"),
+                TextColor = Colors.White,
+                ActionButtonTextColor = Colors.White
+            });
+            await snackbar.Show();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"ShowSuccessSnackbarAsync error: {ex.Message}");
         }
     }
 

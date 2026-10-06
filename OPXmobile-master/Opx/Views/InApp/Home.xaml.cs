@@ -68,7 +68,7 @@ public partial class Home : ContentPage
             _current = new WeakReference<Home>(this);
             DashBoard.Attach(this, DashTab.Home);   // curved gradient tab bar
 
-            dashbaordusername.Text = "Hello," + " " + LoginPage.myfullname.Substring(0, Math.Min(15, LoginPage.myfullname.Length)) + " " + "";
+            dashbaordusername.Text = "Hello," + " " + (LoginPage.myfullname ?? "").Substring(0, Math.Min(15, (LoginPage.myfullname ?? "").Length)) + " " + "";
             //StartEllipseAnimation();
             BalanceLabel.Text = "₦" + LoginPage.availableBalance;
             AmountLabel.Text = "₦" + LoginPage.ledgerBalance;
@@ -91,10 +91,13 @@ public partial class Home : ContentPage
             }
 
             StartPageAnimations();
-            // Check if we need to show the account setup popup
-            _ = Task.Run(async () => await CheckAndShowAccountSetup());
             AddPullToRefresh();
-            _ = CheckAndShowKycFormAsync();
+            // KYC → BVN → virtual account: only when the account number is null/empty.
+            // If an account number already exists, neither the BVN pop-up nor the KYC form is shown.
+            if (string.IsNullOrWhiteSpace(LoginPage.accountNumber))
+            {
+                _ = AccountOnboarding.CheckAndPromptAsync(this);
+            }
         }
         catch (Exception ex)
         {
@@ -216,23 +219,6 @@ public partial class Home : ContentPage
 
     private static bool _kycPromptedThisRun = false;
 
-    private async Task CheckAndShowKycFormAsync()
-    {
-        try
-        {
-            await Task.Delay(2000);   // let the page settle first
-            if (!string.IsNullOrEmpty(LoginPage.accountNumber) || _kycPromptedThisRun) return;
-
-            _kycPromptedThisRun = true;
-            await MainThread.InvokeOnMainThreadAsync(async () =>
-                await Navigation.PushModalAsync(new Kycform(), true));
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"KYC check error: {ex.Message}");
-        }
-    }
-
     private void LoadCachedTransactions()
     {
         try
@@ -302,56 +288,11 @@ public partial class Home : ContentPage
         // Restart the app or notify the user to restart
     }
 
-    private async Task CheckAndShowAccountSetup()
-    {
-        try
-        {
-            // Prevent multiple simultaneous checks
-            if (_isCheckingAccountSetup) return;
-            _isCheckingAccountSetup = true;
-
-            await Task.Delay(2000);
-
-            // ✅ ONLY show KYC form if account number is null or empty
-            bool needsKycVerification = string.IsNullOrEmpty(LoginPage.accountNumber);
-
-            // If account number exists, do NOT show KYC form
-            if (!needsKycVerification)
-            {
-                System.Diagnostics.Debug.WriteLine("Account number exists, skipping KYC form in Home");
-                return;
-            }
-
-            // Create a unique key for this session
-            string sessionKey = "kyc_popup_shown_no_account";
-
-            // Check if we've already shown the popup
-            bool hasShownPopupForCurrentStatus = Preferences.Get(sessionKey, false);
-
-            // Only show KYC popup if account number is null AND we haven't shown it yet
-            if (!hasShownPopupForCurrentStatus && !_hasShownAccountPopup)
-            {
-                // Mark as shown for this session
-                Preferences.Set(sessionKey, true);
-                _hasShownAccountPopup = true;
-
-                await Device.InvokeOnMainThreadAsync(async () =>
-                {
-                    await ShowKycFormPopup();
-                });
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"KYC check error: {ex.Message}");
-        }
-        finally
-        {
-            _isCheckingAccountSetup = false;
-        }
-    }
     private async Task ShowKycFormPopup()
     {
+        // Account number already exists: never show the KYC form.
+        if (!string.IsNullOrWhiteSpace(LoginPage.accountNumber)) return;
+
         try
         {
             _hasShownAccountPopup = true;
@@ -384,6 +325,11 @@ public partial class Home : ContentPage
 
     private async void kyc_Tapped(object sender, TappedEventArgs e)
     {
+        if (!string.IsNullOrWhiteSpace(LoginPage.accountNumber))
+        {
+            await DisplayAlert("Virtual account", "Your virtual account is already set up.", "OK");
+            return;
+        }
         await Navigation.PushModalAsync(new Views.Kycform());
     }
 
@@ -743,8 +689,8 @@ public partial class Home : ContentPage
 
     private async Task FetchSummaryAndRecentAsync()
     {
-        var result = await OpxApi.GetAsync<DashboardSummaryResponse>(
-            $"/dashboard/summary?email={Uri.EscapeDataString(LoginPage.myemail ?? "")}");
+        var result = await SessionStore.WithAuthRetryAsync(() => OpxApi.GetAsync<DashboardSummaryResponse>(
+            $"/dashboard/summary?email={Uri.EscapeDataString(LoginPage.myemail ?? "")}"));
 
         // Offline / server error: keep what is already on screen, no error spam on a background refresh.
         if (!result.IsHttpSuccess || result.Data == null) return;
@@ -1039,6 +985,9 @@ public partial class Home : ContentPage
 
     private async Task ShowAccountSetupPopup()
     {
+        // Account number already exists: never show the BVN verification pop-up.
+        if (!string.IsNullOrWhiteSpace(LoginPage.accountNumber)) return;
+
         try
         {
             _hasShownAccountPopup = true;

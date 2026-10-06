@@ -50,17 +50,7 @@ public partial class FailureDisplaySheet : Popup
     {
         try
         {
-            await MainThread.InvokeOnMainThreadAsync(async () =>
-            {
-                System.Diagnostics.Debug.WriteLine("Navigating to DashBoard...");
-
-                // Clear navigation stack and set DashBoard as main page
-                Application.Current.MainPage = new NavigationPage(new Home())
-                {
-                    BarBackgroundColor = Color.FromArgb("#A25AC4"),
-                    BarTextColor = Colors.White
-                };
-            });
+            await MainThread.InvokeOnMainThreadAsync(async () => await DashBoard.GoHomeAsync());
         }
         catch (Exception ex)
         {

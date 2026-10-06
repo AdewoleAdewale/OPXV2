@@ -613,7 +613,7 @@ public partial class LoginPage : ContentPage
                 return;
             }
 
-            await HandleLoginResponseAsync(loginResponse, MyEmail);
+            await HandleLoginResponseAsync(loginResponse, MyEmail, MyPassword);
         }
         catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
         {
@@ -632,7 +632,7 @@ public partial class LoginPage : ContentPage
         }
     }
 
-    private async Task HandleLoginResponseAsync(LoginResponse loginResponse, string email)
+    private async Task HandleLoginResponseAsync(LoginResponse loginResponse, string email, string? plainPassword = null)
     {
         try
         {
@@ -653,6 +653,7 @@ public partial class LoginPage : ContentPage
                     accountNumber = loginResponse.accountNumber;
                     bankName = loginResponse.bankName;
 
+                    await SessionStore.RememberCredentialsAsync(myemail, plainPassword);
                     await SessionStore.SaveAsync();
 
                     await MainThread.InvokeOnMainThreadAsync(async () =>
@@ -668,6 +669,7 @@ public partial class LoginPage : ContentPage
                     myemail = loginResponse.email ?? email;
                     myfullname = loginResponse.fullname ?? "";
 
+                    await SessionStore.RememberCredentialsAsync(myemail, plainPassword);
                     await SessionStore.SaveAsync();
 
                     await MainThread.InvokeOnMainThreadAsync(async () =>

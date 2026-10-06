@@ -181,3 +181,54 @@ public class DashboardRecentOrder
     public bool IsCancellationRequested { get; set; }
     public bool? IsCancelled { get; set; }
 }
+
+// ───────────────────────── Agencies: wallet details / recipient account ─────────────────────────
+// GET /api/agencies/wallet-details?email=
+public class WalletDetailsResponse
+{
+    public bool Success { get; set; }
+    public string? Message { get; set; }
+    public WalletDetailsInfo? WalletDetails { get; set; }
+}
+
+public class WalletDetailsInfo
+{
+    public string? Name { get; set; }
+    public string? Phone { get; set; }
+    public string? Email { get; set; }
+    public string? Bvn { get; set; }
+    public WalletAccounts? Accounts { get; set; }
+}
+
+public class WalletAccounts
+{
+    public string? Bank { get; set; }
+
+    // The API spells this key "account_Number"
+    [JsonProperty("account_Number")]
+    public string? AccountNumber { get; set; }
+}
+
+// POST /api/agencies/recipient-account
+public class RecipientAccountRequest
+{
+    public string Email { get; set; } = "";
+    public string BankCode { get; set; } = "";
+    public string AccountNumber { get; set; } = "";
+}
+
+public class RecipientAccountResponse
+{
+    public bool Success { get; set; }
+    public string? Message { get; set; }
+    public string? BankName { get; set; }
+    public string? AccountName { get; set; }
+    public string? AccountNumber { get; set; }
+}
+
+// GET /api/agencies/validate-account?bankCode=&accountNumber=
+public class ValidateAccountResponse
+{
+    public bool IsValid { get; set; }
+    public string? AccountName { get; set; }
+}

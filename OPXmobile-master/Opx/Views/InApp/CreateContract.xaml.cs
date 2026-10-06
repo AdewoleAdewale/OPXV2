@@ -5,6 +5,7 @@ using CommunityToolkit.Maui.Views;
 using Newtonsoft.Json;
 using Opx.Model;
 using Opx.Services;
+using Opx.Views.InApp;
 using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
@@ -743,6 +744,23 @@ public partial class CreateContract : Popup
         }
     }
 
+    /// <summary>Shows the preview sheet; true = user tapped Continue, false = Cancel (or the sheet failed to show).</summary>
+    private async Task<bool> ConfirmContractPreviewAsync(string phone, string description, decimal amount)
+    {
+        try
+        {
+            var result = await MainThread.InvokeOnMainThreadAsync(async () =>
+                await Application.Current.MainPage.ShowPopupAsync(new ContractPreviewSheet(phone, description, amount)));
+            return result is true;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Contract preview error: {ex.Message}");
+            await ShowErrorMessage("Could not show the contract preview. Please try again.");
+            return false;
+        }
+    }
+
     private async void CREATECONTRACT_Clicked_1(object sender, EventArgs e)
     {
         try
@@ -798,6 +816,13 @@ public partial class CreateContract : Popup
                 await ShowErrorMessage("Amount must be greater than zero");
                 await AnimateFieldError(AmountFrame);
                 _isProcessing = false; // Reset processing flag
+                return;
+            }
+
+            // Preview the contract (amount + 1% VAT) and let the user continue or cancel
+            if (!await ConfirmContractPreviewAsync(UserPhone.Text.Trim(), Description.Text.Trim(), contractAmount))
+            {
+                _isProcessing = false;
                 return;
             }
 

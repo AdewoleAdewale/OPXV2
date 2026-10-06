@@ -1,4 +1,5 @@
-﻿using Opx.Views;
+﻿using Opx.Services;
+using Opx.Views;
 namespace Opx
 {
     public partial class App : Application
@@ -33,139 +34,75 @@ namespace Opx
 
             // Initialize activity tracking
             _lastActivityTime = DateTime.Now;
-            StartInactivityTimer();
         }
 
-        private void StartInactivityTimer()
-        {
-            // Check every 30 seconds, but use a more reasonable interval
-            _inactivityTimer = new Timer(CheckInactivity, null, TimeSpan.FromSeconds(1000), TimeSpan.FromSeconds(1000));
-        }
+        public void ResetInactivityTimer() { }
 
-        private void CheckInactivity(object state)
-        {
-            if (_isAppSleeping || !IsUserLoggedIn) return;
+        public void NavigateToLogin() => MainPage = new LoginPage();
 
-            var timeSinceLastActivity = DateTime.Now - _lastActivityTime;
-            if (timeSinceLastActivity >= _inactivityTimeout && !_sessionExpired)
-            {
-                Device.BeginInvokeOnMainThread(() =>
-                {
-                    PutAppToSleep();
-                });
-            }
-        }
+        public void OnUserLoggedIn() => IsUserLoggedIn = true;
 
-        private void PutAppToSleep()
-        {
-            if (_isAppSleeping || _sessionExpired) return;
-
-            _isAppSleeping = true;
-            _sessionExpired = true;
-            IsUserLoggedIn = false;
-
-            // Stop the timer to prevent multiple triggers
-            _inactivityTimer?.Dispose();
-
-            // Navigate back to login page
-            MainPage = new LoginPage();
-
-            // Show session expired message
-            Device.BeginInvokeOnMainThread(async () =>
-            {
-                try
-                {
-                    await Application.Current.MainPage.DisplayAlert(
-                        "Session Expired",
-                        "Your session has expired due to inactivity. Please log in again.",
-                        "OK");
-                }
-                catch (Exception ex)
-                {
-                    // Log the error but don't crash the app
-                    System.Diagnostics.Debug.WriteLine($"Error showing session expired alert: {ex.Message}");
-                }
-            });
-        }
-
-        public void ResetInactivityTimer()
-        {
-            _lastActivityTime = DateTime.Now;
-            if (_isAppSleeping)
-            {
-                _isAppSleeping = false;
-            }
-        }
-
-        // Call this method to navigate from TempPage to LoginPage
-        public void NavigateToLogin()
-        {
-            MainPage = new LoginPage();
-        }
-
-        // Call this method when user successfully logs in
-        public void OnUserLoggedIn()
-        {
-            IsUserLoggedIn = true;
-            _sessionExpired = false;
-            _isAppSleeping = false;
-            ResetInactivityTimer();
-
-            // Restart timer if it was disposed
-            if (_inactivityTimer == null)
-            {
-                StartInactivityTimer();
-            }
-        }
-
-        // Call this method when user logs out
         public void OnUserLoggedOut()
         {
             IsUserLoggedIn = false;
-            _sessionExpired = false;
-            _isAppSleeping = false;
-            _inactivityTimer?.Dispose();
-            _inactivityTimer = null;
             MainPage = new LoginPage();
-        }
-
-        protected override void OnStart()
-        {
-            ResetInactivityTimer();
         }
 
         protected override void OnSleep()
         {
-            // App is going to background
-            _inactivityTimer?.Dispose();
-            _inactivityTimer = null;
+            // Minimised / sent to background: keep the latest details and cookie so the next launch signs in automatically.
+            _ = SessionStore.SaveAsync();
         }
-
-
 
         protected override void OnResume()
         {
-            // App is coming back to foreground
-            if (_sessionExpired)
+            // Back in the foreground: quietly refresh the card and recent transactions. No logout, no login screen.
+            if (!string.IsNullOrWhiteSpace(LoginPage.myemail))
+                _ = Home.NotifyReturnedAsync();
+        }
+    }
+
+    public class SessionSplashPage : ContentPage
+    {
+        public SessionSplashPage()
+        {
+            BackgroundColor = Color.FromArgb("#F4F5FB");
+            Content = new VerticalStackLayout
             {
-                // Only force login if session actually expired due to inactivity
-                MainPage = new LoginPage();
-                _sessionExpired = false;
-            }
-            else if (IsUserLoggedIn)
-            {
-                // User is still logged in, just restart the inactivity timer
-                ResetInactivityTimer();
-                StartInactivityTimer();
-            }
-            // If user is not logged in but session hasn't expired, 
-            // they're probably already on the login page, so do nothing
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Center,
+                Spacing = 14,
+                Children =
+                {
+                    new ActivityIndicator { IsRunning = true, Color = Color.FromArgb("#6B4CE6"), HeightRequest = 40, WidthRequest = 40 },
+                    new Label { Text = "Signing you in...", TextColor = Color.FromArgb("#7A8099"), FontSize = 14, HorizontalOptions = LayoutOptions.Center }
+                }
+            };
+            Loaded += async (_, _) => await RestoreAsync();
         }
 
-        // Clean up resources when app is terminating
-        ~App()
+        private async Task RestoreAsync()
         {
-            _inactivityTimer?.Dispose();
+            Page next;
+            try
+            {
+                var restore = SessionStore.TryRestoreAsync();
+                // On a slow network don't hold the user on the splash: the saved details are already loaded in memory.
+                var finished = await Task.WhenAny(restore, Task.Delay(800));
+                var result = finished == restore ? await restore : SessionRestoreResult.Restored;
+
+                next = result == SessionRestoreResult.Restored ? new Home() : new LoginPage();
+                if (IsUserLoggedInResult(result)) App.IsUserLoggedIn = true;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Splash restore error: {ex.Message}");
+                next = new LoginPage();
+            }
+
+            await MainThread.InvokeOnMainThreadAsync(() => Application.Current!.MainPage = next);
         }
+
+        private static bool IsUserLoggedInResult(SessionRestoreResult r) => r == SessionRestoreResult.Restored;
     }
 }
