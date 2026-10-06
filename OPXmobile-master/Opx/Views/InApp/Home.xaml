@@ -69,8 +69,8 @@
                 <Grid x:Name="PageGrid" RowDefinitions="Auto,*" RowSpacing="0" VerticalOptions="Fill">
 
                     <!-- ═════════ Header ═════════ -->
-                    <Border x:Name="HeaderGrid" Grid.Row="0"
-                        StrokeThickness="0"             BackgroundColor="#8E44AD"
+                    <Border x:Name="HeaderGrid" Grid.Row="0"                                       
+                        StrokeThickness="0"             BackgroundColor="#8E44AD"      HeightRequest="130" 
                         Padding="{DynamicResource HeaderPad}"
                         StrokeShape="RoundRectangle 0,0,22,22">
 
@@ -116,7 +116,7 @@
 
                         <!-- ═════════ Virtual account card (overlaps header) · centered, fills the content width ═════════ -->
                         <Border x:Name="EscrowCard" Grid.Row="0" Margin="0"
-                            HorizontalOptions="Fill" VerticalOptions="Fill"
+                            HorizontalOptions="StartAndExpand" VerticalOptions="Fill"            WidthRequest="400"
                             Stroke="#33FFFFFF" StrokeThickness="1" Padding="0"
                             StrokeShape="RoundRectangle 24">
                             <Border.Background>

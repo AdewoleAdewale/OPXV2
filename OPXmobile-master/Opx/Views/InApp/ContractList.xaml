@@ -2,529 +2,463 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Opx.Views.ContractList"
-             xmlns:extensions="clr-namespace:Microsoft.Maui.Controls;assembly=Microsoft.Maui.Controls"  
+             xmlns:extensions="clr-namespace:Microsoft.Maui.Controls;assembly=Microsoft.Maui.Controls"
              xmlns:renderers="clr-namespace:Opx.Renderers"
              xmlns:views="clr-namespace:Opx.Views"
-             BackgroundColor="White"
-              NavigationPage.HasNavigationBar="False"
+             BackgroundColor="#F4F5FB"
+             NavigationPage.HasNavigationBar="False"
              Padding="0,-30,0,0">
-
-    <!-- Main ContentPage Background Gradient -->
-    <ContentPage.Background>
-        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Color="White" Offset="0.0" />
-            <GradientStop Color="WhiteSmoke" Offset="0.5" />
-            <GradientStop Color="WhiteSmoke" Offset="1.0" />
-        </LinearGradientBrush>
-    </ContentPage.Background>
 
     <ContentPage.Resources>
         <ResourceDictionary>
-            <!-- Dark Theme Styles -->
-            <Style x:Key="HeaderLabelStyle" TargetType="Label">
-                <Setter Property="FontSize" Value="18" />
-                <Setter Property="FontAttributes" Value="Bold" />
-                <Setter Property="TextColor" Value="Purple" />
-                <Setter Property="HorizontalOptions" Value="Start" />
-                <Setter Property="VerticalOptions" Value="Center" />
-            </Style>
 
-            <Style x:Key="SubHeaderLabelStyle" TargetType="Label">
-                <Setter Property="FontSize" Value="14" />
-                <Setter Property="FontAttributes" Value="None" />
-                <Setter Property="TextColor" Value="Purple" />
-                <Setter Property="HorizontalOptions" Value="Start" />
-                <Setter Property="VerticalOptions" Value="Center" />
-            </Style>
+            <!-- Palette (matches Home) -->
+            <Color x:Key="Ink">#161A2E</Color>
+            <Color x:Key="Muted">#7A8099</Color>
+            <Color x:Key="Brand">#6B4CE6</Color>
+            <Color x:Key="BrandSoft">#F1EEFF</Color>
+            <Color x:Key="Line">#ECEEF6</Color>
+            <Color x:Key="Field">#F4F5FB</Color>
 
+            <!-- Text styles -->
             <Style x:Key="TransactionTitleStyle" TargetType="Label">
-                <Setter Property="FontSize" Value="16" />
+                <Setter Property="FontSize" Value="15" />
                 <Setter Property="FontAttributes" Value="Bold" />
-                <Setter Property="TextColor" Value="White" />
+                <Setter Property="TextColor" Value="{StaticResource Ink}" />
                 <Setter Property="LineBreakMode" Value="TailTruncation" />
+                <Setter Property="MaxLines" Value="1" />
             </Style>
 
             <Style x:Key="TransactionSubtitleStyle" TargetType="Label">
-                <Setter Property="FontSize" Value="12" />
-                <Setter Property="FontAttributes" Value="None" />
-                <Setter Property="TextColor" Value="#B0B0B0" />
+                <Setter Property="FontSize" Value="11" />
+                <Setter Property="TextColor" Value="{StaticResource Muted}" />
                 <Setter Property="LineBreakMode" Value="TailTruncation" />
+                <Setter Property="MaxLines" Value="1" />
             </Style>
 
             <Style x:Key="AmountLabelStyle" TargetType="Label">
-                <Setter Property="FontSize" Value="16" />
+                <Setter Property="FontSize" Value="15" />
                 <Setter Property="FontAttributes" Value="Bold" />
                 <Setter Property="HorizontalOptions" Value="End" />
                 <Setter Property="VerticalOptions" Value="Center" />
             </Style>
 
-            <Style x:Key="StatusLabelStyle" TargetType="Label">
-                <Setter Property="FontSize" Value="12" />
-                <Setter Property="FontAttributes" Value="None" />
-                <Setter Property="TextColor" Value="#4CAF50" />
-                <Setter Property="HorizontalOptions" Value="End" />
+            <Style x:Key="FieldCaptionStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="9" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="CharacterSpacing" Value="1" />
+                <Setter Property="TextColor" Value="{StaticResource Muted}" />
+            </Style>
+
+            <Style x:Key="DetailKeyStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="11" />
+                <Setter Property="TextColor" Value="{StaticResource Muted}" />
                 <Setter Property="VerticalOptions" Value="Center" />
             </Style>
 
-            <!-- Enhanced Search Entry Style -->
+            <Style x:Key="DetailValueStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="TextColor" Value="{StaticResource Ink}" />
+                <Setter Property="HorizontalTextAlignment" Value="End" />
+                <Setter Property="HorizontalOptions" Value="End" />
+                <Setter Property="VerticalOptions" Value="Center" />
+                <Setter Property="LineBreakMode" Value="TailTruncation" />
+                <Setter Property="MaxLines" Value="1" />
+            </Style>
+
+            <!-- Inputs sit on soft fields inside the filter card -->
             <Style x:Key="SearchEntryStyle" TargetType="Entry">
-                <Setter Property="BackgroundColor" Value="White" />
-                <Setter Property="TextColor" Value="Black" />
-                <Setter Property="PlaceholderColor" Value="#A25AC4" />
-                <Setter Property="HeightRequest" Value="50" />
-                <Setter Property="FontSize" Value="16" />
+                <Setter Property="BackgroundColor" Value="Transparent" />
+                <Setter Property="TextColor" Value="{StaticResource Ink}" />
+                <Setter Property="PlaceholderColor" Value="{StaticResource Muted}" />
+                <Setter Property="HeightRequest" Value="48" />
+                <Setter Property="FontSize" Value="14" />
                 <Setter Property="Margin" Value="0" />
             </Style>
 
             <Style x:Key="PickerStyle" TargetType="Picker">
-                <Setter Property="BackgroundColor" Value="White" />
-                <Setter Property="TextColor" Value="Black" />
-                <Setter Property="TitleColor" Value="Purple" />
-                <Setter Property="HeightRequest" Value="45" />
+                <Setter Property="BackgroundColor" Value="Transparent" />
+                <Setter Property="TextColor" Value="{StaticResource Ink}" />
+                <Setter Property="TitleColor" Value="{StaticResource Muted}" />
+                <Setter Property="HeightRequest" Value="46" />
                 <Setter Property="FontSize" Value="14" />
             </Style>
 
-            <!-- Updated DatePicker Style -->
             <Style x:Key="DatePickerStyle" TargetType="DatePicker">
-                <Setter Property="BackgroundColor" Value="White" />
-                <Setter Property="TextColor" Value="Purple" />
-                <Setter Property="HeightRequest" Value="45" />
-                <Setter Property="FontSize" Value="14" />
+                <Setter Property="BackgroundColor" Value="Transparent" />
+                <Setter Property="TextColor" Value="{StaticResource Ink}" />
+                <Setter Property="HeightRequest" Value="40" />
+                <Setter Property="FontSize" Value="13" />
             </Style>
 
-            <!-- Expander Header Style -->
             <Style x:Key="ExpanderHeaderStyle" TargetType="Label">
                 <Setter Property="FontSize" Value="14" />
                 <Setter Property="FontAttributes" Value="Bold" />
-                <Setter Property="TextColor" Value="White" />
+                <Setter Property="TextColor" Value="{StaticResource Ink}" />
                 <Setter Property="VerticalOptions" Value="Center" />
             </Style>
 
-            <!-- Add converter for boolean visibility -->
+            <Style x:Key="ActionButtonStyle" TargetType="Button">
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="HeightRequest" Value="42" />
+                <Setter Property="CornerRadius" Value="14" />
+                <Setter Property="Padding" Value="8,0" />
+                <Setter Property="BorderWidth" Value="0" />
+                <Setter Property="HorizontalOptions" Value="FillAndExpand" />
+            </Style>
+
             <renderers:BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+            <renderers:StatusToColorConverter x:Key="StatusToColorConverter" />
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <Grid BackgroundColor="Transparent">
-        <!-- Header with Gradient Background -->
-        <StackLayout VerticalOptions="Start" BackgroundColor="Transparent" Padding="20,50,20,20">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+    <Grid BackgroundColor="Transparent" RowDefinitions="Auto,*" RowSpacing="0">
 
-                <!-- Back Button -->
-                <Button Grid.Column="0" 
-                        ImageSource="back.png"
-                        FontSize="20" 
-                        FontAttributes="Bold"
-                        TextColor="White" 
-                        BackgroundColor="Transparent"
-                        BorderWidth="0"
-                        Padding="0"
-                        Margin="0,0,15,0"
-                        WidthRequest="30"
-                        HeightRequest="30"
+        <!-- ═════════ Header ═════════ -->
+        <Border Grid.Row="0" StrokeThickness="0" Padding="20,58,20,24"
+                StrokeShape="RoundRectangle 0,0,26,26">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#8E44AD" Offset="0.0" />
+                    <GradientStop Color="#6B4CE6" Offset="1.0" />
+                </LinearGradientBrush>
+            </Border.Background>
+            <Border.Shadow>
+                <Shadow Brush="#2B1B7A" Opacity="0.18" Radius="14" Offset="0,6" />
+            </Border.Shadow>
+
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                <!-- Back -->
+                <Button Grid.Column="0"
                         x:Name="BackButton"
-                        Clicked="BackButton_Clicked"/>
+                        ImageSource="back.png"
+                        BackgroundColor="#33FFFFFF"
+                        BorderWidth="0"
+                        CornerRadius="22"
+                        Padding="12"
+                        WidthRequest="44"
+                        HeightRequest="44"
+                        VerticalOptions="Center"
+                        Clicked="BackButton_Clicked" />
 
                 <!-- Title -->
-                <Label Grid.Column="1" 
-                       Text="Transactions" 
-                       Style="{StaticResource HeaderLabelStyle}"/>
+                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="1">
+                    <Label Text="Transactions" FontSize="20" FontAttributes="Bold"
+                           TextColor="White" LineBreakMode="TailTruncation" MaxLines="1" />
+                    <Label Text="{Binding TotalContracts, StringFormat='{0} in total'}"
+                           FontSize="12" TextColor="#CCFFFFFF" />
+                </VerticalStackLayout>
 
-                <!-- Download Button -->
-                <Button Grid.Column="2" 
-                        Text="Download" 
-                        FontSize="14" 
-                        FontAttributes="Bold"
-                        TextColor="White" 
-                        BackgroundColor="Purple"
-                        BorderWidth="0"
+                <!-- Download -->
+                <Button Grid.Column="2"
                         x:Name="DownloadButton"
-                        Clicked="DownloadButton_Clicked_Alternative"/>
+                        Text="Download"
+                        FontSize="12"
+                        FontAttributes="Bold"
+                        TextColor="#3D2493"
+                        BackgroundColor="White"
+                        BorderWidth="0"
+                        CornerRadius="20"
+                        Padding="18,0"
+                        HeightRequest="40"
+                        VerticalOptions="Center"
+                        Clicked="DownloadButton_Clicked_Alternative" />
             </Grid>
-        </StackLayout>
+        </Border>
 
-        <!-- Main Content -->
-        <ScrollView Margin="0,120,0,0" BackgroundColor="Transparent">
-            <StackLayout Spacing="0" BackgroundColor="Transparent">
+        <!-- ═════════ Main content ═════════ -->
+        <ScrollView Grid.Row="1" BackgroundColor="Transparent" VerticalScrollBarVisibility="Never">
+            <StackLayout Spacing="0" BackgroundColor="Transparent" Padding="0,16,0,8">
 
-                <!-- Enhanced Search and Filter Section -->
-                <StackLayout Padding="20,0,20,20" Spacing="15" BackgroundColor="Transparent">
+                <!-- Filter card -->
+                <Border Margin="16,0,16,6" Padding="14" StrokeThickness="1" Stroke="{StaticResource Line}"
+                        BackgroundColor="White" StrokeShape="RoundRectangle 20">
+                    <StackLayout Spacing="12" BackgroundColor="Transparent">
 
-                    <!-- Sophisticated Search Bar -->
-                    <Frame BackgroundColor="White" 
-                           CornerRadius="15" 
-                           Padding="0" 
-                           HeightRequest="50"
-                           HasShadow="True">
-                        <Grid ColumnDefinitions="50,*,50">
-                            <!-- Search Icon -->
-                            <Label Grid.Column="0" 
-                                   Text="🔍" 
-                                   FontSize="18" 
-                                   TextColor="#A25AC4" 
-                                   HorizontalOptions="Center" 
-                                   VerticalOptions="Center"/>
+                        <!-- Search -->
+                        <Border BackgroundColor="{StaticResource Field}" StrokeThickness="0"
+                                Padding="0" StrokeShape="RoundRectangle 14" HeightRequest="48">
+                            <Grid ColumnDefinitions="44,*,44">
+                                <Label Grid.Column="0" Text="🔍" FontSize="16"
+                                       HorizontalOptions="Center" VerticalOptions="Center" />
+                                <Entry Grid.Column="1"
+                                       x:Name="SearchEntry"
+                                       Placeholder="Search description, name or amount"
+                                       Style="{StaticResource SearchEntryStyle}"
+                                       TextChanged="SearchEntry_TextChanged" />
+                                <Button Grid.Column="2"
+                                        x:Name="ClearSearchButton"
+                                        Text="✕"
+                                        FontSize="14"
+                                        TextColor="{StaticResource Muted}"
+                                        BackgroundColor="Transparent"
+                                        BorderWidth="0"
+                                        Padding="0"
+                                        Clicked="ClearSearchButton_Clicked" />
+                            </Grid>
+                        </Border>
 
-                            <!-- Search Entry -->
-                            <Entry Grid.Column="1" 
-                                   x:Name="SearchEntry" 
-                                   Placeholder="Search transactions, amounts, or descriptions..." 
-                                   Style="{StaticResource SearchEntryStyle}"
-                                   TextChanged="SearchEntry_TextChanged"/>
+                        <!-- Status -->
+                        <Border BackgroundColor="{StaticResource Field}" StrokeThickness="0"
+                                Padding="14,2" StrokeShape="RoundRectangle 14">
+                            <VerticalStackLayout Spacing="0">
+                                <Label Text="STATUS" Style="{StaticResource FieldCaptionStyle}" Margin="0,8,0,0" />
+                                <Picker x:Name="StatusPicker"
+                                        Title="Filter by transaction status"
+                                        Style="{StaticResource PickerStyle}"
+                                        SelectedIndexChanged="StatusPicker_SelectedIndexChanged">
+                                    <Picker.ItemsSource>
+                                        <x:Array Type="{x:Type x:String}">
+                                            <x:String>All Status</x:String>
+                                            <x:String>Confirmed</x:String>
+                                            <x:String>Pending</x:String>
+                                            <x:String>Successful</x:String>
+                                            <x:String>Failed</x:String>
+                                            <x:String>Cancelled</x:String>
+                                        </x:Array>
+                                    </Picker.ItemsSource>
+                                </Picker>
+                            </VerticalStackLayout>
+                        </Border>
 
-                            <!-- Clear Button -->
-                            <Button Grid.Column="2" 
-                                    Text="✕" 
-                                    FontSize="16" 
-                                    TextColor="#A25AC4" 
-                                    BackgroundColor="Transparent"
-                                    BorderWidth="0"
-                                    Padding="0"
-                                    x:Name="ClearSearchButton"
-                                    Clicked="ClearSearchButton_Clicked"/>
+                        <!-- Date range -->
+                        <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="8">
+                            <Border Grid.Column="0" BackgroundColor="{StaticResource Field}" StrokeThickness="0"
+                                    Padding="14,2" StrokeShape="RoundRectangle 14">
+                                <VerticalStackLayout Spacing="0">
+                                    <Label Text="FROM" Style="{StaticResource FieldCaptionStyle}" Margin="0,8,0,0" />
+                                    <DatePicker x:Name="FromDatePicker"
+                                                Style="{StaticResource DatePickerStyle}"
+                                                DateSelected="FromDatePicker_DateSelected" />
+                                </VerticalStackLayout>
+                            </Border>
+
+                            <Label Grid.Column="1" Text="→" FontSize="16" FontAttributes="Bold"
+                                   TextColor="{StaticResource Brand}" VerticalOptions="Center" />
+
+                            <Border Grid.Column="2" BackgroundColor="{StaticResource Field}" StrokeThickness="0"
+                                    Padding="14,2" StrokeShape="RoundRectangle 14">
+                                <VerticalStackLayout Spacing="0">
+                                    <Label Text="TO" Style="{StaticResource FieldCaptionStyle}" Margin="0,8,0,0" />
+                                    <DatePicker x:Name="ToDatePicker"
+                                                Style="{StaticResource DatePickerStyle}"
+                                                DateSelected="ToDatePicker_DateSelected" />
+                                </VerticalStackLayout>
+                            </Border>
                         </Grid>
-                    </Frame>
+                    </StackLayout>
+                </Border>
 
-                    <!-- Filter Row -->
-                    <Frame HeightRequest="50" 
-                           BackgroundColor="White" 
-                           CornerRadius="10" 
-                           HasShadow="True">
-                        <Picker x:Name="StatusPicker" 
-                                Title="Filter by transaction status" 
-                                BackgroundColor="White"
-                                Style="{StaticResource PickerStyle}"
-                                SelectedIndexChanged="StatusPicker_SelectedIndexChanged">
-                            <Picker.ItemsSource>
-                                <x:Array Type="{x:Type x:String}">
-                                    <x:String>All Status</x:String>
-                                    <x:String>Confirmed</x:String>
-                                    <x:String>Pending</x:String>
-                                    <x:String>Successful</x:String>
-                                    <x:String>Failed</x:String>
-                                    <x:String>Cancelled</x:String>
-                                </x:Array>
-                            </Picker.ItemsSource>
-                        </Picker>
-                    </Frame>
-
-                    <!-- Enhanced Date Range Section -->
-                    <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="10">
-                        <Frame Grid.Column="0" 
-                               BackgroundColor="Purple" 
-                               CornerRadius="10" 
-                               Padding="0" 
-                               HasShadow="True">
-                            <DatePicker x:Name="FromDatePicker" 
-                                       Style="{StaticResource DatePickerStyle}"
-                                       DateSelected="FromDatePicker_DateSelected"/>
-                        </Frame>
-
-                        <Label Grid.Column="1" 
-                               Text="to" 
-                               TextColor="Purple" 
-                               FontSize="16" 
-                               FontAttributes="Bold"
-                               VerticalOptions="Center"/>
-
-                        <Frame Grid.Column="2" 
-                               BackgroundColor="Purple" 
-                               CornerRadius="10" 
-                               Padding="0" 
-                               HasShadow="True">
-                            <DatePicker x:Name="ToDatePicker" 
-                                       Style="{StaticResource DatePickerStyle}"
-                                       DateSelected="ToDatePicker_DateSelected"/>
-                        </Frame>
-                    </Grid>
+                <!-- Loading -->
+                <StackLayout x:Name="LoadingSection" IsVisible="False" Padding="20,28" BackgroundColor="Transparent">
+                    <ActivityIndicator x:Name="LoadingIndicator" IsVisible="False" IsRunning="False"
+                                       Color="{StaticResource Brand}" HeightRequest="36" />
+                    <Label Text="Loading transactions..." FontSize="13" TextColor="{StaticResource Muted}"
+                           HorizontalOptions="Center" Margin="0,10,0,0" />
                 </StackLayout>
 
-                <!-- Loading Indicator -->
-                <StackLayout x:Name="LoadingSection" 
-                            IsVisible="False" 
-                            Padding="20" 
-                            BackgroundColor="Transparent">
-                    <ActivityIndicator x:Name="LoadingIndicator" 
-                                      IsVisible="False" 
-                                      IsRunning="False" 
-                                      Color="Purple" 
-                                      HeightRequest="40"/>
-                    <Label Text="Loading transactions..." 
-                           FontSize="14" 
-                           TextColor="Purple" 
-                           HorizontalOptions="Center" 
-                           Margin="0,10,0,0"/>
+                <!-- Empty state -->
+                <StackLayout x:Name="EmptyStateContainer" IsVisible="False" Padding="24,36"
+                             VerticalOptions="CenterAndExpand" BackgroundColor="Transparent" Spacing="6">
+                    <Border BackgroundColor="{StaticResource BrandSoft}" StrokeThickness="0"
+                            WidthRequest="84" HeightRequest="84" StrokeShape="RoundRectangle 42"
+                            HorizontalOptions="Center" Margin="0,0,0,10">
+                        <Label Text="📋" FontSize="36" HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                    <Label Text="No Transactions Found" FontSize="18" FontAttributes="Bold"
+                           TextColor="{StaticResource Ink}" HorizontalOptions="Center" />
+                    <Label Text="You don't have any transactions yet." FontSize="13"
+                           TextColor="{StaticResource Muted}" HorizontalOptions="Center" />
                 </StackLayout>
 
-                <!-- Empty State -->
-                <StackLayout x:Name="EmptyStateContainer" 
-                            IsVisible="False" 
-                            Padding="20" 
-                            VerticalOptions="CenterAndExpand"
-                            BackgroundColor="Transparent">
-                    <Label Text="📋" 
-                           FontSize="48" 
-                           HorizontalOptions="Center" 
-                           Margin="0,0,0,10"/>
-                    <Label Text="No Transactions Found" 
-                           FontSize="18" 
-                           FontAttributes="Bold" 
-                           TextColor="Purple" 
-                           HorizontalOptions="Center"
-                           Margin="0,0,0,5"/>
-                    <Label Text="You don't have any transactions yet." 
-                           TextColor="Purple" 
-                           FontSize="14" 
-                           HorizontalOptions="Center"/>
+                <!-- Error state -->
+                <StackLayout x:Name="ErrorStateContainer" IsVisible="False" Padding="24,36"
+                             VerticalOptions="CenterAndExpand" BackgroundColor="Transparent" Spacing="6">
+                    <Border BackgroundColor="#FFE4EC" StrokeThickness="0"
+                            WidthRequest="84" HeightRequest="84" StrokeShape="RoundRectangle 42"
+                            HorizontalOptions="Center" Margin="0,0,0,10">
+                        <Label Text="⚠️" FontSize="36" HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                    <Label Text="Unable to Load Transactions" FontSize="18" FontAttributes="Bold"
+                           TextColor="{StaticResource Ink}" HorizontalOptions="Center" />
+                    <Label Text="Please check your internet connection and try again." FontSize="13"
+                           TextColor="{StaticResource Muted}" HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center" />
+                    <Button x:Name="RetryButton" Text="Retry" FontAttributes="Bold" FontSize="13"
+                            BackgroundColor="{StaticResource Brand}" TextColor="White"
+                            CornerRadius="14" HeightRequest="44" Padding="28,0"
+                            HorizontalOptions="Center" Margin="0,12,0,0"
+                            Clicked="RetryButton_Clicked" />
                 </StackLayout>
 
-                <!-- Error State -->
-                <StackLayout x:Name="ErrorStateContainer" 
-                            IsVisible="False" 
-                            Padding="20" 
-                            VerticalOptions="CenterAndExpand"
-                            BackgroundColor="Transparent">
-                    <Label Text="⚠️" 
-                           FontSize="48" 
-                           HorizontalOptions="Center" 
-                           Margin="0,0,0,10"/>
-                    <Label Text="Unable to Load Transactions" 
-                           FontSize="18" 
-                           FontAttributes="Bold" 
-                           TextColor="#E74C3C" 
-                           HorizontalOptions="Center"
-                           Margin="0,0,0,5"/>
-                    <Label Text="Please check your internet connection and try again." 
-                           TextColor="Purple" 
-                           FontSize="14" 
-                           HorizontalOptions="Center"/>
-                    <Button Text="Retry" 
-                           BackgroundColor="White" 
-                           TextColor="#A25AC4" 
-                           CornerRadius="8" 
-                           Margin="0,10,0,0" 
-                           x:Name="RetryButton"
-                           Clicked="RetryButton_Clicked"/>
-                </StackLayout>
-
-                <!-- Transactions List with Accordion/Expander -->
-                <CollectionView x:Name="TransactionsCollectionView" 
-                               ItemsSource="{Binding FilteredTransactions}"
-                               BackgroundColor="Transparent"
-                               SelectionMode="None">
+                <!-- ═════════ Transactions list ═════════ -->
+                <CollectionView x:Name="TransactionsCollectionView"
+                                ItemsSource="{Binding FilteredTransactions}"
+                                BackgroundColor="Transparent"
+                                SelectionMode="None">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <StackLayout Margin="15,5,15,5">
-                                <!-- Main Transaction Frame -->
-                                <Frame Padding="0" 
-                                       CornerRadius="15" 
-                                       HasShadow="True">
-                                    <Frame.Background>
-                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                            <GradientStop Color="Purple" Offset="0.5" />
-                                            <GradientStop Color="Black" Offset="1.0" />
-                                        </LinearGradientBrush>
-                                    </Frame.Background>
+                            <StackLayout Margin="16,6,16,6">
+                                <Border StrokeThickness="1" Stroke="{StaticResource Line}"
+                                        BackgroundColor="White" Padding="0"
+                                        StrokeShape="RoundRectangle 20">
+                                    <Border.Shadow>
+                                        <Shadow Brush="#2B1B7A" Opacity="0.07" Radius="12" Offset="0,4" />
+                                    </Border.Shadow>
 
+                                    <!-- NOTE: header Grid + expandable StackLayout must stay siblings inside this StackLayout
+                                         (ExpandButton_Clicked_Enhanced finds the expandable by Padding 15,0,15,15) -->
                                     <StackLayout Spacing="0">
-                                        <!-- Header (Always Visible) - Tappable -->
-                                        <Grid BackgroundColor="Transparent" 
-                                              Padding="15,10,15,10"
-                                              ColumnDefinitions="50,*,Auto,50">
 
-                                            <!-- Add tap gesture for expanding/collapsing -->
+                                        <!-- Header (always visible) -->
+                                        <Grid BackgroundColor="Transparent"
+                                              Padding="14,14,8,14"
+                                              ColumnDefinitions="Auto,*,Auto,Auto"
+                                              ColumnSpacing="12">
                                             <Grid.GestureRecognizers>
-                                                <TapGestureRecognizer Tapped="OnTransactionTapped" 
-                                                                    CommandParameter="{Binding .}"/>
+                                                <TapGestureRecognizer Tapped="OnTransactionTapped"
+                                                                      CommandParameter="{Binding .}" />
                                             </Grid.GestureRecognizers>
 
-                                            <!-- Transaction Icon -->
-                                            <Frame Grid.Column="0" 
-                                                   BackgroundColor="{Binding CategoryColor}" 
-                                                   CornerRadius="25" 
-                                                   Padding="0" 
-                                                   HeightRequest="50" 
-                                                   WidthRequest="50"
-                                                   HasShadow="False">
-                                                <Label Text="{Binding CategoryIcon}" 
-                                                       FontSize="20" 
-                                                       TextColor="White" 
-                                                       HorizontalOptions="Center" 
-                                                       VerticalOptions="Center"/>
-                                            </Frame>
+                                            <!-- Icon -->
+                                            <Border Grid.Column="0" BackgroundColor="{StaticResource BrandSoft}"
+                                                    StrokeThickness="0" StrokeShape="RoundRectangle 16"
+                                                    HeightRequest="48" WidthRequest="48" VerticalOptions="Center">
+                                                <Label Text="{Binding CategoryIcon}" FontSize="20"
+                                                       HorizontalOptions="Center" VerticalOptions="Center" />
+                                            </Border>
 
-                                            <!-- Transaction Details -->
-                                            <StackLayout Grid.Column="1" 
-                                                         Spacing="2" 
-                                                         VerticalOptions="Center" 
-                                                         Margin="15,0,0,0">
-                                                <Label Text="{Binding Description}" 
-                                                       Style="{StaticResource TransactionTitleStyle}"/>
-                                                <Label Text="{Binding CreatedAt, StringFormat='{0:MMM dd}th, {0:HH:mm:ss}'}" 
-                                                       Style="{StaticResource TransactionSubtitleStyle}"/>
-                                            </StackLayout>
+                                            <!-- Title + date -->
+                                            <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+                                                <Label Text="{Binding Description}"
+                                                       Style="{StaticResource TransactionTitleStyle}" />
+                                                <Label Text="{Binding CreatedAt, StringFormat='{0:dd MMM yyyy  •  HH:mm}'}"
+                                                       Style="{StaticResource TransactionSubtitleStyle}" />
+                                            </VerticalStackLayout>
 
-                                            <!-- Amount and Status -->
-                                            <StackLayout Grid.Column="2" 
-                                                         Spacing="2" 
-                                                         VerticalOptions="Center">
-                                                <Label Text="{Binding FormattedAmount}" 
+                                            <!-- Amount + status chip -->
+                                            <VerticalStackLayout Grid.Column="2" Spacing="5" VerticalOptions="Center"
+                                                                 HorizontalOptions="End">
+                                                <Label Text="{Binding FormattedAmount}"
                                                        Style="{StaticResource AmountLabelStyle}"
-                                                       TextColor="{Binding AmountColor}"/>
-                                                <Label Text="{Binding Status}" 
-                                                       Style="{StaticResource StatusLabelStyle}"/>
-                                            </StackLayout>
+                                                       TextColor="{Binding AmountColor}" />
+                                                <Border BackgroundColor="{StaticResource Field}" StrokeThickness="0"
+                                                        Padding="8,3" StrokeShape="RoundRectangle 10"
+                                                        HorizontalOptions="End">
+                                                    <Label Text="{Binding Status}" FontSize="10" FontAttributes="Bold"
+                                                           TextColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}" />
+                                                </Border>
+                                            </VerticalStackLayout>
 
-                                            <!-- Expand/Collapse Arrow Button -->
-                                            <Button Grid.Column="3" 
-                                                    Text="▼" 
-                                                    FontSize="16" 
-                                                    TextColor="White" 
+                                            <!-- Expand / collapse -->
+                                            <Button Grid.Column="3"
+                                                    x:Name="ExpandButton"
+                                                    Text="▼"
+                                                    FontSize="13"
+                                                    TextColor="{StaticResource Muted}"
                                                     BackgroundColor="Transparent"
                                                     BorderWidth="0"
                                                     Padding="0"
-                                                    HorizontalOptions="Center" 
+                                                    WidthRequest="34"
+                                                    HeightRequest="34"
+                                                    HorizontalOptions="Center"
                                                     VerticalOptions="Center"
-                                                    x:Name="ExpandButton"
                                                     CommandParameter="{Binding .}"
-                                                    Clicked="ExpandButton_Clicked_Enhanced"/>
+                                                    Clicked="ExpandButton_Clicked_Enhanced" />
                                         </Grid>
 
-                                        <!-- Expandable Content (Initially Hidden) -->
-                                        <StackLayout BackgroundColor="Transparent" 
+                                        <!-- Expandable content (initially hidden) -->
+                                        <StackLayout BackgroundColor="Transparent"
                                                      Padding="15,0,15,15"
                                                      x:Name="ExpandableContent"
                                                      IsVisible="False">
 
-                                            <!-- Separator Line -->
-                                            <BoxView BackgroundColor="#444" 
-                                                     HeightRequest="1" 
-                                                     Margin="0,0,0,10"/>
+                                            <BoxView BackgroundColor="{StaticResource Line}" HeightRequest="1" Margin="0,0,0,12" />
 
-                                            <!-- Additional Transaction Details -->
-                                            <Grid ColumnDefinitions="*,*" 
-                                                  RowDefinitions="Auto,Auto,Auto,Auto" 
-                                                  RowSpacing="8" 
-                                                  ColumnSpacing="10">
+                                            <Border BackgroundColor="#F7F6FF" StrokeThickness="0"
+                                                    Padding="14,12" StrokeShape="RoundRectangle 16">
+                                                <Grid ColumnDefinitions="Auto,*"
+                                                      RowDefinitions="Auto,Auto,Auto,Auto"
+                                                      RowSpacing="10" ColumnSpacing="16">
 
-                                                <!-- Transaction ID -->
-                                                <Label Grid.Row="0" Grid.Column="0" 
-                                                       Text="Seller Phone:" 
-                                                       TextColor="#B0B0B0" 
-                                                       FontSize="12"/>
-                                                <Label Grid.Row="0" Grid.Column="1" 
-                                                       Text="{Binding SellerPhone}" 
-                                                       TextColor="White" 
-                                                       FontSize="12"/>
+                                                    <Label Grid.Row="0" Grid.Column="0" Text="Seller phone"
+                                                           Style="{StaticResource DetailKeyStyle}" />
+                                                    <Label Grid.Row="0" Grid.Column="1" Text="{Binding SellerPhone}"
+                                                           Style="{StaticResource DetailValueStyle}" />
 
-                                                <!-- Reference -->
-                                                <Label Grid.Row="1" Grid.Column="0" 
-                                                       Text="Seller Name:" 
-                                                       TextColor="#B0B0B0" 
-                                                       FontSize="12"/>
-                                                <Label Grid.Row="1" Grid.Column="1" 
-                                                       Text="{Binding SellerName}" 
-                                                       TextColor="White" 
-                                                       FontSize="12"/>
+                                                    <Label Grid.Row="1" Grid.Column="0" Text="Seller name"
+                                                           Style="{StaticResource DetailKeyStyle}" />
+                                                    <Label Grid.Row="1" Grid.Column="1" Text="{Binding SellerName}"
+                                                           Style="{StaticResource DetailValueStyle}" />
 
-                                                <!-- Fee -->
-                                                <Label Grid.Row="2" Grid.Column="0" 
-                                                       Text="Contract Token:" 
-                                                       TextColor="#B0B0B0" 
-                                                       FontSize="12"/>
-                                                <Label Grid.Row="2" Grid.Column="1" 
-                                                       Text="{Binding Token}" 
-                                                       x:Name="contarcttoken"
-                                                       TextColor="White" 
-                                                       FontSize="12">
-                                                    <Label.GestureRecognizers>
-                                                        <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"></TapGestureRecognizer>
-                                                    </Label.GestureRecognizers>
-                                                </Label>
+                                                    <Label Grid.Row="2" Grid.Column="0" Text="Contract token"
+                                                           Style="{StaticResource DetailKeyStyle}" />
+                                                    <Label Grid.Row="2" Grid.Column="1" Text="{Binding Token}"
+                                                           x:Name="contarcttoken"
+                                                           Style="{StaticResource DetailValueStyle}"
+                                                           TextColor="{StaticResource Brand}">
+                                                        <Label.GestureRecognizers>
+                                                            <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped" />
+                                                        </Label.GestureRecognizers>
+                                                    </Label>
 
-                                                <!-- Balance -->
-                                                <Label Grid.Row="3" Grid.Column="0" 
-                                                       Text="User Role:" 
-                                                       TextColor="#B0B0B0" 
-                                                       FontSize="12"/>
-                                                <Label Grid.Row="3" Grid.Column="1" 
-                                                       Text="{Binding Role}" 
-                                                       TextColor="White" 
-                                                       FontSize="12"/>
-                                            </Grid>
+                                                    <Label Grid.Row="3" Grid.Column="0" Text="Your role"
+                                                           Style="{StaticResource DetailKeyStyle}" />
+                                                    <Label Grid.Row="3" Grid.Column="1" Text="{Binding Role}"
+                                                           Style="{StaticResource DetailValueStyle}" />
+                                                </Grid>
+                                            </Border>
 
-                                            <!-- Action Buttons -->
-                                            <StackLayout Orientation="Horizontal" 
-                                                         Spacing="10" 
-                                                         Margin="0,15,0,0"
-                                                         HorizontalOptions="EndAndExpand">
+                                            <Label Text="Tap the token to copy it" FontSize="10"
+                                                   TextColor="{StaticResource Muted}" HorizontalOptions="Center"
+                                                   Margin="0,8,0,0" />
 
-                                                <Button 
-                                                        BackgroundColor="Transparent"
-                                                         IsVisible="{Binding ShowPendingActions}"
-                                                        Text="📈"
-                                                         FontSize="25"
-                                                        HeightRequest="50"
-                                                        Padding="15,8"
-                                                        CornerRadius="10"
+                                            <!-- Actions -->
+                                            <StackLayout Orientation="Horizontal" Spacing="8" Margin="0,12,0,0"
+                                                         HorizontalOptions="FillAndExpand">
+
+                                                <Button Style="{StaticResource ActionButtonStyle}"
+                                                        IsVisible="{Binding ShowPendingActions}"
+                                                        Text="📈  Verify"
+                                                        BackgroundColor="#EEE9FF"
+                                                        TextColor="#3D2493"
                                                         CommandParameter="{Binding .}"
-                                                        Clicked="VerifyButton_Clicked"/>
+                                                        Clicked="VerifyButton_Clicked" />
 
-                                                <Button 
-                                                        BackgroundColor="Transparent"
-                                                        
-                                                        FontSize="25"
-                                                        Text="📝"
-                                                        HeightRequest="70"
-                                                    
-                                                        Padding="15,8"
-                                                        CornerRadius="10"
+                                                <Button Style="{StaticResource ActionButtonStyle}"
+                                                        Text="📝  Dispute"
+                                                        BackgroundColor="#FFE4EC"
+                                                        TextColor="#B4234F"
                                                         CommandParameter="{Binding .}"
-                                                        Clicked="DisputeButton_Clicked"/>
+                                                        Clicked="DisputeButton_Clicked" />
 
-                                                <Button 
-
-BackgroundColor="Transparent"
-   Text="✅"
-                                                    
-                                                    TextColor="White"
- FontSize="25"
-HeightRequest="50"
-Padding="15,8"
-                                        Clicked="ViewDetailsButton_Clicked"
-CornerRadius="10"
-CommandParameter="{Binding .}"/>
-
-
+                                                <Button Style="{StaticResource ActionButtonStyle}"
+                                                        Text="✅  Details"
+                                                        BackgroundColor="{StaticResource Brand}"
+                                                        TextColor="White"
+                                                        CommandParameter="{Binding .}"
+                                                        Clicked="ViewDetailsButton_Clicked" />
                                             </StackLayout>
-
-                                           
                                         </StackLayout>
                                     </StackLayout>
-                                </Frame>
+                                </Border>
                             </StackLayout>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
 
-                <!-- Footer Summary -->
-                <StackLayout Padding="20" BackgroundColor="Transparent">
-                    <Label Text="{Binding Summary}" 
-                           TextColor="Purple" 
-                           FontSize="12" 
-                           FontAttributes="Bold" 
-                           HorizontalOptions="Center"/>
-                    <Label Text="{Binding TotalContracts, StringFormat='Total: {0} transactions'}" 
-                           TextColor="Purple" 
-                           FontSize="11" 
-                           HorizontalOptions="Center" 
-                           Margin="0,5,0,0"/>
-                </StackLayout>
+                <!-- Footer summary -->
+                <Border Margin="16,10,16,24" Padding="16,12" StrokeThickness="1" Stroke="{StaticResource Line}"
+                        BackgroundColor="White" StrokeShape="RoundRectangle 16">
+                    <StackLayout BackgroundColor="Transparent" Spacing="3">
+                        <Label Text="{Binding Summary}" TextColor="{StaticResource Ink}" FontSize="12"
+                               FontAttributes="Bold" HorizontalOptions="Center" HorizontalTextAlignment="Center" />
+                        <Label Text="{Binding TotalContracts, StringFormat='Total: {0} transactions'}"
+                               TextColor="{StaticResource Muted}" FontSize="11" HorizontalOptions="Center" />
+                    </StackLayout>
+                </Border>
             </StackLayout>
         </ScrollView>
     </Grid>

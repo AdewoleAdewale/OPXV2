@@ -92,12 +92,7 @@ public partial class Home : ContentPage
 
             StartPageAnimations();
             AddPullToRefresh();
-            // KYC → BVN → virtual account: only when the account number is null/empty.
-            // If an account number already exists, neither the BVN pop-up nor the KYC form is shown.
-            if (string.IsNullOrWhiteSpace(LoginPage.accountNumber))
-            {
-                _ = AccountOnboarding.CheckAndPromptAsync(this);
-            }
+            // KYC prompt is triggered from OnAppearing (the page is attached to the navigation stack by then).
         }
         catch (Exception ex)
         {
@@ -651,8 +646,30 @@ public partial class Home : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
+        _ = PromptKycIfNoAccountAsync();   // no account number yet -> open the KYC form
         if (!_hasAppearedOnce) { _hasAppearedOnce = true; return; }   // first show: the constructor already loaded everything
         _ = RefreshOnReturnAsync();
+    }
+
+    // Opens the KYC form (which leads to BVN verification) when the user has no account number.
+    // Shown once per app run (_kycPromptedThisRun is reset on logout); never shown when an account number exists.
+    private async Task PromptKycIfNoAccountAsync()
+    {
+        try
+        {
+            if (!string.IsNullOrWhiteSpace(LoginPage.accountNumber)) return;
+            if (_kycPromptedThisRun) return;
+            _kycPromptedThisRun = true;
+
+            await Task.Delay(600);   // let Home finish rendering before the modal opens
+            if (!string.IsNullOrWhiteSpace(LoginPage.accountNumber)) return;
+
+            await MainThread.InvokeOnMainThreadAsync(ShowKycFormPopup);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"KYC prompt error: {ex.Message}");
+        }
     }
 
     public async Task RefreshOnReturnAsync()
