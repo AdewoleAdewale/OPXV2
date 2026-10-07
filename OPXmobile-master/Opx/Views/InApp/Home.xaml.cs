@@ -50,6 +50,16 @@ public partial class Home : ContentPage
         public required string BuyerName { get; set; }
         public required string BuyerPhone { get; set; }
         public required string Role { get; set; }
+        public string Initials
+        {
+            get
+            {
+                var words = (Description ?? "").Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                if (words.Length == 0) return "•";
+                var s = words.Length == 1 ? words[0][..Math.Min(2, words[0].Length)] : $"{words[0][0]}{words[1][0]}";
+                return s.ToUpperInvariant();
+            }
+        }
     }
 
     class HistoryDataHeaderFooter
@@ -68,18 +78,20 @@ public partial class Home : ContentPage
             _current = new WeakReference<Home>(this);
             DashBoard.Attach(this, DashTab.Home);   // curved gradient tab bar
 
-            dashbaordusername.Text = "Hello," + " " + (LoginPage.myfullname ?? "").Substring(0, Math.Min(15, (LoginPage.myfullname ?? "").Length)) + " " + "";
+            dashbaordusername.Text = (LoginPage.myfullname ?? "").Substring(0, Math.Min(15, (LoginPage.myfullname ?? "").Length));
             //StartEllipseAnimation();
             BalanceLabel.Text = "₦" + LoginPage.availableBalance;
             AmountLabel.Text = "₦" + LoginPage.ledgerBalance;
-            QuickFundsButton.Text = "COMPLETED: " + LoginPage.completedTransactions;
+            QuickFundsButton.Text = $"{LoginPage.completedTransactions}";
             if (!string.IsNullOrEmpty(LoginPage.pendingTransactions))
                 System.Diagnostics.Debug.WriteLine($"Pending: {LoginPage.pendingTransactions}");
-            TransferButton.Text = "TOTAL: " + LoginPage.totalTransactions;
+            TransferButton.Text = $"{LoginPage.totalTransactions}";
+            PendingLabel.Text = string.IsNullOrEmpty(LoginPage.pendingTransactions) ? "0" : LoginPage.pendingTransactions;
             createContract = new CreateContract();
             cardaccountNumber.Text = LoginPage.accountNumber;
             cardAccountname.Text = LoginPage.myfullname;
             cardExiprydate.Text = LoginPage.bankName;
+            UpdateHeaderExtras();
             if (!_transactionsLoaded)
             {
                 LoadingRecentTransactions();
@@ -349,7 +361,8 @@ public partial class Home : ContentPage
 
             QuickMenuStack.Opacity = 0;
             QuickMenuStack.TranslationX = -100;
-
+            QuickMenuStack2.Opacity = 0;
+            QuickMenuStack2.TranslationX = -100;
             TransactionLogStack.Opacity = 0;
             TransactionLogStack.TranslationY = 100;
 
@@ -373,7 +386,9 @@ public partial class Home : ContentPage
             var quickMenuAnimations = new Task[]
             {
                 QuickMenuStack.FadeTo(1, 600),
-                QuickMenuStack.TranslateTo(0, 0, 500, Easing.CubicOut)
+                QuickMenuStack.TranslateTo(0, 0, 500, Easing.CubicOut) ,
+                   QuickMenuStack2.FadeTo(1, 600),
+                QuickMenuStack2.TranslateTo(0, 0, 500, Easing.CubicOut)
             };
             await Task.WhenAll(quickMenuAnimations);
 
@@ -456,6 +471,7 @@ public partial class Home : ContentPage
         {
             EscrowCard.FadeTo(0, 300),
             QuickMenuStack.FadeTo(0, 300),
+            QuickMenuStack2.FadeTo(0, 300),
             TransactionLogStack.FadeTo(0, 300)
         };
 
@@ -465,6 +481,7 @@ public partial class Home : ContentPage
         {
             EscrowCard.ScaleTo(0.5, 200),
             QuickMenuStack.ScaleTo(0.5, 200),
+            QuickMenuStack2.ScaleTo(0.5, 200),
             TransactionLogStack.ScaleTo(0.5, 200)
         };
 
@@ -693,15 +710,52 @@ public partial class Home : ContentPage
         }
     }
 
+    /// <summary>Greeting, initials avatar and the two status pills in the new header layout.</summary>
+    private void UpdateHeaderExtras()
+    {
+        try
+        {
+            var parts = (LoginPage.myfullname ?? "").Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            AvatarInitials.Text = parts.Length switch
+            {
+                0 => "U",
+                1 => char.ToUpperInvariant(parts[0][0]).ToString(),
+                _ => $"{char.ToUpperInvariant(parts[0][0])}{char.ToUpperInvariant(parts[1][0])}"
+            };
+
+            int hour = DateTime.Now.Hour;
+            GreetingLabel.Text = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+
+            bool hasAccount = !string.IsNullOrWhiteSpace(LoginPage.accountNumber);
+            SetPill(AccountPill, AccountPillLabel, hasAccount ? "Account active" : "No account yet", hasAccount);
+
+            bool online = Microsoft.Maui.Networking.Connectivity.Current.NetworkAccess == Microsoft.Maui.Networking.NetworkAccess.Internet;
+            SetPill(NetworkPill, NetworkPillLabel, online ? "Online" : "Offline", online);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Header extras error: {ex.Message}");
+        }
+    }
+
+    private static void SetPill(Border pill, Label label, string text, bool ok)
+    {
+        label.Text = text;
+        pill.BackgroundColor = Color.FromArgb(ok ? "#E3F6EC" : "#FFF0DC");
+        label.TextColor = Color.FromArgb(ok ? "#1A8F5F" : "#B26A00");
+    }
+
     private void ApplyCardState()
     {
         BalanceLabel.Text = "₦" + LoginPage.availableBalance;
         AmountLabel.Text = "₦" + LoginPage.ledgerBalance;
-        QuickFundsButton.Text = "COMPLETED: " + LoginPage.completedTransactions;
-        TransferButton.Text = "TOTAL: " + LoginPage.totalTransactions;
+        QuickFundsButton.Text = $"{LoginPage.completedTransactions}";
+        TransferButton.Text = $"{LoginPage.totalTransactions}";
         cardaccountNumber.Text = LoginPage.accountNumber;
         cardAccountname.Text = LoginPage.myfullname;
         cardExiprydate.Text = LoginPage.bankName;
+        PendingLabel.Text = string.IsNullOrEmpty(LoginPage.pendingTransactions) ? "0" : LoginPage.pendingTransactions;
+        UpdateHeaderExtras();
     }
 
     private async Task FetchSummaryAndRecentAsync()
@@ -739,8 +793,10 @@ public partial class Home : ContentPage
         {
             BalanceLabel.Text = "₦" + summary.AvailableBalance;
             AmountLabel.Text = "₦" + summary.LedgerBalance;
-            QuickFundsButton.Text = "COMPLETED: " + summary.Completed;
-            TransferButton.Text = "TOTAL: " + summary.Total;
+            QuickFundsButton.Text = $"{summary.Completed}";
+            TransferButton.Text = $"{summary.Total}";
+            PendingLabel.Text = $"{summary.Pending}";
+            UpdateHeaderExtras();
         });
     }
 
@@ -785,6 +841,12 @@ public partial class Home : ContentPage
     }
 
     // ═════════ Responsive layout (all Android widths / heights) ═════════
+    // Layout units here are dp, so they already normalise pixel density.
+    // Baseline: a 5.5" Android phone is ~360dp wide. At 360dp or wider the card renders at its full intended
+    // size; on narrower phones every card metric (fonts, padding, gaps, logo, button) shrinks proportionally.
+    private const double RefWidthDp = 360;          // width at which the design is 1:1
+    private const double MaxContentWidthDp = 440;   // content column cap on big phones / tablets / landscape
+    private const double MinScale = 0.78;           // never shrink the card below 78 %
     private double _lastW, _lastH;
 
     protected override void OnSizeAllocated(double width, double height)
@@ -794,29 +856,45 @@ public partial class Home : ContentPage
         if (Math.Abs(width - _lastW) < 1 && Math.Abs(height - _lastH) < 1) return;
         _lastW = width; _lastH = height;
 
-        bool veryNarrow = width < 330;   // small phones / large font scale
-        bool narrow = width < 360;
         bool tiny = height < 580;        // split-screen, very short displays
         bool shortScreen = height < 680;
-        bool compact = narrow || shortScreen;
+
+        // One centred column holds everything (card, tiles, summary, banner, list), so every block
+        // shares the same left/right edge and the card is always centred.
+        double contentW = Math.Min(width, MaxContentWidthDp);
+        double s = Math.Clamp(contentW / RefWidthDp, MinScale, 1.0);
+        double Sc(double v, double min = 0) => Math.Max(min, Math.Round(v * s, 1));
 
         var r = Resources;
-        r["HeroFont"] = veryNarrow ? 24d : narrow ? 26d : 30d;
-        r["AcctFont"] = veryNarrow ? 17d : narrow ? 19d : 22d;
-        r["ValueFont"] = narrow ? 13d : 14d;
-        r["TileBox"] = narrow ? 38d : 44d;
-        r["TileImg"] = narrow ? 20d : 22d;
+
+        // ── Virtual card (scales proportionally) ──
+        r["HeroFont"] = Sc(34, 24);
+        r["AcctFont"] = Sc(22, 16);
+        r["CardBody"] = Sc(13, 11);
+        r["CardSmall"] = Sc(11, 9);
+        r["CardCaption"] = Sc(10, 8);
+        r["CardMicro"] = Sc(9, 8);
+        r["CardIcon"] = Sc(18, 15);
+        r["CardLogo"] = Sc(28, 22);
+        r["CardBtnH"] = Sc(42, 36);
+        r["CardGap"] = shortScreen ? Sc(12, 9) : Sc(16, 12);
+        double padV = shortScreen ? 16 : 20;
+        r["CardPad"] = new Thickness(Sc(22, 16), Sc(padV, 12), Sc(22, 16), Sc(padV + 2, 14));
+
+        // ── Rest of the page ──
+        r["ValueFont"] = Sc(16, 13);
+        r["StatFont"] = Sc(20, 16);
+        r["TileBox"] = Sc(44, 36);
+        r["TileImg"] = Sc(22, 18);
         r["TilePad"] = new Thickness(0, shortScreen ? 10 : 14);
         r["BlockGap"] = tiny ? 10d : shortScreen ? 14d : 18d;
-        r["CardGap"] = shortScreen ? 10d : 16d;
-        r["BannerImg"] = narrow ? 48d : 64d;
-        r["CardPad"] = compact ? new Thickness(18, 16, 18, 18) : new Thickness(22, 20, 22, 22);
-        r["HeaderPad"] = shortScreen ? new Thickness(20, 18, 20, 48) : new Thickness(20, 28, 20, 56);
+        r["BannerImg"] = Sc(64, 44);
+        r["HeaderPad"] = shortScreen ? new Thickness(16, 18, 16, 20) : new Thickness(16, 28, 16, 22);
 
-        // Tablets / foldables / landscape: keep the content column readable instead of stretching edge to edge.
-        bool wide = width > 620;
-        MainContent.WidthRequest = wide ? 600 : -1;
-        MainContent.HorizontalOptions = wide ? LayoutOptions.Center : LayoutOptions.Fill;
+        // Big phones / foldables / tablets / landscape: cap and centre the column instead of stretching edge to edge.
+        bool capped = width > MaxContentWidthDp;
+        MainContent.WidthRequest = capped ? MaxContentWidthDp : -1;
+        MainContent.HorizontalOptions = capped ? LayoutOptions.Center : LayoutOptions.Fill;
     }
 
     async Task LoadingRecentTransactions()
