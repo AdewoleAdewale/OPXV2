@@ -89,7 +89,7 @@ public partial class Home : ContentPage
             PendingLabel.Text = string.IsNullOrEmpty(LoginPage.pendingTransactions) ? "0" : LoginPage.pendingTransactions;
             createContract = new CreateContract();
             cardaccountNumber.Text = LoginPage.accountNumber;
-            cardAccountname.Text = LoginPage.myfullname;
+            cardAccountname.Text = CardAccountName();
             cardExiprydate.Text = LoginPage.bankName;
             UpdateHeaderExtras();
             if (!_transactionsLoaded)
@@ -745,6 +745,10 @@ public partial class Home : ContentPage
         label.TextColor = Color.FromArgb(ok ? "#1A8F5F" : "#B26A00");
     }
 
+    /// <summary>Name shown on the virtual card: the account name from the BVN / wallet response, else the user's own name.</summary>
+    private static string? CardAccountName() =>
+        string.IsNullOrWhiteSpace(LoginPage.accountName) ? LoginPage.myfullname : LoginPage.accountName;
+
     private void ApplyCardState()
     {
         BalanceLabel.Text = "₦" + LoginPage.availableBalance;
@@ -752,7 +756,7 @@ public partial class Home : ContentPage
         QuickFundsButton.Text = $"{LoginPage.completedTransactions}";
         TransferButton.Text = $"{LoginPage.totalTransactions}";
         cardaccountNumber.Text = LoginPage.accountNumber;
-        cardAccountname.Text = LoginPage.myfullname;
+        cardAccountname.Text = CardAccountName();
         cardExiprydate.Text = LoginPage.bankName;
         PendingLabel.Text = string.IsNullOrEmpty(LoginPage.pendingTransactions) ? "0" : LoginPage.pendingTransactions;
         UpdateHeaderExtras();

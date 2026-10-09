@@ -23,7 +23,7 @@ namespace Opx.Services
         }
 
         /// <summary>Remember a linked virtual account (also stops any further automatic prompting).</summary>
-        public static void ApplyVirtualAccount(string? bankName, string? accountNumber)
+        public static void ApplyVirtualAccount(string? bankName, string? accountNumber, string? accountName = null)
         {
             try
             {
@@ -31,7 +31,8 @@ namespace Opx.Services
 
                 LoginPage.accountNumber = accountNumber;
                 if (!string.IsNullOrWhiteSpace(bankName)) LoginPage.bankName = bankName;
-                if (string.IsNullOrWhiteSpace(LoginPage.accountName)) LoginPage.accountName = LoginPage.myfullname;
+                if (!string.IsNullOrWhiteSpace(accountName)) LoginPage.accountName = accountName;
+                else if (string.IsNullOrWhiteSpace(LoginPage.accountName)) LoginPage.accountName = LoginPage.myfullname;
 
                 _promptedThisSession = true;
                 _ = SessionStore.SaveAsync();

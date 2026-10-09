@@ -26,6 +26,7 @@ public partial class Kycform : ContentPage, INotifyPropertyChanged
     // and the API will keep answering "The VAPlatform field is required."
     private const string? VaPlatform = null;
     private const int REQUEST_TIMEOUT_SECONDS = 30;
+    private const int SUCCESS_SHEET_SECONDS = 5;   // how long the success page stays before going to the dashboard
     private const string BVN_PATTERN = @"^\d{11}$";
     #endregion
 
@@ -389,100 +390,25 @@ public partial class Kycform : ContentPage, INotifyPropertyChanged
         await HandleApiFailureAsync(lastException);
     }
 
+    /// <summary>
+    /// /agencies/create has already created the wallet and linked the virtual account, so there is nothing left to
+    /// do but keep what it returned, show it on the success sheet and go back to the dashboard (rebuilt from it).
+    /// </summary>
     private async Task HandleSuccessfulVerificationAsync(BvnApiResponse response)
     {
         await Dispatcher.DispatchAsync(async () =>
         {
-            var username = response.AccountReference ?? response.Agency ?? "User";
+            System.Diagnostics.Debug.WriteLine($"SUCCESS: BVN verified, account {response.AccountNumber} ({response.BankName})");
 
-            System.Diagnostics.Debug.WriteLine($"SUCCESS: BVN verified successfully for {username}");
+            // Store the account name / number / bank where the dashboard (and the saved session) read them.
+            AccountOnboarding.ApplyVirtualAccount(response.BankName, response.AccountNumber, response.AccountName);
 
-            // If /agencies/create did not auto-link the virtual account, link it now with the
-            // token + accountReference it returned. This runs silently in the background while the
-            // success sheet is showing, so the user never sees (or types) the token.
-            var autoLinked = response.NextStep == "set-recipient-account";
-            var needsLink = !autoLinked
-                            && !string.IsNullOrWhiteSpace(response.Token)
-                            && !string.IsNullOrWhiteSpace(response.AccountReference);
-
-            Task<LinkVirtualAccountResponse?>? linkTask = needsLink
-                ? Task.Run(() => LinkVirtualAccountSilentlyAsync(response.Token!, response.AccountReference!))
-                : null;
-
-            // Show sophisticated success display sheet
+            // Success page with the account details; it closes by itself, or sooner if the user taps Continue.
             await ShowSuccessDisplaySheet(response);
 
-            await Task.Delay(2000);
-
-            if (linkTask != null)
-            {
-                var link = await linkTask;
-                autoLinked = link != null && (link.Success || link.AlreadyLinked);
-            }
-
-            if (autoLinked)
-            {
-                // Virtual account is linked: go straight to payout account setup.
-                await Application.Current.MainPage.ShowPopupAsync(new AddAccount());
-            }
-            else if (needsLink)
-            {
-                // Silent link failed after all retries: only now fall back to the manual token form.
-                await Application.Current.MainPage.ShowPopupAsync(
-                    new BvnToken(response.Token!, response.AccountReference!));
-            }
-            else
-            {
-                // Fallback – refresh dashboard.
-                await NavigateToLoginPage();
-            }
+            // Back to the dashboard, which reloads with the new account details.
+            await NavigateToLoginPage();
         });
-    }
-
-    /// <summary>
-    /// POST /api/agencies/link-virtual-account with the token + accountRef returned by /agencies/create.
-    /// Fully silent: retries network/5xx failures (3 attempts), never throws, returns null if it could not link.
-    /// 200 with success=true OR alreadyLinked=true both count as linked.
-    /// </summary>
-    private async Task<LinkVirtualAccountResponse?> LinkVirtualAccountSilentlyAsync(string token, string accountRef)
-    {
-        const int maxAttempts = 3;
-
-        for (var attempt = 1; attempt <= maxAttempts; attempt++)
-        {
-            try
-            {
-                var result = await OpxApi.PostAsync<LinkVirtualAccountResponse>(
-                    "/agencies/link-virtual-account",
-                    new LinkVirtualAccountRequest
-                    {
-                        Email = LoginPage.myemail ?? "",
-                        Token = token.Trim(),
-                        AccountRef = accountRef.Trim()
-                    });
-
-                if (result.IsHttpSuccess && result.Data is { } data && (data.Success || data.AlreadyLinked))
-                    return data;
-
-                // 400 / 401 will not fix themselves on retry.
-                if (!result.IsNetworkError && (int)result.StatusCode is >= 400 and < 500)
-                {
-                    System.Diagnostics.Debug.WriteLine($"[LINK] rejected {(int)result.StatusCode}: {result.ErrorMessage}");
-                    return null;
-                }
-
-                System.Diagnostics.Debug.WriteLine($"[LINK] attempt {attempt}/{maxAttempts} failed: {result.ErrorMessage}");
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"[LINK] attempt {attempt}/{maxAttempts} error: {ex.Message}");
-            }
-
-            if (attempt < maxAttempts)
-                await Task.Delay(TimeSpan.FromSeconds(attempt * 2));
-        }
-
-        return null;
     }
 
     private async Task HandleFailedVerificationAsync(BvnApiResponse response)
@@ -551,7 +477,8 @@ public partial class Kycform : ContentPage, INotifyPropertyChanged
             {
                 System.Diagnostics.Debug.WriteLine("Navigating to DashBoard...");
 
-                // Clear navigation stack and set DashBoard as main page
+                // Clear navigation stack and set a fresh Home as main page: it is built from the saved
+                // account details, so it comes up already showing the new account.
                 Application.Current.MainPage = new NavigationPage(new Home())
                 {
                     BarBackgroundColor = Color.FromArgb("#A25AC4"),
@@ -572,7 +499,15 @@ public partial class Kycform : ContentPage, INotifyPropertyChanged
         try
         {
             var displaySheet = new SuccessDisplaySheet(response);
-            await Application.Current.MainPage.ShowPopupAsync(displaySheet);
+            var shown = Application.Current.MainPage.ShowPopupAsync(displaySheet);
+
+            // Leave it up long enough to read the account details, then close it ourselves.
+            // If the user taps Continue (or outside the sheet) first, `shown` completes and we move on at once.
+            await Task.WhenAny(shown, Task.Delay(TimeSpan.FromSeconds(SUCCESS_SHEET_SECONDS)));
+            if (!shown.IsCompleted)
+                await displaySheet.DismissAsync();
+
+            await shown;
         }
         catch (Exception ex)
         {
@@ -858,6 +793,9 @@ public partial class Kycform : ContentPage, INotifyPropertyChanged
 
         [JsonProperty("accountNumber")]
         public string? AccountNumber { get; set; }
+
+        [JsonProperty("accountName")]
+        public string? AccountName { get; set; }
 
         [JsonProperty("nextStep")]
         public string? NextStep { get; set; }
