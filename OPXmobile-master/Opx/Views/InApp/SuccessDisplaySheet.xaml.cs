@@ -16,30 +16,22 @@ public partial class SuccessDisplaySheet : Popup
 
     private void LoadData()
     {
-        var username = _response.AccountReference ?? _response.Agency ?? "User";
+        // Greet by the account name returned by /agencies/create (falls back to the signed-in user's name).
+        var name = !string.IsNullOrWhiteSpace(_response.AccountName) ? _response.AccountName
+                 : !string.IsNullOrWhiteSpace(LoginPage.myfullname) ? LoginPage.myfullname
+                 : "User";
 
-        UsernameLabel.Text = username;
+        UsernameLabel.Text = name;
         MessageLabel.Text = _response.Message ?? "Your BVN has been verified successfully!";
+        ReferenceLabel.Text = string.IsNullOrWhiteSpace(_response.AccountReference) ? "-" : _response.AccountReference;
 
-        if (!string.IsNullOrEmpty(_response.BankName))
+        var hasAccount = !string.IsNullOrWhiteSpace(_response.AccountNumber) || !string.IsNullOrWhiteSpace(_response.BankName);
+        BankInfoFrame.IsVisible = hasAccount;
+        if (hasAccount)
         {
-            BankInfoFrame.IsVisible = true;
-            BankNameLabel.Text = _response.BankName;
-            AccountNumberLabel.Text = _response.AccountNumber ?? "N/A";
-        }
-        else
-        {
-            BankInfoFrame.IsVisible = false;
-        }
-
-        if (!string.IsNullOrEmpty(_response.Token))
-        {
-            TokenFrame.IsVisible = true;
-            TokenLabel.Text = $"Token: {_response.Token.Substring(0, Math.Min(20, _response.Token.Length))}...";
-        }
-        else
-        {
-            TokenFrame.IsVisible = false;
+            AccountNameLabel.Text = name;
+            BankNameLabel.Text = string.IsNullOrWhiteSpace(_response.BankName) ? "N/A" : _response.BankName;
+            AccountNumberLabel.Text = string.IsNullOrWhiteSpace(_response.AccountNumber) ? "N/A" : _response.AccountNumber;
         }
 
         TimestampLabel.Text = $"Verified on {DateTime.Now:MMM dd, yyyy • hh:mm tt}";
@@ -68,7 +60,6 @@ public partial class SuccessDisplaySheet : Popup
             MessageLabel,
             DetailsFrame,
             BankInfoFrame,
-            TokenFrame,
             FooterStack
         };
 
@@ -98,6 +89,9 @@ public partial class SuccessDisplaySheet : Popup
     {
         await AnimateClose();
     }
+
+    /// <summary>Closes the sheet with its fade-out; used by the caller to move on to the dashboard automatically.</summary>
+    public Task DismissAsync() => MainThread.InvokeOnMainThreadAsync(AnimateClose);
 
     private async Task AnimateClose()
     {

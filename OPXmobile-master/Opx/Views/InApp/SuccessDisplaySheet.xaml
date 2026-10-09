@@ -140,13 +140,15 @@
 
                             <Grid ColumnDefinitions="*,*" Margin="0,4">
                                 <VerticalStackLayout Grid.Column="0" Spacing="4">
-                                    <Label Text="Verification ID"
+                                    <Label Text="Account Reference"
                                            FontSize="12"
                                            TextColor="#6C757D"/>
-                                    <Label Text="#VER2024xxxxx"
+                                    <Label x:Name="ReferenceLabel"
+                                           Text="-"
                                            FontSize="14"
                                            FontAttributes="Bold"
-                                           TextColor="#212529"/>
+                                           TextColor="#212529"
+                                           LineBreakMode="TailTruncation"/>
                                 </VerticalStackLayout>
                                 <VerticalStackLayout Grid.Column="1" Spacing="4">
                                     <Label Text="Method"
@@ -186,6 +188,17 @@
                                      Margin="0,4"/>
 
                             <VerticalStackLayout Spacing="8" Margin="0,4">
+                                <Label Text="Account Name"
+                                       FontSize="12"
+                                       TextColor="#6C757D"/>
+                                <Label x:Name="AccountNameLabel"
+                                       Text="John Doe"
+                                       FontSize="15"
+                                       FontAttributes="Bold"
+                                       TextColor="#212529"/>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Spacing="8">
                                 <Label Text="Bank Name"
                                        FontSize="12"
                                        TextColor="#6C757D"/>
@@ -209,33 +222,6 @@
                         </VerticalStackLayout>
                     </Frame>
 
-                    <!-- Token Frame (Conditional) -->
-                    <Frame x:Name="TokenFrame"
-                           CornerRadius="16"
-                           Padding="20"
-                           HasShadow="False"
-                           BackgroundColor="#FFF3CD"
-                           BorderColor="#FFC107"
-                           IsVisible="False">
-                        <VerticalStackLayout Spacing="8">
-                            <HorizontalStackLayout Spacing="8">
-                                <Label Text="🔑"
-                                       FontSize="18"
-                                       VerticalOptions="Center"/>
-                                <Label Text="Access Token Generated"
-                                       FontSize="14"
-                                       FontAttributes="Bold"
-                                       TextColor="#856404"
-                                       VerticalOptions="Center"/>
-                            </HorizontalStackLayout>
-                            <Label x:Name="TokenLabel"
-                                   Text="Token: abc123..."
-                                   FontSize="12"
-                                   TextColor="#856404"
-                                   LineBreakMode="TailTruncation"/>
-                        </VerticalStackLayout>
-                    </Frame>
-
                 </VerticalStackLayout>
             </ScrollView>
 
@@ -249,6 +235,11 @@
                 <Label x:Name="TimestampLabel"
                        Text="Verified on Dec 20, 2024 • 10:30 AM"
                        FontSize="11"
+                       TextColor="#6C757D"
+                       HorizontalOptions="Center"/>
+
+                <Label Text="Taking you to your dashboard..."
+                       FontSize="12"
                        TextColor="#6C757D"
                        HorizontalOptions="Center"/>
 
@@ -274,4 +265,4 @@
         </Grid>
     </Frame>
 
-    </toolkit:Popup>
+</toolkit:Popup>
